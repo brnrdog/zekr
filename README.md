@@ -1,0 +1,84 @@
+# zekr
+
+A simple test framework for ReScript.
+
+## Installation
+
+```bash
+npm install zekr
+```
+
+Add to your `rescript.json`:
+
+```json
+{
+  "bs-dev-dependencies": ["zekr"]
+}
+```
+
+## Usage
+
+```rescript
+open Zekr
+
+let myTests = suite("My Tests", [
+  test("addition works", () => {
+    assertEqual(1 + 1, 2)
+  }),
+  test("strings match", () => {
+    assertEqual("hello", "hello")
+  }),
+  test("condition is true", () => {
+    assertTrue(10 > 5)
+  }),
+])
+
+runSuites([myTests])
+```
+
+## API
+
+### Creating Tests
+
+```rescript
+// Create a single test
+let myTest = test("test name", () => {
+  // return Pass or Fail(message)
+  Pass
+})
+
+// Create a test suite
+let mySuite = suite("Suite Name", [test1, test2, test3])
+```
+
+### Assertions
+
+```rescript
+// Check equality
+assertEqual(actual, expected)
+assertEqual(actual, expected, ~message="custom message")
+
+// Check inequality
+assertNotEqual(actual, expected)
+
+// Check boolean conditions
+assertTrue(condition)
+assertFalse(condition)
+
+// Combine multiple results
+combineResults([result1, result2, result3])
+```
+
+### Running Tests
+
+```rescript
+// Run a single suite
+runSuite(mySuite)
+
+// Run multiple suites
+runSuites([suite1, suite2, suite3])
+```
+
+## License
+
+MIT
