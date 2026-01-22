@@ -1,0 +1,17 @@
+{
+  "name": "zekr",
+  "sources": [
+    {
+      "dir": "src",
+      "subdirs": true
+    }
+  ],
+  "package-specs": [
+    {
+      "module": "esmodule",
+      "in-source": true
+    }
+  ],
+  "dependencies": ["@rescript/core"],
+  "compiler-flags": ["-open RescriptCore"]
+}

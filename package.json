@@ -1,0 +1,29 @@
+{
+  "name": "zekr",
+  "version": "0.1.0",
+  "description": "A simple test framework for ReScript",
+  "main": "./src/Zekr.res.mjs",
+  "module": "./src/Zekr.res.mjs",
+  "files": [
+    "src/**/*.res",
+    "src/**/*.res.mjs",
+    "rescript.json"
+  ],
+  "scripts": {
+    "build": "rescript",
+    "clean": "rescript clean",
+    "watch": "rescript -w"
+  },
+  "keywords": [
+    "rescript",
+    "test",
+    "testing",
+    "framework"
+  ],
+  "author": "Bernardo Gurgel <brnrdog@hey.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@rescript/core": "^1.6.1",
+    "rescript": "^12.0.0"
+  }
+}
