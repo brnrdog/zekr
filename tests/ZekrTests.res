@@ -282,6 +282,33 @@ let assertThrowsTests = suite("assertThrows", [
   }),
 ])
 
+let testModeTests = suite("testSkip and testOnly", [
+  test("test creates Normal mode", () => {
+    let tc = test("example", () => Pass)
+    assertEqual(tc.mode, Normal)
+  }),
+  test("testSkip creates Skip mode", () => {
+    let tc = testSkip("example", () => Pass)
+    assertEqual(tc.mode, Skip)
+  }),
+  test("testOnly creates Only mode", () => {
+    let tc = testOnly("example", () => Pass)
+    assertEqual(tc.mode, Only)
+  }),
+  test("asyncTest creates Normal mode", () => {
+    let tc = asyncTest("example", async () => Pass)
+    assertEqual(tc.mode, Normal)
+  }),
+  test("asyncTestSkip creates Skip mode", () => {
+    let tc = asyncTestSkip("example", async () => Pass)
+    assertEqual(tc.mode, Skip)
+  }),
+  test("asyncTestOnly creates Only mode", () => {
+    let tc = asyncTestOnly("example", async () => Pass)
+    assertEqual(tc.mode, Only)
+  }),
+])
+
 runSuites([
   assertEqualTests,
   assertNotEqualTests,
@@ -298,4 +325,5 @@ runSuites([
   assertOkTests,
   assertErrorTests,
   assertThrowsTests,
+  testModeTests,
 ])

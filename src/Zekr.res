@@ -12,20 +12,25 @@ module Colors = {
 
   let pass = text => `${green}${text}${reset}`
   let fail = text => `${red}${text}${reset}`
+  let skip = text => `${yellow}${text}${reset}`
   let suite = text => `${cyan}${bold}${text}${reset}`
   let dimmed = text => `${dim}${text}${reset}`
 }
 
 type testResult = Pass | Fail(string)
 
+type testMode = Normal | Skip | Only
+
 type testCase = {
   name: string,
   run: unit => testResult,
+  mode: testMode,
 }
 
 type asyncTestCase = {
   name: string,
   run: unit => promise<testResult>,
+  mode: testMode,
 }
 
 type testSuite = {
@@ -39,11 +44,27 @@ type asyncTestSuite = {
 }
 
 let test = (name: string, run: unit => testResult): testCase => {
-  {name, run}
+  {name, run, mode: Normal}
+}
+
+let testSkip = (name: string, run: unit => testResult): testCase => {
+  {name, run, mode: Skip}
+}
+
+let testOnly = (name: string, run: unit => testResult): testCase => {
+  {name, run, mode: Only}
 }
 
 let asyncTest = (name: string, run: unit => promise<testResult>): asyncTestCase => {
-  {name, run}
+  {name, run, mode: Normal}
+}
+
+let asyncTestSkip = (name: string, run: unit => promise<testResult>): asyncTestCase => {
+  {name, run, mode: Skip}
+}
+
+let asyncTestOnly = (name: string, run: unit => promise<testResult>): asyncTestCase => {
+  {name, run, mode: Only}
 }
 
 let suite = (name: string, tests: array<testCase>): testSuite => {
@@ -288,24 +309,45 @@ let runSuite = (testSuite: testSuite): unit => {
 
   let passed = ref(0)
   let failed = ref(0)
+  let skipped = ref(0)
+
+  // Check if there are any "Only" tests
+  let hasOnly = testSuite.tests->Array.some(tc => tc.mode == Only)
 
   testSuite.tests->Array.forEach(testCase => {
-    switch testCase.run() {
-    | Pass => {
-        Console.log(`  ${Colors.pass("✓")} ${testCase.name}`)
-        passed := passed.contents + 1
+    // Determine if this test should run
+    let shouldRun = switch testCase.mode {
+    | Skip => false
+    | Only => true
+    | Normal => !hasOnly
+    }
+
+    if shouldRun {
+      switch testCase.run() {
+      | Pass => {
+          Console.log(`  ${Colors.pass("✓")} ${testCase.name}`)
+          passed := passed.contents + 1
+        }
+      | Fail(message) => {
+          Console.log(`  ${Colors.fail("✗")} ${testCase.name}`)
+          Console.log(`    ${Colors.fail(message)}`)
+          failed := failed.contents + 1
+        }
       }
-    | Fail(message) => {
-        Console.log(`  ${Colors.fail("✗")} ${testCase.name}`)
-        Console.log(`    ${Colors.fail(message)}`)
-        failed := failed.contents + 1
-      }
+    } else {
+      Console.log(`  ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed("(skipped)")}`)
+      skipped := skipped.contents + 1
     }
   })
 
   Console.log("")
+  let skipMsg = if skipped.contents > 0 {
+    `, ${Colors.skip(Int.toString(skipped.contents) ++ " skipped")}`
+  } else {
+    ""
+  }
   Console.log(
-    `Results: ${Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Colors.fail(Int.toString(failed.contents) ++ " failed")}`,
+    `Results: ${Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Colors.fail(Int.toString(failed.contents) ++ " failed")}${skipMsg}`,
   )
 
   if failed.contents > 0 {
@@ -321,6 +363,10 @@ let runSuites = (suites: array<testSuite>): unit => {
 
   let totalPassed = ref(0)
   let totalFailed = ref(0)
+  let totalSkipped = ref(0)
+
+  // Check if there are any "Only" tests across all suites
+  let hasOnly = suites->Array.some(s => s.tests->Array.some(tc => tc.mode == Only))
 
   suites->Array.forEach(testSuite => {
     Console.log(`\n ${Colors.suite(testSuite.name)}`)
@@ -328,31 +374,55 @@ let runSuites = (suites: array<testSuite>): unit => {
 
     let suitePassed = ref(0)
     let suiteFailed = ref(0)
+    let suiteSkipped = ref(0)
 
     testSuite.tests->Array.forEach(testCase => {
-      switch testCase.run() {
-      | Pass => {
-          Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
-          suitePassed := suitePassed.contents + 1
-          totalPassed := totalPassed.contents + 1
+      // Determine if this test should run
+      let shouldRun = switch testCase.mode {
+      | Skip => false
+      | Only => true
+      | Normal => !hasOnly
+      }
+
+      if shouldRun {
+        switch testCase.run() {
+        | Pass => {
+            Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
+            suitePassed := suitePassed.contents + 1
+            totalPassed := totalPassed.contents + 1
+          }
+        | Fail(message) => {
+            Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
+            Console.log(`     ${Colors.fail(message)}`)
+            suiteFailed := suiteFailed.contents + 1
+            totalFailed := totalFailed.contents + 1
+          }
         }
-      | Fail(message) => {
-          Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
-          Console.log(`     ${Colors.fail(message)}`)
-          suiteFailed := suiteFailed.contents + 1
-          totalFailed := totalFailed.contents + 1
-        }
+      } else {
+        Console.log(`   ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed("(skipped)")}`)
+        suiteSkipped := suiteSkipped.contents + 1
+        totalSkipped := totalSkipped.contents + 1
       }
     })
 
+    let skipMsg = if suiteSkipped.contents > 0 {
+      `, ${Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
+    } else {
+      ""
+    }
     Console.log(
-      `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(suiteFailed.contents) ++ " failed")}`,
+      `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(suiteFailed.contents) ++ " failed")}${skipMsg}`,
     )
   })
 
   Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
+  let totalSkipMsg = if totalSkipped.contents > 0 {
+    `, ${Colors.skip(Int.toString(totalSkipped.contents) ++ " skipped")}`
+  } else {
+    ""
+  }
   Console.log(
-    `Total: ${Colors.pass(Int.toString(totalPassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(totalFailed.contents) ++ " failed")}`,
+    `Total: ${Colors.pass(Int.toString(totalPassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(totalFailed.contents) ++ " failed")}${totalSkipMsg}`,
   )
 
   if totalFailed.contents > 0 {
@@ -370,26 +440,48 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
 
   let passed = ref(0)
   let failed = ref(0)
+  let skipped = ref(0)
+
+  // Check if there are any "Only" tests
+  let hasOnly = asyncSuite.tests->Array.some(tc => tc.mode == Only)
 
   for i in 0 to Array.length(asyncSuite.tests) - 1 {
     let testCase = asyncSuite.tests->Array.getUnsafe(i)
-    let result = await testCase.run()
-    switch result {
-    | Pass => {
-        Console.log(`  ${Colors.pass("✓")} ${testCase.name}`)
-        passed := passed.contents + 1
+
+    // Determine if this test should run
+    let shouldRun = switch testCase.mode {
+    | Skip => false
+    | Only => true
+    | Normal => !hasOnly
+    }
+
+    if shouldRun {
+      let result = await testCase.run()
+      switch result {
+      | Pass => {
+          Console.log(`  ${Colors.pass("✓")} ${testCase.name}`)
+          passed := passed.contents + 1
+        }
+      | Fail(message) => {
+          Console.log(`  ${Colors.fail("✗")} ${testCase.name}`)
+          Console.log(`    ${Colors.fail(message)}`)
+          failed := failed.contents + 1
+        }
       }
-    | Fail(message) => {
-        Console.log(`  ${Colors.fail("✗")} ${testCase.name}`)
-        Console.log(`    ${Colors.fail(message)}`)
-        failed := failed.contents + 1
-      }
+    } else {
+      Console.log(`  ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed("(skipped)")}`)
+      skipped := skipped.contents + 1
     }
   }
 
   Console.log("")
+  let skipMsg = if skipped.contents > 0 {
+    `, ${Colors.skip(Int.toString(skipped.contents) ++ " skipped")}`
+  } else {
+    ""
+  }
   Console.log(
-    `Results: ${Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Colors.fail(Int.toString(failed.contents) ++ " failed")}`,
+    `Results: ${Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Colors.fail(Int.toString(failed.contents) ++ " failed")}${skipMsg}`,
   )
 
   if failed.contents > 0 {
@@ -405,6 +497,10 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
 
   let totalPassed = ref(0)
   let totalFailed = ref(0)
+  let totalSkipped = ref(0)
+
+  // Check if there are any "Only" tests across all suites
+  let hasOnly = suites->Array.some(s => s.tests->Array.some(tc => tc.mode == Only))
 
   for i in 0 to Array.length(suites) - 1 {
     let asyncSuite = suites->Array.getUnsafe(i)
@@ -413,33 +509,58 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
 
     let suitePassed = ref(0)
     let suiteFailed = ref(0)
+    let suiteSkipped = ref(0)
 
     for j in 0 to Array.length(asyncSuite.tests) - 1 {
       let testCase = asyncSuite.tests->Array.getUnsafe(j)
-      let result = await testCase.run()
-      switch result {
-      | Pass => {
-          Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
-          suitePassed := suitePassed.contents + 1
-          totalPassed := totalPassed.contents + 1
+
+      // Determine if this test should run
+      let shouldRun = switch testCase.mode {
+      | Skip => false
+      | Only => true
+      | Normal => !hasOnly
+      }
+
+      if shouldRun {
+        let result = await testCase.run()
+        switch result {
+        | Pass => {
+            Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
+            suitePassed := suitePassed.contents + 1
+            totalPassed := totalPassed.contents + 1
+          }
+        | Fail(message) => {
+            Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
+            Console.log(`     ${Colors.fail(message)}`)
+            suiteFailed := suiteFailed.contents + 1
+            totalFailed := totalFailed.contents + 1
+          }
         }
-      | Fail(message) => {
-          Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
-          Console.log(`     ${Colors.fail(message)}`)
-          suiteFailed := suiteFailed.contents + 1
-          totalFailed := totalFailed.contents + 1
-        }
+      } else {
+        Console.log(`   ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed("(skipped)")}`)
+        suiteSkipped := suiteSkipped.contents + 1
+        totalSkipped := totalSkipped.contents + 1
       }
     }
 
+    let skipMsg = if suiteSkipped.contents > 0 {
+      `, ${Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
+    } else {
+      ""
+    }
     Console.log(
-      `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(suiteFailed.contents) ++ " failed")}`,
+      `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(suiteFailed.contents) ++ " failed")}${skipMsg}`,
     )
   }
 
   Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
+  let totalSkipMsg = if totalSkipped.contents > 0 {
+    `, ${Colors.skip(Int.toString(totalSkipped.contents) ++ " skipped")}`
+  } else {
+    ""
+  }
   Console.log(
-    `Total: ${Colors.pass(Int.toString(totalPassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(totalFailed.contents) ++ " failed")}`,
+    `Total: ${Colors.pass(Int.toString(totalPassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(totalFailed.contents) ++ " failed")}${totalSkipMsg}`,
   )
 
   if totalFailed.contents > 0 {
