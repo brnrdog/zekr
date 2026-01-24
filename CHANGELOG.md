@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0](https://github.com/brnrdog/zekr/compare/v1.0.0...v1.1.0) (2026-01-24)
+
+### Features
+
+* bump release version ([a99540f](https://github.com/brnrdog/zekr/commit/a99540fa7a448cc2b0b0910b87b1bae1bd9e80ff))
+
 ## 1.0.0 (2026-01-24)
 
 ### Features
