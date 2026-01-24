@@ -13,7 +13,7 @@
     "build": "rescript",
     "clean": "rescript clean",
     "watch": "rescript -w",
-    "test": "rescript && node tests/ZekrTests.js",
+    "test": "rescript && node tests/ZekrTests.js && node tests/ZekrAsyncTests.js",
     "semantic-release": "semantic-release"
   },
   "repository": {
