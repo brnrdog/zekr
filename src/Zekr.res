@@ -1,5 +1,21 @@
 // Zekr - A simple test framework for ReScript
 
+// ANSI color codes
+module Colors = {
+  let reset = "\x1b[0m"
+  let green = "\x1b[32m"
+  let red = "\x1b[31m"
+  let yellow = "\x1b[33m"
+  let cyan = "\x1b[36m"
+  let dim = "\x1b[2m"
+  let bold = "\x1b[1m"
+
+  let pass = text => `${green}${text}${reset}`
+  let fail = text => `${red}${text}${reset}`
+  let suite = text => `${cyan}${bold}${text}${reset}`
+  let dimmed = text => `${dim}${text}${reset}`
+}
+
 type testResult = Pass | Fail(string)
 
 type testCase = {
@@ -266,22 +282,22 @@ let combineAsyncResults = async (results: array<promise<testResult>>): testResul
   }
 }
 
-let runSuite = (suite: testSuite): unit => {
-  Console.log(`\n Running test suite: ${suite.name}`)
-  Console.log("=" ++ String.repeat("-", String.length(suite.name) + 23))
+let runSuite = (testSuite: testSuite): unit => {
+  Console.log(`\n ${Colors.suite(`Running test suite: ${testSuite.name}`)}`)
+  Console.log(Colors.dimmed("=" ++ String.repeat("-", String.length(testSuite.name) + 23)))
 
   let passed = ref(0)
   let failed = ref(0)
 
-  suite.tests->Array.forEach(testCase => {
+  testSuite.tests->Array.forEach(testCase => {
     switch testCase.run() {
     | Pass => {
-        Console.log(`  ${testCase.name}`)
+        Console.log(`  ${Colors.pass("✓")} ${testCase.name}`)
         passed := passed.contents + 1
       }
     | Fail(message) => {
-        Console.log(`  ${testCase.name}`)
-        Console.log(`    ${message}`)
+        Console.log(`  ${Colors.fail("✗")} ${testCase.name}`)
+        Console.log(`    ${Colors.fail(message)}`)
         failed := failed.contents + 1
       }
     }
@@ -289,40 +305,40 @@ let runSuite = (suite: testSuite): unit => {
 
   Console.log("")
   Console.log(
-    `Results: ${Int.toString(passed.contents)} passed, ${Int.toString(failed.contents)} failed`,
+    `Results: ${Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Colors.fail(Int.toString(failed.contents) ++ " failed")}`,
   )
 
   if failed.contents > 0 {
-    Console.log(" Some tests failed")
+    Console.log(Colors.fail(" Some tests failed"))
   } else {
-    Console.log(" All tests passed!")
+    Console.log(Colors.pass(" All tests passed!"))
   }
 }
 
 let runSuites = (suites: array<testSuite>): unit => {
-  Console.log("\n Running all test suites")
-  Console.log("========================\n")
+  Console.log(`\n ${Colors.suite("Running all test suites")}`)
+  Console.log(Colors.dimmed("========================\n"))
 
   let totalPassed = ref(0)
   let totalFailed = ref(0)
 
-  suites->Array.forEach(suite => {
-    Console.log(`\n ${suite.name}`)
-    Console.log("-" ++ String.repeat("-", String.length(suite.name) + 3))
+  suites->Array.forEach(testSuite => {
+    Console.log(`\n ${Colors.suite(testSuite.name)}`)
+    Console.log(Colors.dimmed("-" ++ String.repeat("-", String.length(testSuite.name) + 3)))
 
     let suitePassed = ref(0)
     let suiteFailed = ref(0)
 
-    suite.tests->Array.forEach(testCase => {
+    testSuite.tests->Array.forEach(testCase => {
       switch testCase.run() {
       | Pass => {
-          Console.log(`   ${testCase.name}`)
+          Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
           suitePassed := suitePassed.contents + 1
           totalPassed := totalPassed.contents + 1
         }
       | Fail(message) => {
-          Console.log(`   ${testCase.name}`)
-          Console.log(`    ${message}`)
+          Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
+          Console.log(`     ${Colors.fail(message)}`)
           suiteFailed := suiteFailed.contents + 1
           totalFailed := totalFailed.contents + 1
         }
@@ -330,46 +346,42 @@ let runSuites = (suites: array<testSuite>): unit => {
     })
 
     Console.log(
-      `  ${Int.toString(suitePassed.contents)} passed, ${Int.toString(
-          suiteFailed.contents,
-        )} failed`,
+      `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(suiteFailed.contents) ++ " failed")}`,
     )
   })
 
-  Console.log("\n" ++ String.repeat("=", 50))
+  Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
   Console.log(
-    `Total: ${Int.toString(totalPassed.contents)} passed, ${Int.toString(
-        totalFailed.contents,
-      )} failed`,
+    `Total: ${Colors.pass(Int.toString(totalPassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(totalFailed.contents) ++ " failed")}`,
   )
 
   if totalFailed.contents > 0 {
-    Console.log(" Some tests failed\n")
+    Console.log(Colors.fail(" Some tests failed\n"))
     %raw(`process.exit(1)`)
   } else {
-    Console.log(" All tests passed!\n")
+    Console.log(Colors.pass(" All tests passed!\n"))
     %raw(`process.exit(0)`)
   }
 }
 
-let runAsyncSuite = async (suite: asyncTestSuite): unit => {
-  Console.log(`\n Running async test suite: ${suite.name}`)
-  Console.log("=" ++ String.repeat("-", String.length(suite.name) + 29))
+let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
+  Console.log(`\n ${Colors.suite(`Running async test suite: ${asyncSuite.name}`)}`)
+  Console.log(Colors.dimmed("=" ++ String.repeat("-", String.length(asyncSuite.name) + 29)))
 
   let passed = ref(0)
   let failed = ref(0)
 
-  for i in 0 to Array.length(suite.tests) - 1 {
-    let testCase = suite.tests->Array.getUnsafe(i)
+  for i in 0 to Array.length(asyncSuite.tests) - 1 {
+    let testCase = asyncSuite.tests->Array.getUnsafe(i)
     let result = await testCase.run()
     switch result {
     | Pass => {
-        Console.log(`  ${testCase.name}`)
+        Console.log(`  ${Colors.pass("✓")} ${testCase.name}`)
         passed := passed.contents + 1
       }
     | Fail(message) => {
-        Console.log(`  ${testCase.name}`)
-        Console.log(`    ${message}`)
+        Console.log(`  ${Colors.fail("✗")} ${testCase.name}`)
+        Console.log(`    ${Colors.fail(message)}`)
         failed := failed.contents + 1
       }
     }
@@ -377,43 +389,43 @@ let runAsyncSuite = async (suite: asyncTestSuite): unit => {
 
   Console.log("")
   Console.log(
-    `Results: ${Int.toString(passed.contents)} passed, ${Int.toString(failed.contents)} failed`,
+    `Results: ${Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Colors.fail(Int.toString(failed.contents) ++ " failed")}`,
   )
 
   if failed.contents > 0 {
-    Console.log(" Some tests failed")
+    Console.log(Colors.fail(" Some tests failed"))
   } else {
-    Console.log(" All tests passed!")
+    Console.log(Colors.pass(" All tests passed!"))
   }
 }
 
 let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
-  Console.log("\n Running all async test suites")
-  Console.log("==============================\n")
+  Console.log(`\n ${Colors.suite("Running all async test suites")}`)
+  Console.log(Colors.dimmed("==============================\n"))
 
   let totalPassed = ref(0)
   let totalFailed = ref(0)
 
   for i in 0 to Array.length(suites) - 1 {
-    let suite = suites->Array.getUnsafe(i)
-    Console.log(`\n ${suite.name}`)
-    Console.log("-" ++ String.repeat("-", String.length(suite.name) + 3))
+    let asyncSuite = suites->Array.getUnsafe(i)
+    Console.log(`\n ${Colors.suite(asyncSuite.name)}`)
+    Console.log(Colors.dimmed("-" ++ String.repeat("-", String.length(asyncSuite.name) + 3)))
 
     let suitePassed = ref(0)
     let suiteFailed = ref(0)
 
-    for j in 0 to Array.length(suite.tests) - 1 {
-      let testCase = suite.tests->Array.getUnsafe(j)
+    for j in 0 to Array.length(asyncSuite.tests) - 1 {
+      let testCase = asyncSuite.tests->Array.getUnsafe(j)
       let result = await testCase.run()
       switch result {
       | Pass => {
-          Console.log(`   ${testCase.name}`)
+          Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
           suitePassed := suitePassed.contents + 1
           totalPassed := totalPassed.contents + 1
         }
       | Fail(message) => {
-          Console.log(`   ${testCase.name}`)
-          Console.log(`    ${message}`)
+          Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
+          Console.log(`     ${Colors.fail(message)}`)
           suiteFailed := suiteFailed.contents + 1
           totalFailed := totalFailed.contents + 1
         }
@@ -421,24 +433,20 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
     }
 
     Console.log(
-      `  ${Int.toString(suitePassed.contents)} passed, ${Int.toString(
-          suiteFailed.contents,
-        )} failed`,
+      `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(suiteFailed.contents) ++ " failed")}`,
     )
   }
 
-  Console.log("\n" ++ String.repeat("=", 50))
+  Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
   Console.log(
-    `Total: ${Int.toString(totalPassed.contents)} passed, ${Int.toString(
-        totalFailed.contents,
-      )} failed`,
+    `Total: ${Colors.pass(Int.toString(totalPassed.contents) ++ " passed")}, ${Colors.fail(Int.toString(totalFailed.contents) ++ " failed")}`,
   )
 
   if totalFailed.contents > 0 {
-    Console.log(" Some tests failed\n")
+    Console.log(Colors.fail(" Some tests failed\n"))
     %raw(`process.exit(1)`)
   } else {
-    Console.log(" All tests passed!\n")
+    Console.log(Colors.pass(" All tests passed!\n"))
     %raw(`process.exit(0)`)
   }
 }
