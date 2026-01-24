@@ -101,10 +101,201 @@ let combineResultsTests = suite("combineResults", [
   }),
 ])
 
+let assertGreaterThanTests = suite("assertGreaterThan", [
+  test("passes when actual is greater", () => {
+    let result = assertGreaterThan(5, 3)
+    switch result {
+    | Pass => Pass
+    | Fail(_) => Fail("Expected Pass")
+    }
+  }),
+  test("fails when actual is less", () => {
+    let result = assertGreaterThan(3, 5)
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+  test("fails when values are equal", () => {
+    let result = assertGreaterThan(5, 5)
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+])
+
+let assertLessThanTests = suite("assertLessThan", [
+  test("passes when actual is less", () => {
+    let result = assertLessThan(3, 5)
+    switch result {
+    | Pass => Pass
+    | Fail(_) => Fail("Expected Pass")
+    }
+  }),
+  test("fails when actual is greater", () => {
+    let result = assertLessThan(5, 3)
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+])
+
+let assertContainsTests = suite("assertContains", [
+  test("passes when string contains substring", () => {
+    let result = assertContains("hello world", "world")
+    switch result {
+    | Pass => Pass
+    | Fail(_) => Fail("Expected Pass")
+    }
+  }),
+  test("fails when string does not contain substring", () => {
+    let result = assertContains("hello world", "foo")
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+])
+
+let assertArrayContainsTests = suite("assertArrayContains", [
+  test("passes when array contains item", () => {
+    let result = assertArrayContains([1, 2, 3], 2)
+    switch result {
+    | Pass => Pass
+    | Fail(_) => Fail("Expected Pass")
+    }
+  }),
+  test("fails when array does not contain item", () => {
+    let result = assertArrayContains([1, 2, 3], 4)
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+])
+
+let assertMatchTests = suite("assertMatch", [
+  test("passes when string matches pattern", () => {
+    let result = assertMatch("hello123", %re("/\d+/"))
+    switch result {
+    | Pass => Pass
+    | Fail(_) => Fail("Expected Pass")
+    }
+  }),
+  test("fails when string does not match pattern", () => {
+    let result = assertMatch("hello", %re("/\d+/"))
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+])
+
+let assertSomeTests = suite("assertSome", [
+  test("passes when option is Some", () => {
+    let result = assertSome(Some(42))
+    switch result {
+    | Pass => Pass
+    | Fail(_) => Fail("Expected Pass")
+    }
+  }),
+  test("fails when option is None", () => {
+    let result = assertSome(None)
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+])
+
+let assertNoneTests = suite("assertNone", [
+  test("passes when option is None", () => {
+    let result = assertNone(None)
+    switch result {
+    | Pass => Pass
+    | Fail(_) => Fail("Expected Pass")
+    }
+  }),
+  test("fails when option is Some", () => {
+    let result = assertNone(Some(42))
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+])
+
+let assertOkTests = suite("assertOk", [
+  test("passes when result is Ok", () => {
+    let result = assertOk(Ok(42))
+    switch result {
+    | Pass => Pass
+    | Fail(_) => Fail("Expected Pass")
+    }
+  }),
+  test("fails when result is Error", () => {
+    let result = assertOk(Error("error"))
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+])
+
+let assertErrorTests = suite("assertError", [
+  test("passes when result is Error", () => {
+    let result = assertError(Error("error"))
+    switch result {
+    | Pass => Pass
+    | Fail(_) => Fail("Expected Pass")
+    }
+  }),
+  test("fails when result is Ok", () => {
+    let result = assertError(Ok(42))
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+])
+
+let assertThrowsTests = suite("assertThrows", [
+  test("passes when function throws", () => {
+    let result = assertThrows(() => {
+      throw(Not_found)
+    })
+    switch result {
+    | Pass => Pass
+    | Fail(_) => Fail("Expected Pass")
+    }
+  }),
+  test("fails when function does not throw", () => {
+    let result = assertThrows(() => {
+      42
+    })
+    switch result {
+    | Fail(_) => Pass
+    | Pass => Fail("Expected Fail")
+    }
+  }),
+])
+
 runSuites([
   assertEqualTests,
   assertNotEqualTests,
   assertTrueTests,
   assertFalseTests,
   combineResultsTests,
+  assertGreaterThanTests,
+  assertLessThanTests,
+  assertContainsTests,
+  assertArrayContainsTests,
+  assertMatchTests,
+  assertSomeTests,
+  assertNoneTests,
+  assertOkTests,
+  assertErrorTests,
+  assertThrowsTests,
 ])

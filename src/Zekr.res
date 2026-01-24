@@ -86,6 +86,155 @@ let assertFalse = (condition: bool, ~message: option<string>=?): testResult => {
   }
 }
 
+let assertGreaterThan = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
+  if actual > expected {
+    Pass
+  } else {
+    let msg = switch message {
+    | Some(m) => m
+    | None => `Expected ${String.make(actual)} to be greater than ${String.make(expected)}`
+    }
+    Fail(msg)
+  }
+}
+
+let assertLessThan = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
+  if actual < expected {
+    Pass
+  } else {
+    let msg = switch message {
+    | Some(m) => m
+    | None => `Expected ${String.make(actual)} to be less than ${String.make(expected)}`
+    }
+    Fail(msg)
+  }
+}
+
+let assertGreaterThanOrEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
+  if actual >= expected {
+    Pass
+  } else {
+    let msg = switch message {
+    | Some(m) => m
+    | None => `Expected ${String.make(actual)} to be greater than or equal to ${String.make(expected)}`
+    }
+    Fail(msg)
+  }
+}
+
+let assertLessThanOrEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
+  if actual <= expected {
+    Pass
+  } else {
+    let msg = switch message {
+    | Some(m) => m
+    | None => `Expected ${String.make(actual)} to be less than or equal to ${String.make(expected)}`
+    }
+    Fail(msg)
+  }
+}
+
+let assertContains = (haystack: string, needle: string, ~message: option<string>=?): testResult => {
+  if String.includes(haystack, needle) {
+    Pass
+  } else {
+    let msg = switch message {
+    | Some(m) => m
+    | None => `Expected "${haystack}" to contain "${needle}"`
+    }
+    Fail(msg)
+  }
+}
+
+let assertArrayContains = (arr: array<'a>, item: 'a, ~message: option<string>=?): testResult => {
+  if Array.includes(arr, item) {
+    Pass
+  } else {
+    let msg = switch message {
+    | Some(m) => m
+    | None => `Expected array to contain ${String.make(item)}`
+    }
+    Fail(msg)
+  }
+}
+
+let assertMatch = (str: string, pattern: RegExp.t, ~message: option<string>=?): testResult => {
+  if RegExp.test(pattern, str) {
+    Pass
+  } else {
+    let msg = switch message {
+    | Some(m) => m
+    | None => `Expected "${str}" to match pattern`
+    }
+    Fail(msg)
+  }
+}
+
+let assertSome = (opt: option<'a>, ~message: option<string>=?): testResult => {
+  switch opt {
+  | Some(_) => Pass
+  | None => {
+      let msg = switch message {
+      | Some(m) => m
+      | None => "Expected Some, got None"
+      }
+      Fail(msg)
+    }
+  }
+}
+
+let assertNone = (opt: option<'a>, ~message: option<string>=?): testResult => {
+  switch opt {
+  | None => Pass
+  | Some(_) => {
+      let msg = switch message {
+      | Some(m) => m
+      | None => "Expected None, got Some"
+      }
+      Fail(msg)
+    }
+  }
+}
+
+let assertOk = (result: result<'a, 'e>, ~message: option<string>=?): testResult => {
+  switch result {
+  | Ok(_) => Pass
+  | Error(_) => {
+      let msg = switch message {
+      | Some(m) => m
+      | None => "Expected Ok, got Error"
+      }
+      Fail(msg)
+    }
+  }
+}
+
+let assertError = (result: result<'a, 'e>, ~message: option<string>=?): testResult => {
+  switch result {
+  | Error(_) => Pass
+  | Ok(_) => {
+      let msg = switch message {
+      | Some(m) => m
+      | None => "Expected Error, got Ok"
+      }
+      Fail(msg)
+    }
+  }
+}
+
+let assertThrows = (fn: unit => 'a, ~message: option<string>=?): testResult => {
+  try {
+    let _ = fn()
+    let msg = switch message {
+    | Some(m) => m
+    | None => "Expected function to throw"
+    }
+    Fail(msg)
+  } catch {
+  | _ => Pass
+  }
+}
+
 let combineResults = (results: array<testResult>): testResult => {
   let failures = results->Array.filter(r =>
     switch r {
