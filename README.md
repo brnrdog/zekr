@@ -1,5 +1,10 @@
 # zekr
 
+[![CI](https://github.com/brnrdog/zekr/actions/workflows/ci.yml/badge.svg)](https://github.com/brnrdog/zekr/actions/workflows/ci.yml)
+[![npm version](https://badgen.net/npm/v/zekr)](https://www.npmjs.com/package/zekr)
+[![bundlephobia](https://badgen.net/bundlephobia/minzip/zekr)](https://bundlephobia.com/package/zekr)
+[![license](https://badgen.net/npm/license/zekr)](https://github.com/brnrdog/zekr/blob/main/LICENSE)
+
 A simple test framework for ReScript.
 
 ## Installation
@@ -12,7 +17,7 @@ Add to your `rescript.json`:
 
 ```json
 {
-  "bs-dev-dependencies": ["zekr"]
+  "dev-dependencies": ["zekr"]
 }
 ```
 
