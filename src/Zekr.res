@@ -81,7 +81,11 @@ let assertEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testRe
   } else {
     let msg = switch message {
     | Some(m) => m
-    | None => `Expected ${String.make(expected)}, got ${String.make(actual)}`
+    | None =>
+      `Assertion failed\n` ++
+      `       ${Colors.pass("+ expected")} ${Colors.fail("- actual")}\n` ++
+      `       ${Colors.fail("- " ++ String.make(actual))}\n` ++
+      `       ${Colors.pass("+ " ++ String.make(expected))}`
     }
     Fail(msg)
   }
@@ -93,7 +97,9 @@ let assertNotEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): tes
   } else {
     let msg = switch message {
     | Some(m) => m
-    | None => `Expected values to not be equal`
+    | None =>
+      `Assertion failed: values should not be equal\n` ++
+      `       Both values: ${String.make(actual)}`
     }
     Fail(msg)
   }
@@ -129,7 +135,10 @@ let assertGreaterThan = (actual: 'a, expected: 'a, ~message: option<string>=?): 
   } else {
     let msg = switch message {
     | Some(m) => m
-    | None => `Expected ${String.make(actual)} to be greater than ${String.make(expected)}`
+    | None =>
+      `Assertion failed: expected actual > threshold\n` ++
+      `       actual:    ${String.make(actual)}\n` ++
+      `       threshold: ${String.make(expected)}`
     }
     Fail(msg)
   }
@@ -141,7 +150,10 @@ let assertLessThan = (actual: 'a, expected: 'a, ~message: option<string>=?): tes
   } else {
     let msg = switch message {
     | Some(m) => m
-    | None => `Expected ${String.make(actual)} to be less than ${String.make(expected)}`
+    | None =>
+      `Assertion failed: expected actual < threshold\n` ++
+      `       actual:    ${String.make(actual)}\n` ++
+      `       threshold: ${String.make(expected)}`
     }
     Fail(msg)
   }
@@ -153,7 +165,10 @@ let assertGreaterThanOrEqual = (actual: 'a, expected: 'a, ~message: option<strin
   } else {
     let msg = switch message {
     | Some(m) => m
-    | None => `Expected ${String.make(actual)} to be greater than or equal to ${String.make(expected)}`
+    | None =>
+      `Assertion failed: expected actual >= threshold\n` ++
+      `       actual:    ${String.make(actual)}\n` ++
+      `       threshold: ${String.make(expected)}`
     }
     Fail(msg)
   }
@@ -165,7 +180,10 @@ let assertLessThanOrEqual = (actual: 'a, expected: 'a, ~message: option<string>=
   } else {
     let msg = switch message {
     | Some(m) => m
-    | None => `Expected ${String.make(actual)} to be less than or equal to ${String.make(expected)}`
+    | None =>
+      `Assertion failed: expected actual <= threshold\n` ++
+      `       actual:    ${String.make(actual)}\n` ++
+      `       threshold: ${String.make(expected)}`
     }
     Fail(msg)
   }
@@ -177,7 +195,10 @@ let assertContains = (haystack: string, needle: string, ~message: option<string>
   } else {
     let msg = switch message {
     | Some(m) => m
-    | None => `Expected "${haystack}" to contain "${needle}"`
+    | None =>
+      `Assertion failed: string does not contain substring\n` ++
+      `       string:    "${haystack}"\n` ++
+      `       expected:  "${needle}"`
     }
     Fail(msg)
   }
@@ -189,7 +210,9 @@ let assertArrayContains = (arr: array<'a>, item: 'a, ~message: option<string>=?)
   } else {
     let msg = switch message {
     | Some(m) => m
-    | None => `Expected array to contain ${String.make(item)}`
+    | None =>
+      `Assertion failed: array does not contain item\n` ++
+      `       expected to contain: ${String.make(item)}`
     }
     Fail(msg)
   }
