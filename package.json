@@ -13,8 +13,17 @@
     "build": "rescript",
     "clean": "rescript clean",
     "watch": "rescript -w",
-    "test": "rescript && node tests/ZekrTests.js"
+    "test": "rescript && node tests/ZekrTests.js",
+    "semantic-release": "semantic-release"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brnrdog/zekr.git"
+  },
+  "bugs": {
+    "url": "https://github.com/brnrdog/zekr/issues"
+  },
+  "homepage": "https://github.com/brnrdog/zekr#readme",
   "keywords": [
     "rescript",
     "test",
@@ -25,6 +34,11 @@
   "license": "MIT",
   "devDependencies": {
     "@rescript/core": "^1.6.1",
-    "rescript": "^12.1.0"
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.0",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
+    "rescript": "^12.1.0",
+    "semantic-release": "^24.0.0"
   }
 }
