@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0](https://github.com/brnrdog/zekr/compare/v1.1.0...v1.2.0) (2026-01-24)
+
+### Features
+
+* add async test support ([f67d3d6](https://github.com/brnrdog/zekr/commit/f67d3d6128d0d1d066997f1d5a381bec487911b6))
+* add colored output ([fa52fa2](https://github.com/brnrdog/zekr/commit/fa52fa2f95b5889597dcd69fb12c9060bd11f8eb))
+* add more assertions ([8d525dc](https://github.com/brnrdog/zekr/commit/8d525dc34b990c8a316ed523d9da43c71de254da))
+* add testSkip and testOnly ([3f98478](https://github.com/brnrdog/zekr/commit/3f98478ff01f0613452e44210ec4b89260a83bd9))
+* improve assertion failure messages ([72a3d30](https://github.com/brnrdog/zekr/commit/72a3d309fcca73a124c790a4395c53e0ef3009b5))
+
+### Documentation
+
+* update readme ([68d56ba](https://github.com/brnrdog/zekr/commit/68d56ba31f3c41c293c7c3250ac6415db61aefe0))
+
 ## [1.1.0](https://github.com/brnrdog/zekr/compare/v1.0.0...v1.1.0) (2026-01-24)
 
 ### Features
