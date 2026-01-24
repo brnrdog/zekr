@@ -3,7 +3,7 @@
 /lib/
 .bsb.lock
 .merlin
-*.res.mjs
+*.js
 
 # npm
 npm-debug.log*

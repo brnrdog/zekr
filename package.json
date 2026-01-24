@@ -2,17 +2,18 @@
   "name": "zekr",
   "version": "0.1.0",
   "description": "A simple test framework for ReScript",
-  "main": "./src/Zekr.res.mjs",
-  "module": "./src/Zekr.res.mjs",
+  "main": "./src/Zekr.js",
+  "module": "./src/Zekr.js",
   "files": [
     "src/**/*.res",
-    "src/**/*.res.mjs",
+    "src/**/*.js",
     "rescript.json"
   ],
   "scripts": {
     "build": "rescript",
     "clean": "rescript clean",
-    "watch": "rescript -w"
+    "watch": "rescript -w",
+    "test": "rescript && node tests/ZekrTests.js"
   },
   "keywords": [
     "rescript",
