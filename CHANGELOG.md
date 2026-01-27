@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1](https://github.com/brnrdog/zekr/compare/v1.5.0...v1.5.1) (2026-01-27)
+
+### Code Refactoring
+
+* restructure Zekr into smaller internal modules ([6c1b8dc](https://github.com/brnrdog/zekr/commit/6c1b8dc6b0c38cd82c60e9e6e83e3813d8cf665a))
+
 ## [1.5.0](https://github.com/brnrdog/zekr/compare/v1.4.0...v1.5.0) (2026-01-27)
 
 ### Features
