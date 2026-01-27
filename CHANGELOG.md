@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0](https://github.com/brnrdog/zekr/compare/v1.4.0...v1.5.0) (2026-01-27)
+
+### Features
+
+* add snapshot testing support ([1d50e34](https://github.com/brnrdog/zekr/commit/1d50e3453714edbda9a713012c591217fab6cfc4))
+
 ## [1.4.0](https://github.com/brnrdog/zekr/compare/v1.3.0...v1.4.0) (2026-01-27)
 
 ### Features
