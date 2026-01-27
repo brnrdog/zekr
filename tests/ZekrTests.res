@@ -309,6 +309,65 @@ let testModeTests = suite("testSkip and testOnly", [
   }),
 ])
 
+let suiteHooksTests = suite("suite with hooks", [
+  test("creates suite with hooks", () => {
+    let s = suite(
+      "test suite",
+      [test("t", () => Pass)],
+      ~beforeAll=() => (),
+      ~afterAll=() => (),
+      ~beforeEach=() => (),
+      ~afterEach=() => (),
+    )
+    switch s.hooks {
+    | Some(_) => Pass
+    | None => Fail("Expected hooks to be defined")
+    }
+  }),
+  test("suite without hooks has None hooks", () => {
+    let s = suite("test suite", [test("t", () => Pass)])
+    switch s.hooks {
+    | None => Pass
+    | Some(_) => Fail("Expected hooks to be None")
+    }
+  }),
+  test("suite allows partial hooks", () => {
+    let s = suite(
+      "test suite",
+      [test("t", () => Pass)],
+      ~beforeEach=() => (),
+    )
+    switch s.hooks {
+    | Some({beforeEach: Some(_), afterEach: None, beforeAll: None, afterAll: None}) => Pass
+    | _ => Fail("Expected only beforeEach to be defined")
+    }
+  }),
+])
+
+let asyncSuiteHooksTests = suite("asyncSuite with hooks", [
+  test("creates async suite with hooks", () => {
+    let s = asyncSuite(
+      "test suite",
+      [asyncTest("t", async () => Pass)],
+      ~beforeAll=async () => (),
+      ~afterAll=async () => (),
+      ~beforeEach=async () => (),
+      ~afterEach=async () => (),
+    )
+    switch s.hooks {
+    | Some(_) => Pass
+    | None => Fail("Expected hooks to be defined")
+    }
+  }),
+  test("asyncSuite without hooks has None hooks", () => {
+    let s = asyncSuite("test suite", [asyncTest("t", async () => Pass)])
+    switch s.hooks {
+    | None => Pass
+    | Some(_) => Fail("Expected hooks to be None")
+    }
+  }),
+])
+
 runSuites([
   assertEqualTests,
   assertNotEqualTests,
@@ -326,4 +385,6 @@ runSuites([
   assertErrorTests,
   assertThrowsTests,
   testModeTests,
+  suiteHooksTests,
+  asyncSuiteHooksTests,
 ])

@@ -33,14 +33,30 @@ type asyncTestCase = {
   mode: testMode,
 }
 
+type hooks = {
+  beforeAll: option<unit => unit>,
+  afterAll: option<unit => unit>,
+  beforeEach: option<unit => unit>,
+  afterEach: option<unit => unit>,
+}
+
+type asyncHooks = {
+  beforeAll: option<unit => promise<unit>>,
+  afterAll: option<unit => promise<unit>>,
+  beforeEach: option<unit => promise<unit>>,
+  afterEach: option<unit => promise<unit>>,
+}
+
 type testSuite = {
   name: string,
   tests: array<testCase>,
+  hooks: option<hooks>,
 }
 
 type asyncTestSuite = {
   name: string,
   tests: array<asyncTestCase>,
+  hooks: option<asyncHooks>,
 }
 
 let test = (name: string, run: unit => testResult): testCase => {
@@ -67,12 +83,52 @@ let asyncTestOnly = (name: string, run: unit => promise<testResult>): asyncTestC
   {name, run, mode: Only}
 }
 
-let suite = (name: string, tests: array<testCase>): testSuite => {
-  {name, tests}
+let suite = (
+  name: string,
+  tests: array<testCase>,
+  ~beforeAll: option<unit => unit>=?,
+  ~afterAll: option<unit => unit>=?,
+  ~beforeEach: option<unit => unit>=?,
+  ~afterEach: option<unit => unit>=?,
+): testSuite => {
+  let hasHooks =
+    beforeAll->Option.isSome ||
+    afterAll->Option.isSome ||
+    beforeEach->Option.isSome ||
+    afterEach->Option.isSome
+  {
+    name,
+    tests,
+    hooks: if hasHooks {
+      Some({beforeAll, afterAll, beforeEach, afterEach})
+    } else {
+      None
+    },
+  }
 }
 
-let asyncSuite = (name: string, tests: array<asyncTestCase>): asyncTestSuite => {
-  {name, tests}
+let asyncSuite = (
+  name: string,
+  tests: array<asyncTestCase>,
+  ~beforeAll: option<unit => promise<unit>>=?,
+  ~afterAll: option<unit => promise<unit>>=?,
+  ~beforeEach: option<unit => promise<unit>>=?,
+  ~afterEach: option<unit => promise<unit>>=?,
+): asyncTestSuite => {
+  let hasHooks =
+    beforeAll->Option.isSome ||
+    afterAll->Option.isSome ||
+    beforeEach->Option.isSome ||
+    afterEach->Option.isSome
+  {
+    name,
+    tests,
+    hooks: if hasHooks {
+      Some({beforeAll, afterAll, beforeEach, afterEach})
+    } else {
+      None
+    },
+  }
 }
 
 let assertEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
@@ -334,6 +390,12 @@ let runSuite = (testSuite: testSuite): unit => {
   let failed = ref(0)
   let skipped = ref(0)
 
+  // Run beforeAll hook if present
+  switch testSuite.hooks {
+  | Some({beforeAll: Some(fn)}) => fn()
+  | _ => ()
+  }
+
   // Check if there are any "Only" tests
   let hasOnly = testSuite.tests->Array.some(tc => tc.mode == Only)
 
@@ -346,6 +408,12 @@ let runSuite = (testSuite: testSuite): unit => {
     }
 
     if shouldRun {
+      // Run beforeEach hook if present
+      switch testSuite.hooks {
+      | Some({beforeEach: Some(fn)}) => fn()
+      | _ => ()
+      }
+
       switch testCase.run() {
       | Pass => {
           Console.log(`  ${Colors.pass("✓")} ${testCase.name}`)
@@ -357,11 +425,23 @@ let runSuite = (testSuite: testSuite): unit => {
           failed := failed.contents + 1
         }
       }
+
+      // Run afterEach hook if present
+      switch testSuite.hooks {
+      | Some({afterEach: Some(fn)}) => fn()
+      | _ => ()
+      }
     } else {
       Console.log(`  ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed("(skipped)")}`)
       skipped := skipped.contents + 1
     }
   })
+
+  // Run afterAll hook if present
+  switch testSuite.hooks {
+  | Some({afterAll: Some(fn)}) => fn()
+  | _ => ()
+  }
 
   Console.log("")
   let skipMsg = if skipped.contents > 0 {
@@ -395,6 +475,12 @@ let runSuites = (suites: array<testSuite>): unit => {
     Console.log(`\n ${Colors.suite(testSuite.name)}`)
     Console.log(Colors.dimmed("-" ++ String.repeat("-", String.length(testSuite.name) + 3)))
 
+    // Run beforeAll hook if present
+    switch testSuite.hooks {
+    | Some({beforeAll: Some(fn)}) => fn()
+    | _ => ()
+    }
+
     let suitePassed = ref(0)
     let suiteFailed = ref(0)
     let suiteSkipped = ref(0)
@@ -408,6 +494,12 @@ let runSuites = (suites: array<testSuite>): unit => {
       }
 
       if shouldRun {
+        // Run beforeEach hook if present
+        switch testSuite.hooks {
+        | Some({beforeEach: Some(fn)}) => fn()
+        | _ => ()
+        }
+
         switch testCase.run() {
         | Pass => {
             Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
@@ -421,12 +513,24 @@ let runSuites = (suites: array<testSuite>): unit => {
             totalFailed := totalFailed.contents + 1
           }
         }
+
+        // Run afterEach hook if present
+        switch testSuite.hooks {
+        | Some({afterEach: Some(fn)}) => fn()
+        | _ => ()
+        }
       } else {
         Console.log(`   ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed("(skipped)")}`)
         suiteSkipped := suiteSkipped.contents + 1
         totalSkipped := totalSkipped.contents + 1
       }
     })
+
+    // Run afterAll hook if present
+    switch testSuite.hooks {
+    | Some({afterAll: Some(fn)}) => fn()
+    | _ => ()
+    }
 
     let skipMsg = if suiteSkipped.contents > 0 {
       `, ${Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
@@ -465,6 +569,12 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
   let failed = ref(0)
   let skipped = ref(0)
 
+  // Run beforeAll hook if present
+  switch asyncSuite.hooks {
+  | Some({beforeAll: Some(fn)}) => await fn()
+  | _ => ()
+  }
+
   // Check if there are any "Only" tests
   let hasOnly = asyncSuite.tests->Array.some(tc => tc.mode == Only)
 
@@ -479,6 +589,12 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
     }
 
     if shouldRun {
+      // Run beforeEach hook if present
+      switch asyncSuite.hooks {
+      | Some({beforeEach: Some(fn)}) => await fn()
+      | _ => ()
+      }
+
       let result = await testCase.run()
       switch result {
       | Pass => {
@@ -491,10 +607,22 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
           failed := failed.contents + 1
         }
       }
+
+      // Run afterEach hook if present
+      switch asyncSuite.hooks {
+      | Some({afterEach: Some(fn)}) => await fn()
+      | _ => ()
+      }
     } else {
       Console.log(`  ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed("(skipped)")}`)
       skipped := skipped.contents + 1
     }
+  }
+
+  // Run afterAll hook if present
+  switch asyncSuite.hooks {
+  | Some({afterAll: Some(fn)}) => await fn()
+  | _ => ()
   }
 
   Console.log("")
@@ -530,6 +658,12 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
     Console.log(`\n ${Colors.suite(asyncSuite.name)}`)
     Console.log(Colors.dimmed("-" ++ String.repeat("-", String.length(asyncSuite.name) + 3)))
 
+    // Run beforeAll hook if present
+    switch asyncSuite.hooks {
+    | Some({beforeAll: Some(fn)}) => await fn()
+    | _ => ()
+    }
+
     let suitePassed = ref(0)
     let suiteFailed = ref(0)
     let suiteSkipped = ref(0)
@@ -545,6 +679,12 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
       }
 
       if shouldRun {
+        // Run beforeEach hook if present
+        switch asyncSuite.hooks {
+        | Some({beforeEach: Some(fn)}) => await fn()
+        | _ => ()
+        }
+
         let result = await testCase.run()
         switch result {
         | Pass => {
@@ -559,11 +699,23 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
             totalFailed := totalFailed.contents + 1
           }
         }
+
+        // Run afterEach hook if present
+        switch asyncSuite.hooks {
+        | Some({afterEach: Some(fn)}) => await fn()
+        | _ => ()
+        }
       } else {
         Console.log(`   ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed("(skipped)")}`)
         suiteSkipped := suiteSkipped.contents + 1
         totalSkipped := totalSkipped.contents + 1
       }
+    }
+
+    // Run afterAll hook if present
+    switch asyncSuite.hooks {
+    | Some({afterAll: Some(fn)}) => await fn()
+    | _ => ()
     }
 
     let skipMsg = if suiteSkipped.contents > 0 {

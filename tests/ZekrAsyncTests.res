@@ -60,4 +60,50 @@ let combineAsyncResultsTests = asyncSuite("combineAsyncResults", [
   }),
 ])
 
-let _ = runAsyncSuites([asyncTestTests, combineAsyncResultsTests])
+// Track hook execution for verification
+let hookLog: ref<array<string>> = ref([])
+
+let asyncHooksTests = asyncSuite(
+  "asyncSuite hooks execution",
+  [
+    asyncTest("first test sees beforeAll and beforeEach ran", async () => {
+      let _ = await delay(5)
+      // At this point beforeAll and beforeEach should have run
+      let log = hookLog.contents
+      if Array.includes(log, "beforeAll") && Array.includes(log, "beforeEach") {
+        Pass
+      } else {
+        Fail(`Expected beforeAll and beforeEach in log, got: ${String.make(log)}`)
+      }
+    }),
+    asyncTest("second test sees beforeEach ran again", async () => {
+      let _ = await delay(5)
+      // Count beforeEach occurrences
+      let beforeEachCount =
+        hookLog.contents->Array.filter(s => s == "beforeEach")->Array.length
+      if beforeEachCount >= 2 {
+        Pass
+      } else {
+        Fail(`Expected at least 2 beforeEach calls, got ${Int.toString(beforeEachCount)}`)
+      }
+    }),
+  ],
+  ~beforeAll=async () => {
+    let _ = await delay(5)
+    hookLog := Array.concat(hookLog.contents, ["beforeAll"])
+  },
+  ~afterAll=async () => {
+    let _ = await delay(5)
+    hookLog := Array.concat(hookLog.contents, ["afterAll"])
+  },
+  ~beforeEach=async () => {
+    let _ = await delay(5)
+    hookLog := Array.concat(hookLog.contents, ["beforeEach"])
+  },
+  ~afterEach=async () => {
+    let _ = await delay(5)
+    hookLog := Array.concat(hookLog.contents, ["afterEach"])
+  },
+)
+
+let _ = runAsyncSuites([asyncTestTests, combineAsyncResultsTests, asyncHooksTests])
