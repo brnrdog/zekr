@@ -368,6 +368,34 @@ let asyncSuiteHooksTests = suite("asyncSuite with hooks", [
   }),
 ])
 
+// Use a test-specific snapshot directory
+let _ = setSnapshotDir("tests/__snapshots__")
+
+let snapshotTests = suite("assertMatchesSnapshot", [
+  test("creates and matches snapshot for simple value", () => {
+    let result = assertMatchesSnapshot(42, ~name="simple-number")
+    result
+  }),
+  test("creates and matches snapshot for object", () => {
+    let obj = {"name": "test", "value": 123}
+    let result = assertMatchesSnapshot(obj, ~name="simple-object")
+    result
+  }),
+  test("creates and matches snapshot for array", () => {
+    let arr = [1, 2, 3, 4, 5]
+    let result = assertMatchesSnapshot(arr, ~name="simple-array")
+    result
+  }),
+  test("creates and matches snapshot for nested structure", () => {
+    let nested = {
+      "users": [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}],
+      "count": 2,
+    }
+    let result = assertMatchesSnapshot(nested, ~name="nested-structure")
+    result
+  }),
+])
+
 runSuites([
   assertEqualTests,
   assertNotEqualTests,
@@ -387,4 +415,5 @@ runSuites([
   testModeTests,
   suiteHooksTests,
   asyncSuiteHooksTests,
+  snapshotTests,
 ])
