@@ -129,6 +129,29 @@ assertFalse(condition)
 combineResults([result1, result2, result3])
 ```
 
+### Snapshot Testing
+
+Test complex data structures by comparing against stored snapshots:
+
+```rescript
+let snapshotTests = suite("API Response", [
+  test("user data matches snapshot", () => {
+    let user = {"id": 1, "name": "Alice", "roles": ["admin", "user"]}
+    assertMatchesSnapshot(user, ~name="user-data")
+  }),
+])
+```
+
+On first run, snapshots are created in `__snapshots__/` directory. Subsequent runs compare against stored snapshots.
+
+```rescript
+// Configure custom snapshot directory
+setSnapshotDir("tests/__snapshots__")
+
+// Update a snapshot programmatically
+updateSnapshot(newValue, ~name="snapshot-name")
+```
+
 ### Running Tests
 
 ```rescript
