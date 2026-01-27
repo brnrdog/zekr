@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0](https://github.com/brnrdog/zekr/compare/v1.3.0...v1.4.0) (2026-01-27)
+
+### Features
+
+* add timeout and error handling for async tests ([4c04288](https://github.com/brnrdog/zekr/commit/4c04288056bfc173956f818c32143bd358ffaa9c))
+
 ## [1.3.0](https://github.com/brnrdog/zekr/compare/v1.2.0...v1.3.0) (2026-01-27)
 
 ### Features
