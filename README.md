@@ -54,6 +54,43 @@ let myTest = test("test name", () => {
 let mySuite = suite("Suite Name", [test1, test2, test3])
 ```
 
+### Setup/Teardown Hooks
+
+Use `suiteWithHooks` or `asyncSuiteWithHooks` to add lifecycle hooks to your test suites:
+
+```rescript
+// Synchronous hooks
+let mySuite = suiteWithHooks(
+  "Database Tests",
+  [test1, test2, test3],
+  ~beforeAll=() => initializeDatabase(),
+  ~afterAll=() => closeDatabase(),
+  ~beforeEach=() => clearTables(),
+  ~afterEach=() => resetState(),
+)
+
+// Async hooks
+let myAsyncSuite = asyncSuiteWithHooks(
+  "API Tests",
+  [asyncTest1, asyncTest2],
+  ~beforeAll=async () => await connectToServer(),
+  ~afterAll=async () => await disconnectFromServer(),
+  ~beforeEach=async () => await resetMocks(),
+  ~afterEach=async () => await cleanup(),
+)
+```
+
+All hooks are optional - you only need to provide the ones you need:
+
+```rescript
+// Only beforeEach hook
+let mySuite = suiteWithHooks(
+  "My Tests",
+  [test1, test2],
+  ~beforeEach=() => resetState(),
+)
+```
+
 ### Assertions
 
 ```rescript
