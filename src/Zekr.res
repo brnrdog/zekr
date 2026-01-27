@@ -31,6 +31,7 @@ type asyncTestCase = {
   name: string,
   run: unit => promise<testResult>,
   mode: testMode,
+  timeout: option<int>,
 }
 
 type hooks = {
@@ -71,16 +72,28 @@ let testOnly = (name: string, run: unit => testResult): testCase => {
   {name, run, mode: Only}
 }
 
-let asyncTest = (name: string, run: unit => promise<testResult>): asyncTestCase => {
-  {name, run, mode: Normal}
+let asyncTest = (
+  name: string,
+  run: unit => promise<testResult>,
+  ~timeout: option<int>=?,
+): asyncTestCase => {
+  {name, run, mode: Normal, timeout}
 }
 
-let asyncTestSkip = (name: string, run: unit => promise<testResult>): asyncTestCase => {
-  {name, run, mode: Skip}
+let asyncTestSkip = (
+  name: string,
+  run: unit => promise<testResult>,
+  ~timeout: option<int>=?,
+): asyncTestCase => {
+  {name, run, mode: Skip, timeout}
 }
 
-let asyncTestOnly = (name: string, run: unit => promise<testResult>): asyncTestCase => {
-  {name, run, mode: Only}
+let asyncTestOnly = (
+  name: string,
+  run: unit => promise<testResult>,
+  ~timeout: option<int>=?,
+): asyncTestCase => {
+  {name, run, mode: Only, timeout}
 }
 
 let suite = (
@@ -561,6 +574,41 @@ let runSuites = (suites: array<testSuite>): unit => {
   }
 }
 
+// Helper to run async test with timeout and error handling
+let runWithTimeout = async (
+  run: unit => promise<testResult>,
+  timeout: option<int>,
+): testResult => {
+  let testPromise = async () => {
+    try {
+      await run()
+    } catch {
+    | exn =>
+      let message = switch exn {
+      | Exn.Error(err) =>
+        switch Exn.message(err) {
+        | Some(msg) => msg
+        | None => "Unknown error"
+        }
+      | _ => "Test threw an exception"
+      }
+      Fail(`Test threw an exception: ${message}`)
+    }
+  }
+
+  switch timeout {
+  | None => await testPromise()
+  | Some(ms) => {
+      let timeoutPromise: promise<testResult> = Promise.make((resolve, _reject) => {
+        let _ = setTimeout(() => {
+          resolve(Fail(`Test timed out after ${Int.toString(ms)}ms`))
+        }, ms)
+      })
+      await Promise.race([testPromise(), timeoutPromise])
+    }
+  }
+}
+
 let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
   Console.log(`\n ${Colors.suite(`Running async test suite: ${asyncSuite.name}`)}`)
   Console.log(Colors.dimmed("=" ++ String.repeat("-", String.length(asyncSuite.name) + 29)))
@@ -595,7 +643,7 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
       | _ => ()
       }
 
-      let result = await testCase.run()
+      let result = await runWithTimeout(testCase.run, testCase.timeout)
       switch result {
       | Pass => {
           Console.log(`  ${Colors.pass("✓")} ${testCase.name}`)
@@ -685,7 +733,7 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
         | _ => ()
         }
 
-        let result = await testCase.run()
+        let result = await runWithTimeout(testCase.run, testCase.timeout)
         switch result {
         | Pass => {
             Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)

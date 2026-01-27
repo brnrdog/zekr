@@ -106,4 +106,45 @@ let asyncHooksTests = asyncSuite(
   },
 )
 
-let _ = runAsyncSuites([asyncTestTests, combineAsyncResultsTests, asyncHooksTests])
+let timeoutTests = asyncSuite("timeout and error handling", [
+  asyncTest(
+    "test passes within timeout",
+    async () => {
+      let _ = await delay(10)
+      Pass
+    },
+    ~timeout=100,
+  ),
+  asyncTest(
+    "test fails when exceeding timeout",
+    async () => {
+      // This tests that our timeout mechanism works
+      // We create a test that would timeout, run it manually, and verify the result
+      let slowTest = async () => {
+        let _ = await delay(200)
+        Pass
+      }
+      let result = await runWithTimeout(slowTest, Some(50))
+      switch result {
+      | Fail(msg) if String.includes(msg, "timed out") => Pass
+      | _ => Fail("Expected timeout failure")
+      }
+    },
+  ),
+  asyncTest(
+    "catches exceptions and returns Fail",
+    async () => {
+      let throwingTest = async () => {
+        let _ = throw(Exn.raiseError("Test error"))
+        Pass
+      }
+      let result = await runWithTimeout(throwingTest, None)
+      switch result {
+      | Fail(msg) if String.includes(msg, "exception") => Pass
+      | _ => Fail("Expected exception to be caught")
+      }
+    },
+  ),
+])
+
+let _ = runAsyncSuites([asyncTestTests, combineAsyncResultsTests, asyncHooksTests, timeoutTests])
