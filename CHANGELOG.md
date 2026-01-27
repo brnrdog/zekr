@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.3.0](https://github.com/brnrdog/zekr/compare/v1.2.0...v1.3.0) (2026-01-27)
+
+### Features
+
+* add setup/teardown hooks for test suites ([bd9f0ef](https://github.com/brnrdog/zekr/commit/bd9f0ef2f18290d917e6a4f45b8d1d375df03096))
+
+### Documentation
+
+* add LICENSE and CONTRIBUTING.md ([08881b3](https://github.com/brnrdog/zekr/commit/08881b30ab3acb632ebfbe678dc02aab24de5c50))
+* update readme ([1b2b907](https://github.com/brnrdog/zekr/commit/1b2b907169b00f5657052b09f9419a625338b991))
+
+### Code Refactoring
+
+* simplify hooks API by adding optional args to suite functions ([0cedfb4](https://github.com/brnrdog/zekr/commit/0cedfb49379d1cfbfb2bd63706de06a8c4954762))
+
 ## [1.2.0](https://github.com/brnrdog/zekr/compare/v1.1.0...v1.2.0) (2026-01-24)
 
 ### Features
