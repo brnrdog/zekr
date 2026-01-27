@@ -56,11 +56,11 @@ let mySuite = suite("Suite Name", [test1, test2, test3])
 
 ### Setup/Teardown Hooks
 
-Use `suiteWithHooks` or `asyncSuiteWithHooks` to add lifecycle hooks to your test suites:
+Add lifecycle hooks directly to your test suites:
 
 ```rescript
 // Synchronous hooks
-let mySuite = suiteWithHooks(
+let mySuite = suite(
   "Database Tests",
   [test1, test2, test3],
   ~beforeAll=() => initializeDatabase(),
@@ -70,7 +70,7 @@ let mySuite = suiteWithHooks(
 )
 
 // Async hooks
-let myAsyncSuite = asyncSuiteWithHooks(
+let myAsyncSuite = asyncSuite(
   "API Tests",
   [asyncTest1, asyncTest2],
   ~beforeAll=async () => await connectToServer(),
@@ -84,7 +84,7 @@ All hooks are optional - you only need to provide the ones you need:
 
 ```rescript
 // Only beforeEach hook
-let mySuite = suiteWithHooks(
+let mySuite = suite(
   "My Tests",
   [test1, test2],
   ~beforeEach=() => resetState(),

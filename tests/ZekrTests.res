@@ -309,9 +309,9 @@ let testModeTests = suite("testSkip and testOnly", [
   }),
 ])
 
-let suiteWithHooksTests = suite("suiteWithHooks", [
+let suiteHooksTests = suite("suite with hooks", [
   test("creates suite with hooks", () => {
-    let s = suiteWithHooks(
+    let s = suite(
       "test suite",
       [test("t", () => Pass)],
       ~beforeAll=() => (),
@@ -331,8 +331,8 @@ let suiteWithHooksTests = suite("suiteWithHooks", [
     | Some(_) => Fail("Expected hooks to be None")
     }
   }),
-  test("suiteWithHooks allows partial hooks", () => {
-    let s = suiteWithHooks(
+  test("suite allows partial hooks", () => {
+    let s = suite(
       "test suite",
       [test("t", () => Pass)],
       ~beforeEach=() => (),
@@ -344,9 +344,9 @@ let suiteWithHooksTests = suite("suiteWithHooks", [
   }),
 ])
 
-let asyncSuiteWithHooksTests = suite("asyncSuiteWithHooks", [
+let asyncSuiteHooksTests = suite("asyncSuite with hooks", [
   test("creates async suite with hooks", () => {
-    let s = asyncSuiteWithHooks(
+    let s = asyncSuite(
       "test suite",
       [asyncTest("t", async () => Pass)],
       ~beforeAll=async () => (),
@@ -385,6 +385,6 @@ runSuites([
   assertErrorTests,
   assertThrowsTests,
   testModeTests,
-  suiteWithHooksTests,
-  asyncSuiteWithHooksTests,
+  suiteHooksTests,
+  asyncSuiteHooksTests,
 ])

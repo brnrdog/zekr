@@ -63,8 +63,8 @@ let combineAsyncResultsTests = asyncSuite("combineAsyncResults", [
 // Track hook execution for verification
 let hookLog: ref<array<string>> = ref([])
 
-let asyncHooksTests = asyncSuiteWithHooks(
-  "asyncSuiteWithHooks execution",
+let asyncHooksTests = asyncSuite(
+  "asyncSuite hooks execution",
   [
     asyncTest("first test sees beforeAll and beforeEach ran", async () => {
       let _ = await delay(5)

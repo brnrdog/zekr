@@ -83,11 +83,7 @@ let asyncTestOnly = (name: string, run: unit => promise<testResult>): asyncTestC
   {name, run, mode: Only}
 }
 
-let suite = (name: string, tests: array<testCase>): testSuite => {
-  {name, tests, hooks: None}
-}
-
-let suiteWithHooks = (
+let suite = (
   name: string,
   tests: array<testCase>,
   ~beforeAll: option<unit => unit>=?,
@@ -95,23 +91,23 @@ let suiteWithHooks = (
   ~beforeEach: option<unit => unit>=?,
   ~afterEach: option<unit => unit>=?,
 ): testSuite => {
+  let hasHooks =
+    beforeAll->Option.isSome ||
+    afterAll->Option.isSome ||
+    beforeEach->Option.isSome ||
+    afterEach->Option.isSome
   {
     name,
     tests,
-    hooks: Some({
-      beforeAll,
-      afterAll,
-      beforeEach,
-      afterEach,
-    }),
+    hooks: if hasHooks {
+      Some({beforeAll, afterAll, beforeEach, afterEach})
+    } else {
+      None
+    },
   }
 }
 
-let asyncSuite = (name: string, tests: array<asyncTestCase>): asyncTestSuite => {
-  {name, tests, hooks: None}
-}
-
-let asyncSuiteWithHooks = (
+let asyncSuite = (
   name: string,
   tests: array<asyncTestCase>,
   ~beforeAll: option<unit => promise<unit>>=?,
@@ -119,15 +115,19 @@ let asyncSuiteWithHooks = (
   ~beforeEach: option<unit => promise<unit>>=?,
   ~afterEach: option<unit => promise<unit>>=?,
 ): asyncTestSuite => {
+  let hasHooks =
+    beforeAll->Option.isSome ||
+    afterAll->Option.isSome ||
+    beforeEach->Option.isSome ||
+    afterEach->Option.isSome
   {
     name,
     tests,
-    hooks: Some({
-      beforeAll,
-      afterAll,
-      beforeEach,
-      afterEach,
-    }),
+    hooks: if hasHooks {
+      Some({beforeAll, afterAll, beforeEach, afterEach})
+    } else {
+      None
+    },
   }
 }
 
