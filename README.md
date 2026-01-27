@@ -91,6 +91,26 @@ let mySuite = suite(
 )
 ```
 
+### Async Tests with Timeout
+
+Async tests support an optional timeout parameter (in milliseconds). Tests that exceed the timeout will fail automatically. Uncaught exceptions in async tests are also caught and reported as failures.
+
+```rescript
+let myAsyncTests = asyncSuite("API Tests", [
+  // Test with 5 second timeout
+  asyncTest("fetches data", async () => {
+    let data = await fetchData()
+    assertEqual(data.status, "ok")
+  }, ~timeout=5000),
+
+  // Test without timeout (runs until completion)
+  asyncTest("processes data", async () => {
+    let result = await processData()
+    assertTrue(result.success)
+  }),
+])
+```
+
 ### Assertions
 
 ```rescript

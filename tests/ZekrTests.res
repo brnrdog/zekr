@@ -307,6 +307,14 @@ let testModeTests = suite("testSkip and testOnly", [
     let tc = asyncTestOnly("example", async () => Pass)
     assertEqual(tc.mode, Only)
   }),
+  test("asyncTest accepts timeout parameter", () => {
+    let tc = asyncTest("example", async () => Pass, ~timeout=1000)
+    assertEqual(tc.timeout, Some(1000))
+  }),
+  test("asyncTest has None timeout by default", () => {
+    let tc = asyncTest("example", async () => Pass)
+    assertEqual(tc.timeout, None)
+  }),
 ])
 
 let suiteHooksTests = suite("suite with hooks", [
