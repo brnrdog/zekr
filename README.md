@@ -152,6 +152,23 @@ setSnapshotDir("tests/__snapshots__")
 updateSnapshot(newValue, ~name="snapshot-name")
 ```
 
+### Test Filtering
+
+Filter tests using environment variables:
+
+```bash
+# Run only tests matching "user"
+ZEKR_FILTER="user" node tests/MyTests.js
+
+# Skip tests matching "slow"
+ZEKR_SKIP="slow" node tests/MyTests.js
+
+# Combine filter and skip
+ZEKR_FILTER="api" ZEKR_SKIP="integration" node tests/MyTests.js
+```
+
+Filtering is case-insensitive and matches against both suite and test names.
+
 ### Running Tests
 
 ```rescript

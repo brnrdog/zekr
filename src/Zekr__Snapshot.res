@@ -8,6 +8,8 @@ module NodeFs = {
   @module("fs") external readFileSync: (string, string) => string = "readFileSync"
   @module("fs") external writeFileSync: (string, string) => unit = "writeFileSync"
   @module("fs") external mkdirSync: (string, {"recursive": bool}) => unit = "mkdirSync"
+  @module("fs")
+  external watch: (string, {"recursive": bool}, (string, string) => unit) => unit = "watch"
 }
 
 module NodePath = {
