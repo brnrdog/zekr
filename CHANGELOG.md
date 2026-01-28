@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0](https://github.com/brnrdog/zekr/compare/v1.5.1...v1.6.0) (2026-01-28)
+
+### Features
+
+* add test filtering via environment variables ([777910a](https://github.com/brnrdog/zekr/commit/777910a9055d1573c4c2a955193b0704a1723bf3))
+* add watch mode for automatic test re-running ([93c9e98](https://github.com/brnrdog/zekr/commit/93c9e98381acf684d542f6ab57e04c89a2e2ce93))
+
 ## [1.5.1](https://github.com/brnrdog/zekr/compare/v1.5.0...v1.5.1) (2026-01-27)
 
 ### Code Refactoring
