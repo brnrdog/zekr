@@ -121,3 +121,10 @@ let runSuites = Zekr__Runner.runSuites
 let runAsyncSuite = Zekr__Runner.runAsyncSuite
 let runAsyncSuites = Zekr__Runner.runAsyncSuites
 let runWithTimeout = Zekr__Runner.runWithTimeout
+
+// Re-export filtering
+let setFilterPattern = Zekr__Runner.setFilterPattern
+let setSkipPattern = Zekr__Runner.setSkipPattern
+
+// Re-export watch mode
+let watchMode = Zekr__Runner.watchMode
