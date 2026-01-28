@@ -169,6 +169,29 @@ ZEKR_FILTER="api" ZEKR_SKIP="integration" node tests/MyTests.js
 
 Filtering is case-insensitive and matches against both suite and test names.
 
+### Watch Mode
+
+Automatically re-run tests when files change:
+
+```rescript
+// In a separate watch script (e.g., watch.res)
+open Zekr
+
+watchMode(
+  ~testCommand="node tests/MyTests.js",
+  ~watchPaths=["src", "tests"],
+  ~buildCommand="npx rescript",
+)
+```
+
+Run with: `node watch.js`
+
+The watch mode will:
+- Run an initial test pass
+- Watch specified paths for file changes
+- Re-build (if buildCommand provided) and re-run tests on changes
+- Debounce rapid file changes
+
 ### Running Tests
 
 ```rescript
