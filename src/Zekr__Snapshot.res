@@ -31,8 +31,8 @@ let assertMatchesSnapshot = (
 ): testResult => {
   let serialized = JSON.stringifyAny(value)->Option.getOr("undefined")
   let formatted = try {
-    let parsed = JSON.parseExn(serialized)
-    JSON.stringifyWithIndent(parsed, 2)
+    let parsed = JSON.parseOrThrow(serialized)
+    JSON.stringify(parsed, ~space=2)
   } catch {
   | _ => serialized
   }
@@ -71,8 +71,8 @@ let assertMatchesSnapshot = (
 let updateSnapshot = (value: 'a, ~name: string, ~snapshotPath: option<string>=?): unit => {
   let serialized = JSON.stringifyAny(value)->Option.getOr("undefined")
   let formatted = try {
-    let parsed = JSON.parseExn(serialized)
-    JSON.stringifyWithIndent(parsed, 2)
+    let parsed = JSON.parseOrThrow(serialized)
+    JSON.stringify(parsed, ~space=2)
   } catch {
   | _ => serialized
   }

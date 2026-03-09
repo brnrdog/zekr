@@ -86,7 +86,11 @@ let assertLessThan = (actual: 'a, expected: 'a, ~message: option<string>=?): tes
   }
 }
 
-let assertGreaterThanOrEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
+let assertGreaterThanOrEqual = (
+  actual: 'a,
+  expected: 'a,
+  ~message: option<string>=?,
+): testResult => {
   if actual >= expected {
     Pass
   } else {
