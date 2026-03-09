@@ -16,7 +16,5 @@
       "module": "esmodule",
       "in-source": true
     }
-  ],
-  "dependencies": ["@rescript/core"],
-  "compiler-flags": ["-open RescriptCore"]
+  ]
 }

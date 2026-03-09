@@ -10,8 +10,8 @@ let getEnvVar = (name: string): option<string> => {
 }
 
 // Test filtering configuration
-let filterPattern = ref(None: option<string>)
-let skipPattern = ref(None: option<string>)
+let filterPattern = ref((None: option<string>))
+let skipPattern = ref((None: option<string>))
 
 let setFilterPattern = (pattern: option<string>): unit => {
   filterPattern := pattern
@@ -100,7 +100,11 @@ let runSuite = (testSuite: testSuite): unit => {
       | _ => ()
       }
     } else {
-      Console.log(`  ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed("(skipped)")}`)
+      Console.log(
+        `  ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed(
+            "(skipped)",
+          )}`,
+      )
       skipped := skipped.contents + 1
     }
   })
@@ -118,7 +122,9 @@ let runSuite = (testSuite: testSuite): unit => {
     ""
   }
   Console.log(
-    `Results: ${Zekr__Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Zekr__Colors.fail(Int.toString(failed.contents) ++ " failed")}${skipMsg}`,
+    `Results: ${Zekr__Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Zekr__Colors.fail(
+        Int.toString(failed.contents) ++ " failed",
+      )}${skipMsg}`,
   )
 
   if failed.contents > 0 {
@@ -209,7 +215,11 @@ let runSuites = (suites: array<testSuite>): unit => {
         | _ => ()
         }
       } else {
-        Console.log(`   ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed("(skipped)")}`)
+        Console.log(
+          `   ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed(
+              "(skipped)",
+            )}`,
+        )
         suiteSkipped := suiteSkipped.contents + 1
         totalSkipped := totalSkipped.contents + 1
       }
@@ -227,7 +237,9 @@ let runSuites = (suites: array<testSuite>): unit => {
       ""
     }
     Console.log(
-      `  ${Zekr__Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Zekr__Colors.fail(Int.toString(suiteFailed.contents) ++ " failed")}${skipMsg}`,
+      `  ${Zekr__Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Zekr__Colors.fail(
+          Int.toString(suiteFailed.contents) ++ " failed",
+        )}${skipMsg}`,
     )
   })
 
@@ -243,7 +255,11 @@ let runSuites = (suites: array<testSuite>): unit => {
     ""
   }
   Console.log(
-    `Total: ${Zekr__Colors.pass(Int.toString(totalPassed.contents) ++ " passed")}, ${Zekr__Colors.fail(Int.toString(totalFailed.contents) ++ " failed")}${totalSkipMsg}${totalFilterMsg}`,
+    `Total: ${Zekr__Colors.pass(
+        Int.toString(totalPassed.contents) ++ " passed",
+      )}, ${Zekr__Colors.fail(
+        Int.toString(totalFailed.contents) ++ " failed",
+      )}${totalSkipMsg}${totalFilterMsg}`,
   )
 
   if totalFailed.contents > 0 {
@@ -256,18 +272,15 @@ let runSuites = (suites: array<testSuite>): unit => {
 }
 
 // Helper to run async test with timeout and error handling
-let runWithTimeout = async (
-  run: unit => promise<testResult>,
-  timeout: option<int>,
-): testResult => {
+let runWithTimeout = async (run: unit => promise<testResult>, timeout: option<int>): testResult => {
   let testPromise = async () => {
     try {
       await run()
     } catch {
     | exn =>
       let message = switch exn {
-      | Exn.Error(err) =>
-        switch Exn.message(err) {
+      | JsExn(err) =>
+        switch JsExn.message(err) {
         | Some(msg) => msg
         | None => "Unknown error"
         }
@@ -343,7 +356,11 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
       | _ => ()
       }
     } else {
-      Console.log(`  ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed("(skipped)")}`)
+      Console.log(
+        `  ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed(
+            "(skipped)",
+          )}`,
+      )
       skipped := skipped.contents + 1
     }
   }
@@ -361,7 +378,9 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
     ""
   }
   Console.log(
-    `Results: ${Zekr__Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Zekr__Colors.fail(Int.toString(failed.contents) ++ " failed")}${skipMsg}`,
+    `Results: ${Zekr__Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Zekr__Colors.fail(
+        Int.toString(failed.contents) ++ " failed",
+      )}${skipMsg}`,
   )
 
   if failed.contents > 0 {
@@ -456,7 +475,11 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
         | _ => ()
         }
       } else {
-        Console.log(`   ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed("(skipped)")}`)
+        Console.log(
+          `   ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed(
+              "(skipped)",
+            )}`,
+        )
         suiteSkipped := suiteSkipped.contents + 1
         totalSkipped := totalSkipped.contents + 1
       }
@@ -474,7 +497,9 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
       ""
     }
     Console.log(
-      `  ${Zekr__Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Zekr__Colors.fail(Int.toString(suiteFailed.contents) ++ " failed")}${skipMsg}`,
+      `  ${Zekr__Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Zekr__Colors.fail(
+          Int.toString(suiteFailed.contents) ++ " failed",
+        )}${skipMsg}`,
     )
   }
 
@@ -490,7 +515,11 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
     ""
   }
   Console.log(
-    `Total: ${Zekr__Colors.pass(Int.toString(totalPassed.contents) ++ " passed")}, ${Zekr__Colors.fail(Int.toString(totalFailed.contents) ++ " failed")}${totalSkipMsg}${totalFilterMsg}`,
+    `Total: ${Zekr__Colors.pass(
+        Int.toString(totalPassed.contents) ++ " passed",
+      )}, ${Zekr__Colors.fail(
+        Int.toString(totalFailed.contents) ++ " failed",
+      )}${totalSkipMsg}${totalFilterMsg}`,
   )
 
   if totalFailed.contents > 0 {
@@ -527,7 +556,7 @@ let watchMode = (
     | Some(cmd) => {
         let parts = cmd->String.split(" ")
         let command = parts->Array.get(0)->Option.getOr("echo")
-        let args = parts->Array.sliceToEnd(~start=1)
+        let args = parts->Array.slice(~start=1)
         let _ = NodeChildProcess.spawnSync(command, args, {"stdio": "inherit"})
       }
     | None => ()
@@ -536,7 +565,7 @@ let watchMode = (
     // Run test command
     let parts = testCommand->String.split(" ")
     let command = parts->Array.get(0)->Option.getOr("node")
-    let args = parts->Array.sliceToEnd(~start=1)
+    let args = parts->Array.slice(~start=1)
     let _ = NodeChildProcess.spawnSync(command, args, {"stdio": "inherit"})
   }
 
