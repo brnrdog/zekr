@@ -128,3 +128,6 @@ let setSkipPattern = Zekr__Runner.setSkipPattern
 
 // Re-export watch mode
 let watchMode = Zekr__Runner.watchMode
+
+// Re-export DOM testing module
+module Dom = Zekr__Dom
