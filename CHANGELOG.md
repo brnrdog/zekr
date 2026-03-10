@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0](https://github.com/brnrdog/zekr/compare/v1.6.0...v1.7.0) (2026-03-10)
+
+### Features
+
+* add DOM testing support with queries, events, and assertions ([74c3ca9](https://github.com/brnrdog/zekr/commit/74c3ca9413035efcf46dc01ebed4602e7a73a642))
+
+### Code Refactoring
+
+* migrate from @rescript/core to ReScript 12 stdlib APIs ([33dd0a1](https://github.com/brnrdog/zekr/commit/33dd0a138b1ef703274abe40ced3c1af4ba0dd5a))
+
 ## [1.6.0](https://github.com/brnrdog/zekr/compare/v1.5.1...v1.6.0) (2026-01-28)
 
 ### Features
