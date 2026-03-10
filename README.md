@@ -192,6 +192,162 @@ The watch mode will:
 - Re-build (if buildCommand provided) and re-run tests on changes
 - Debounce rapid file changes
 
+### DOM Testing
+
+Test DOM rendering, user interactions, and element assertions using a built-in jsdom environment. Inspired by [Testing Library](https://testing-library.com/).
+
+#### Rendering
+
+```rescript
+open Zekr
+
+let myTests = suite("Login Form", [
+  test("renders and accepts input", () => {
+    // Render HTML into a jsdom container
+    let {container} = Dom.render(`
+      <form>
+        <label for="email">Email</label>
+        <input id="email" type="email" value="" />
+        <button type="submit">Sign In</button>
+      </form>
+    `)
+
+    let input = container->Dom.Query.getByLabelText("Email")
+    Dom.Event.typeText(input, "user@example.com")
+
+    let result = Dom.Assert.toHaveValue(input, "user@example.com")
+
+    // Clean up the rendered DOM after each test
+    Dom.cleanup()
+    result
+  }),
+])
+```
+
+#### Queries
+
+Find elements in the rendered DOM. Each query type comes in three variants:
+
+- `getBy*` - returns the element, throws if not found or if multiple match
+- `queryBy*` - returns `option<Dom.element>`, `None` if not found
+- `getAllBy*` - returns `array<Dom.element>`, throws if none found
+
+```rescript
+// By text content
+container->Dom.Query.getByText("Hello World")
+container->Dom.Query.getByText("hello", ~exact=false)
+
+// By ARIA role (implicit roles from HTML tags are supported)
+container->Dom.Query.getByRole("button")
+container->Dom.Query.getByRole("heading", ~level=2)
+container->Dom.Query.getByRole("button", ~name="Submit")
+container->Dom.Query.getByRole("checkbox", ~checked=true)
+
+// By test id
+container->Dom.Query.getByTestId("submit-btn")
+
+// By form attributes
+container->Dom.Query.getByPlaceholder("Enter your email")
+container->Dom.Query.getByLabelText("Username")
+container->Dom.Query.getByDisplayValue("current text")
+
+// By other attributes
+container->Dom.Query.getByAltText("Company logo")
+container->Dom.Query.getByTitle("Close")
+```
+
+#### User Events
+
+Simulate user interactions. Events fire realistic event sequences (pointer, mouse, keyboard, input events).
+
+```rescript
+// Mouse
+Dom.Event.click(element)
+Dom.Event.dblClick(element)
+Dom.Event.hover(element)
+Dom.Event.unhover(element)
+
+// Keyboard / Text
+Dom.Event.typeText(input, "Hello World")
+Dom.Event.clear(input)
+
+// Form controls
+Dom.Event.check(checkbox)
+Dom.Event.uncheck(checkbox)
+Dom.Event.selectOptions(select, ["option-value"])
+
+// Focus
+Dom.Event.focus(element)
+Dom.Event.blur(element)
+
+// Low-level custom event dispatch
+Dom.Event.fireEvent(element, someEvent)
+```
+
+#### DOM Assertions
+
+All assertions return `testResult` (`Pass` or `Fail(message)`), integrating with zekr's existing assertion system.
+
+```rescript
+// Presence
+Dom.Assert.toBeInTheDocument(element)
+Dom.Assert.toNotBeInTheDocument(optionElement)
+
+// Text content
+Dom.Assert.toHaveTextContent(element, "Hello")
+Dom.Assert.toHaveTextContent(element, "hello", ~exact=false)
+
+// Attributes and classes
+Dom.Assert.toHaveAttribute(element, "href")
+Dom.Assert.toHaveAttribute(element, "href", ~value="/home")
+Dom.Assert.toNotHaveAttribute(element, "disabled")
+Dom.Assert.toHaveClass(element, "active primary")
+Dom.Assert.toNotHaveClass(element, "hidden")
+
+// Visibility and state
+Dom.Assert.toBeVisible(element)
+Dom.Assert.toNotBeVisible(element)
+Dom.Assert.toBeDisabled(element)
+Dom.Assert.toBeEnabled(element)
+
+// Form values
+Dom.Assert.toHaveValue(input, "hello")
+Dom.Assert.toBeChecked(checkbox)
+Dom.Assert.toNotBeChecked(checkbox)
+
+// Containment
+Dom.Assert.toContainElement(parent, child)
+Dom.Assert.toNotContainElement(parent, child)
+Dom.Assert.toContainHTML(element, "<strong>Bold</strong>")
+Dom.Assert.toBeEmptyDOMElement(element)
+
+// Style and focus
+Dom.Assert.toHaveStyle(element, "color", "red")
+Dom.Assert.toHaveFocus(element)
+Dom.Assert.toNotHaveFocus(element)
+```
+
+#### Combining Results
+
+Use `combineResults` to check multiple assertions in a single test:
+
+```rescript
+test("form state is correct", () => {
+  let {container} = Dom.render(`...`)
+  let input = container->Dom.Query.getByRole("textbox")
+  let button = container->Dom.Query.getByRole("button")
+
+  let result = combineResults([
+    Dom.Assert.toHaveValue(input, ""),
+    Dom.Assert.toBeEnabled(button),
+    Dom.Assert.toBeVisible(button),
+  ])
+
+  Dom.cleanup()
+  result
+})
+```
+
 ### Running Tests
 
 ```rescript
