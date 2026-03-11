@@ -1,0 +1,5 @@
+node_modules
+dist
+*.res.mjs
+.vite
+lib
