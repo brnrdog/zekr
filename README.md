@@ -358,6 +358,45 @@ runSuite(mySuite)
 runSuites([suite1, suite2, suite3])
 ```
 
+### Test Coverage
+
+Generate test coverage reports on your ReScript source files using [c8](https://github.com/bcoe/c8) (V8 native coverage). Since ReScript doesn't support sourcemaps natively, Zekr includes a sourcemap generator that maps compiled JavaScript back to `.res` files.
+
+#### Setup
+
+Install the required dev dependencies:
+
+```bash
+npm install --save-dev c8 source-map
+```
+
+Add coverage scripts to your `package.json`:
+
+```json
+{
+  "scripts": {
+    "precoverage": "rescript && node node_modules/zekr/scripts/generate-sourcemaps.mjs src",
+    "coverage": "c8 node tests/MyTests.js"
+  },
+  "c8": {
+    "include": ["src/**/*.js"],
+    "reporter": ["text", "html"],
+    "report-dir": "coverage",
+    "all": true
+  }
+}
+```
+
+Run coverage:
+
+```bash
+npm run coverage
+```
+
+The text report shows coverage on `.res` files with line numbers pointing to your ReScript source, and the HTML report (in `coverage/`) renders the original ReScript code with highlighted coverage.
+
+See the [Coverage documentation](https://brnrdog.github.io/zekr/api/coverage) for more details.
+
 ## License
 
 MIT

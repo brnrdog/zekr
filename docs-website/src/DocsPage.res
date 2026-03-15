@@ -27,6 +27,7 @@ let docsNav: array<docCategory> = [
       {title: "DOM Assertions", path: "/api/dom/assertions"},
       {title: "Snapshots", path: "/api/snapshots"},
       {title: "Test Runner", path: "/api/runner"},
+      {title: "Test Coverage", path: "/api/coverage"},
     ],
   },
   {

@@ -8,5 +8,6 @@ module ApiDomEvents = Pages__ApiDomEvents
 module ApiDomAssertions = Pages__ApiDomAssertions
 module ApiSnapshots = Pages__ApiSnapshots
 module ApiRunner = Pages__ApiRunner
+module ApiCoverage = Pages__ApiCoverage
 module Examples = Pages__Examples
 module ReleaseNotes = Pages__ReleaseNotes
