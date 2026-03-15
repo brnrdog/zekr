@@ -63,6 +63,7 @@ let searchItems: array<searchItem> = [
   {title: "DOM Assertions", path: "/api/dom/assertions", section: "API Reference"},
   {title: "Snapshots", path: "/api/snapshots", section: "API Reference"},
   {title: "Test Runner", path: "/api/runner", section: "API Reference"},
+  {title: "Test Coverage", path: "/api/coverage", section: "API Reference"},
   {title: "Examples", path: "/examples", section: "Resources"},
   {title: "Release Notes", path: "/release-notes", section: "Resources"},
 ]
