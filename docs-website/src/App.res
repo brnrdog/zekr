@@ -77,6 +77,14 @@ let make = () => {
         />,
     },
     {
+      pattern: "/api/coverage",
+      render: _ =>
+        <DocsPage
+          currentPath="/api/coverage"
+          content={<Pages.ApiCoverage />}
+        />,
+    },
+    {
       pattern: "/examples",
       render: _ =>
         <DocsPage
