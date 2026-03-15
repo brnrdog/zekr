@@ -14,6 +14,8 @@
     "clean": "rescript clean",
     "watch": "rescript -w",
     "test": "rescript && node tests/ZekrTests.js && node tests/ZekrAsyncTests.js && node tests/ZekrDomTests.js",
+    "precoverage": "rescript && node scripts/generate-sourcemaps.mjs src",
+    "coverage": "rm -rf .c8_output && c8 --temp-directory .c8_output -r none node tests/ZekrTests.js ; c8 --temp-directory .c8_output -r none node tests/ZekrAsyncTests.js ; c8 --temp-directory .c8_output -r none node tests/ZekrDomTests.js ; c8 report --temp-directory .c8_output",
     "semantic-release": "semantic-release"
   },
   "repository": {
@@ -36,9 +38,18 @@
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
     "@semantic-release/github": "^11.0.0",
+    "c8": "^11.0.0",
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "rescript": "^12.1.0",
-    "semantic-release": "^25.0.3"
+    "semantic-release": "^25.0.3",
+    "source-map": "^0.7.6"
+  },
+  "c8": {
+    "include": ["src/**/*.js"],
+    "exclude": ["src/**/*.js.map", "src/Zekr__Types.js"],
+    "reporter": ["text", "html"],
+    "report-dir": "coverage",
+    "all": true
   },
   "dependencies": {
     "jsdom": "^28.1.0"
