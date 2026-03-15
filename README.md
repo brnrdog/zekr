@@ -3,7 +3,7 @@
 [![npm version](https://badgen.net/npm/v/zekr)](https://www.npmjs.com/package/zekr)
 [![license](https://badgen.net/npm/license/zekr)](https://github.com/brnrdog/zekr/blob/main/LICENSE)
 
-A simple test framework for ReScript.
+A test framework for ReScript applications.
 
 ## Installation
 
