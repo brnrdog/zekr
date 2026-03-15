@@ -1,6 +1,6 @@
 {
   "name": "zekr",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "description": "A simple test framework for ReScript",
   "main": "./src/Zekr.js",
   "module": "./src/Zekr.js",
@@ -45,9 +45,17 @@
     "source-map": "^0.7.6"
   },
   "c8": {
-    "include": ["src/**/*.js"],
-    "exclude": ["src/**/*.js.map", "src/Zekr__Types.js"],
-    "reporter": ["text", "html"],
+    "include": [
+      "src/**/*.js"
+    ],
+    "exclude": [
+      "src/**/*.js.map",
+      "src/Zekr__Types.js"
+    ],
+    "reporter": [
+      "text",
+      "html"
+    ],
     "report-dir": "coverage",
     "all": true
   },

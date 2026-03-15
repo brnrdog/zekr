@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.8.0](https://github.com/brnrdog/zekr/compare/v1.7.0...v1.8.0) (2026-03-15)
+
+### Features
+
+* add test coverage with c8 and ReScript sourcemap generation ([ab69265](https://github.com/brnrdog/zekr/commit/ab692657947f151bd42d282c1cf482f79e2c8ce5))
+
+### Documentation
+
+* add documentation website for zekr ([#11](https://github.com/brnrdog/zekr/issues/11)) ([ca83ef3](https://github.com/brnrdog/zekr/commit/ca83ef3c20aea5610573e12d2b427326ef52fdfe))
+* add test coverage documentation to README and docs website ([0412e93](https://github.com/brnrdog/zekr/commit/0412e93b08261959ba6ee0da33b655aa400d4403))
+* redesign docs website with ([#13](https://github.com/brnrdog/zekr/issues/13)) ([706b2a8](https://github.com/brnrdog/zekr/commit/706b2a8c170a3aeb7fbcd5340d689e128496db80))
+
 ## [1.7.0](https://github.com/brnrdog/zekr/compare/v1.6.0...v1.7.0) (2026-03-10)
 
 ### Features
