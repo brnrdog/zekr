@@ -4,6 +4,9 @@
 .bsb.lock
 .merlin
 *.js
+*.js.map
+/coverage/
+/.c8_output/
 
 # npm
 npm-debug.log*
