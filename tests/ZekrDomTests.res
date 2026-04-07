@@ -1,35 +1,35 @@
-open Zekr
+open Types
 
 // === Render and Cleanup Tests ===
 
-let renderTests = suite(
-  "Dom.render and cleanup",
+let renderTests = Suite.make(
+  "DomTesting.render and cleanup",
   [
-    test("renders HTML into a container", () => {
-      let {container} = Dom.render(`<p>Hello World</p>`)
-      let result = Dom.Assert.toContainHTML(container, "<p>Hello World</p>")
-      Dom.cleanup()
+    Test.make("renders HTML into a container", () => {
+      let {container} = DomTesting.render(`<p>Hello World</p>`)
+      let result = DomTesting.Assert.toContainHTML(container, "<p>Hello World</p>")
+      DomTesting.cleanup()
       result
     }),
-    test("container is in the document", () => {
-      let {container} = Dom.render(`<div>test</div>`)
-      let result = Dom.Assert.toBeInTheDocument(container)
-      Dom.cleanup()
+    Test.make("container is in the document", () => {
+      let {container} = DomTesting.render(`<div>test</div>`)
+      let result = DomTesting.Assert.toBeInTheDocument(container)
+      DomTesting.cleanup()
       result
     }),
-    test("cleanup removes containers from the document", () => {
-      let {container} = Dom.render(`<div>to be removed</div>`)
-      Dom.cleanup()
-      Dom.Assert.toNotBeInTheDocument(Some(container))
+    Test.make("cleanup removes containers from the document", () => {
+      let {container} = DomTesting.render(`<div>to be removed</div>`)
+      DomTesting.cleanup()
+      DomTesting.Assert.toNotBeInTheDocument(Some(container))
     }),
-    test("multiple renders create separate containers", () => {
-      let {container: c1} = Dom.render(`<p>First</p>`)
-      let {container: c2} = Dom.render(`<p>Second</p>`)
-      let result = combineResults([
-        Dom.Assert.toContainHTML(c1, "First"),
-        Dom.Assert.toContainHTML(c2, "Second"),
+    Test.make("multiple renders create separate containers", () => {
+      let {container: c1} = DomTesting.render(`<p>First</p>`)
+      let {container: c2} = DomTesting.render(`<p>Second</p>`)
+      let result = Assert.combineResults([
+        DomTesting.Assert.toContainHTML(c1, "First"),
+        DomTesting.Assert.toContainHTML(c2, "Second"),
       ])
-      Dom.cleanup()
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -37,49 +37,49 @@ let renderTests = suite(
 
 // === Query by Text Tests ===
 
-let queryByTextTests = suite(
-  "Dom.Query - getByText",
+let queryByTextTests = Suite.make(
+  "DomTesting.Query - getByText",
   [
-    test("finds element by exact text", () => {
-      let {container} = Dom.render(`<p>Hello World</p>`)
-      let el = Dom.Query.getByText(container, "Hello World")
-      let result = Dom.Assert.toHaveTextContent(el, "Hello World")
-      Dom.cleanup()
+    Test.make("finds element by exact text", () => {
+      let {container} = DomTesting.render(`<p>Hello World</p>`)
+      let el = DomTesting.Query.getByText(container, "Hello World")
+      let result = DomTesting.Assert.toHaveTextContent(el, "Hello World")
+      DomTesting.cleanup()
       result
     }),
-    test("finds element by inexact text", () => {
-      let {container} = Dom.render(`<p>Hello World</p>`)
-      let el = Dom.Query.getByText(container, "hello", ~exact=false)
-      let result = Dom.Assert.toHaveTextContent(el, "Hello World")
-      Dom.cleanup()
+    Test.make("finds element by inexact text", () => {
+      let {container} = DomTesting.render(`<p>Hello World</p>`)
+      let el = DomTesting.Query.getByText(container, "hello", ~exact=false)
+      let result = DomTesting.Assert.toHaveTextContent(el, "Hello World")
+      DomTesting.cleanup()
       result
     }),
-    test("queryByText returns None when not found", () => {
-      let {container} = Dom.render(`<p>Hello</p>`)
-      let result = switch Dom.Query.queryByText(container, "Goodbye") {
+    Test.make("queryByText returns None when not found", () => {
+      let {container} = DomTesting.render(`<p>Hello</p>`)
+      let result = switch DomTesting.Query.queryByText(container, "Goodbye") {
       | None => Pass
       | Some(_) => Fail("Expected None, got Some")
       }
-      Dom.cleanup()
+      DomTesting.cleanup()
       result
     }),
-    test("getAllByText returns multiple matches", () => {
-      let {container} = Dom.render(`<li>Item</li><li>Item</li><li>Item</li>`)
-      let items = Dom.Query.getAllByText(container, "Item")
-      let result = assertEqual(Array.length(items), 3)
-      Dom.cleanup()
+    Test.make("getAllByText returns multiple matches", () => {
+      let {container} = DomTesting.render(`<li>Item</li><li>Item</li><li>Item</li>`)
+      let items = DomTesting.Query.getAllByText(container, "Item")
+      let result = Assert.assertEqual(Array.length(items), 3)
+      DomTesting.cleanup()
       result
     }),
-    test("getByText throws for multiple matches", () => {
-      let {container} = Dom.render(`<span>Same</span><span>Same</span>`)
-      let result = assertThrows(() => Dom.Query.getByText(container, "Same"))
-      Dom.cleanup()
+    Test.make("getByText throws for multiple matches", () => {
+      let {container} = DomTesting.render(`<span>Same</span><span>Same</span>`)
+      let result = Assert.assertThrows(() => DomTesting.Query.getByText(container, "Same"))
+      DomTesting.cleanup()
       result
     }),
-    test("getByText throws when not found", () => {
-      let {container} = Dom.render(`<p>Hello</p>`)
-      let result = assertThrows(() => Dom.Query.getByText(container, "Nonexistent"))
-      Dom.cleanup()
+    Test.make("getByText throws when not found", () => {
+      let {container} = DomTesting.render(`<p>Hello</p>`)
+      let result = Assert.assertThrows(() => DomTesting.Query.getByText(container, "Nonexistent"))
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -87,72 +87,72 @@ let queryByTextTests = suite(
 
 // === Query by Role Tests ===
 
-let queryByRoleTests = suite(
-  "Dom.Query - getByRole",
+let queryByRoleTests = Suite.make(
+  "DomTesting.Query - getByRole",
   [
-    test("finds button by role", () => {
-      let {container} = Dom.render(`<button>Click me</button>`)
-      let btn = Dom.Query.getByRole(container, "button")
-      let result = Dom.Assert.toHaveTextContent(btn, "Click me")
-      Dom.cleanup()
+    Test.make("finds button by role", () => {
+      let {container} = DomTesting.render(`<button>Click me</button>`)
+      let btn = DomTesting.Query.getByRole(container, "button")
+      let result = DomTesting.Assert.toHaveTextContent(btn, "Click me")
+      DomTesting.cleanup()
       result
     }),
-    test("finds link by role", () => {
-      let {container} = Dom.render(`<a href="/page">Go to page</a>`)
-      let link = Dom.Query.getByRole(container, "link")
-      let result = Dom.Assert.toHaveTextContent(link, "Go to page")
-      Dom.cleanup()
+    Test.make("finds link by role", () => {
+      let {container} = DomTesting.render(`<a href="/page">Go to page</a>`)
+      let link = DomTesting.Query.getByRole(container, "link")
+      let result = DomTesting.Assert.toHaveTextContent(link, "Go to page")
+      DomTesting.cleanup()
       result
     }),
-    test("finds textbox input by role", () => {
-      let {container} = Dom.render(`<input type="text" value="hello" />`)
-      let input = Dom.Query.getByRole(container, "textbox")
-      let result = Dom.Assert.toHaveValue(input, "hello")
-      Dom.cleanup()
+    Test.make("finds textbox input by role", () => {
+      let {container} = DomTesting.render(`<input type="text" value="hello" />`)
+      let input = DomTesting.Query.getByRole(container, "textbox")
+      let result = DomTesting.Assert.toHaveValue(input, "hello")
+      DomTesting.cleanup()
       result
     }),
-    test("finds checkbox by role", () => {
-      let {container} = Dom.render(`<input type="checkbox" />`)
-      let cb = Dom.Query.getByRole(container, "checkbox")
-      let result = Dom.Assert.toNotBeChecked(cb)
-      Dom.cleanup()
+    Test.make("finds checkbox by role", () => {
+      let {container} = DomTesting.render(`<input type="checkbox" />`)
+      let cb = DomTesting.Query.getByRole(container, "checkbox")
+      let result = DomTesting.Assert.toNotBeChecked(cb)
+      DomTesting.cleanup()
       result
     }),
-    test("finds heading by role with level", () => {
-      let {container} = Dom.render(`<h1>Title</h1><h2>Subtitle</h2>`)
-      let h2 = Dom.Query.getByRole(container, "heading", ~level=2)
-      let result = Dom.Assert.toHaveTextContent(h2, "Subtitle")
-      Dom.cleanup()
+    Test.make("finds heading by role with level", () => {
+      let {container} = DomTesting.render(`<h1>Title</h1><h2>Subtitle</h2>`)
+      let h2 = DomTesting.Query.getByRole(container, "heading", ~level=2)
+      let result = DomTesting.Assert.toHaveTextContent(h2, "Subtitle")
+      DomTesting.cleanup()
       result
     }),
-    test("finds element by role and name", () => {
-      let {container} = Dom.render(
+    Test.make("finds element by role and name", () => {
+      let {container} = DomTesting.render(
         `<button>Save</button><button>Cancel</button>`,
       )
-      let btn = Dom.Query.getByRole(container, "button", ~name="Save")
-      let result = Dom.Assert.toHaveTextContent(btn, "Save")
-      Dom.cleanup()
+      let btn = DomTesting.Query.getByRole(container, "button", ~name="Save")
+      let result = DomTesting.Assert.toHaveTextContent(btn, "Save")
+      DomTesting.cleanup()
       result
     }),
-    test("finds element with explicit role attribute", () => {
-      let {container} = Dom.render(`<div role="alert">Warning!</div>`)
-      let alert = Dom.Query.getByRole(container, "alert")
-      let result = Dom.Assert.toHaveTextContent(alert, "Warning!")
-      Dom.cleanup()
+    Test.make("finds element with explicit role attribute", () => {
+      let {container} = DomTesting.render(`<div role="alert">Warning!</div>`)
+      let alert = DomTesting.Query.getByRole(container, "alert")
+      let result = DomTesting.Assert.toHaveTextContent(alert, "Warning!")
+      DomTesting.cleanup()
       result
     }),
-    test("finds navigation by implicit role", () => {
-      let {container} = Dom.render(`<nav>Nav content</nav>`)
-      let nav = Dom.Query.getByRole(container, "navigation")
-      let result = Dom.Assert.toHaveTextContent(nav, "Nav content")
-      Dom.cleanup()
+    Test.make("finds navigation by implicit role", () => {
+      let {container} = DomTesting.render(`<nav>Nav content</nav>`)
+      let nav = DomTesting.Query.getByRole(container, "navigation")
+      let result = DomTesting.Assert.toHaveTextContent(nav, "Nav content")
+      DomTesting.cleanup()
       result
     }),
-    test("finds list items by role", () => {
-      let {container} = Dom.render(`<ul><li>One</li><li>Two</li><li>Three</li></ul>`)
-      let items = Dom.Query.getAllByRole(container, "listitem")
-      let result = assertEqual(Array.length(items), 3)
-      Dom.cleanup()
+    Test.make("finds list items by role", () => {
+      let {container} = DomTesting.render(`<ul><li>One</li><li>Two</li><li>Three</li></ul>`)
+      let items = DomTesting.Query.getAllByRole(container, "listitem")
+      let result = Assert.assertEqual(Array.length(items), 3)
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -160,23 +160,23 @@ let queryByRoleTests = suite(
 
 // === Query by TestId Tests ===
 
-let queryByTestIdTests = suite(
-  "Dom.Query - getByTestId",
+let queryByTestIdTests = Suite.make(
+  "DomTesting.Query - getByTestId",
   [
-    test("finds element by data-testid", () => {
-      let {container} = Dom.render(`<div data-testid="greeting">Hello</div>`)
-      let el = Dom.Query.getByTestId(container, "greeting")
-      let result = Dom.Assert.toHaveTextContent(el, "Hello")
-      Dom.cleanup()
+    Test.make("finds element by data-testid", () => {
+      let {container} = DomTesting.render(`<div data-testid="greeting">Hello</div>`)
+      let el = DomTesting.Query.getByTestId(container, "greeting")
+      let result = DomTesting.Assert.toHaveTextContent(el, "Hello")
+      DomTesting.cleanup()
       result
     }),
-    test("queryByTestId returns None when not found", () => {
-      let {container} = Dom.render(`<div>No testid</div>`)
-      let result = switch Dom.Query.queryByTestId(container, "missing") {
+    Test.make("queryByTestId returns None when not found", () => {
+      let {container} = DomTesting.render(`<div>No testid</div>`)
+      let result = switch DomTesting.Query.queryByTestId(container, "missing") {
       | None => Pass
       | Some(_) => Fail("Expected None")
       }
-      Dom.cleanup()
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -184,21 +184,21 @@ let queryByTestIdTests = suite(
 
 // === Query by Placeholder Tests ===
 
-let queryByPlaceholderTests = suite(
-  "Dom.Query - getByPlaceholder",
+let queryByPlaceholderTests = Suite.make(
+  "DomTesting.Query - getByPlaceholder",
   [
-    test("finds input by placeholder text", () => {
-      let {container} = Dom.render(`<input placeholder="Enter your email" />`)
-      let input = Dom.Query.getByPlaceholder(container, "Enter your email")
-      let result = Dom.Assert.toBeInTheDocument(input)
-      Dom.cleanup()
+    Test.make("finds input by placeholder text", () => {
+      let {container} = DomTesting.render(`<input placeholder="Enter your email" />`)
+      let input = DomTesting.Query.getByPlaceholder(container, "Enter your email")
+      let result = DomTesting.Assert.toBeInTheDocument(input)
+      DomTesting.cleanup()
       result
     }),
-    test("finds input by partial placeholder", () => {
-      let {container} = Dom.render(`<input placeholder="Enter your email" />`)
-      let input = Dom.Query.getByPlaceholder(container, "email", ~exact=false)
-      let result = Dom.Assert.toBeInTheDocument(input)
-      Dom.cleanup()
+    Test.make("finds input by partial placeholder", () => {
+      let {container} = DomTesting.render(`<input placeholder="Enter your email" />`)
+      let input = DomTesting.Query.getByPlaceholder(container, "email", ~exact=false)
+      let result = DomTesting.Assert.toBeInTheDocument(input)
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -206,25 +206,25 @@ let queryByPlaceholderTests = suite(
 
 // === Query by Label Text Tests ===
 
-let queryByLabelTextTests = suite(
-  "Dom.Query - getByLabelText",
+let queryByLabelTextTests = Suite.make(
+  "DomTesting.Query - getByLabelText",
   [
-    test("finds input by associated label (for/id)", () => {
-      let {container} = Dom.render(
+    Test.make("finds input by associated label (for/id)", () => {
+      let {container} = DomTesting.render(
         `<label for="email-input">Email</label><input id="email-input" type="email" />`,
       )
-      let input = Dom.Query.getByLabelText(container, "Email")
-      let result = Dom.Assert.toHaveAttribute(input, "type", ~value="email")
-      Dom.cleanup()
+      let input = DomTesting.Query.getByLabelText(container, "Email")
+      let result = DomTesting.Assert.toHaveAttribute(input, "type", ~value="email")
+      DomTesting.cleanup()
       result
     }),
-    test("finds input nested within label", () => {
-      let {container} = Dom.render(
+    Test.make("finds input nested within label", () => {
+      let {container} = DomTesting.render(
         `<label>Username<input type="text" /></label>`,
       )
-      let input = Dom.Query.getByLabelText(container, "Username")
-      let result = Dom.Assert.toBeInTheDocument(input)
-      Dom.cleanup()
+      let input = DomTesting.Query.getByLabelText(container, "Username")
+      let result = DomTesting.Assert.toBeInTheDocument(input)
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -232,14 +232,14 @@ let queryByLabelTextTests = suite(
 
 // === Query by Alt Text Tests ===
 
-let queryByAltTextTests = suite(
-  "Dom.Query - getByAltText",
+let queryByAltTextTests = Suite.make(
+  "DomTesting.Query - getByAltText",
   [
-    test("finds image by alt text", () => {
-      let {container} = Dom.render(`<img alt="Company logo" src="logo.png" />`)
-      let img = Dom.Query.getByAltText(container, "Company logo")
-      let result = Dom.Assert.toHaveAttribute(img, "src", ~value="logo.png")
-      Dom.cleanup()
+    Test.make("finds image by alt text", () => {
+      let {container} = DomTesting.render(`<img alt="Company logo" src="logo.png" />`)
+      let img = DomTesting.Query.getByAltText(container, "Company logo")
+      let result = DomTesting.Assert.toHaveAttribute(img, "src", ~value="logo.png")
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -247,14 +247,14 @@ let queryByAltTextTests = suite(
 
 // === Query by Title Tests ===
 
-let queryByTitleTests = suite(
-  "Dom.Query - getByTitle",
+let queryByTitleTests = Suite.make(
+  "DomTesting.Query - getByTitle",
   [
-    test("finds element by title attribute", () => {
-      let {container} = Dom.render(`<span title="Close">X</span>`)
-      let el = Dom.Query.getByTitle(container, "Close")
-      let result = Dom.Assert.toHaveTextContent(el, "X")
-      Dom.cleanup()
+    Test.make("finds element by title attribute", () => {
+      let {container} = DomTesting.render(`<span title="Close">X</span>`)
+      let el = DomTesting.Query.getByTitle(container, "Close")
+      let result = DomTesting.Assert.toHaveTextContent(el, "X")
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -262,14 +262,14 @@ let queryByTitleTests = suite(
 
 // === Query by Display Value Tests ===
 
-let queryByDisplayValueTests = suite(
-  "Dom.Query - getByDisplayValue",
+let queryByDisplayValueTests = Suite.make(
+  "DomTesting.Query - getByDisplayValue",
   [
-    test("finds input by its current value", () => {
-      let {container} = Dom.render(`<input type="text" value="current text" />`)
-      let input = Dom.Query.getByDisplayValue(container, "current text")
-      let result = Dom.Assert.toBeInTheDocument(input)
-      Dom.cleanup()
+    Test.make("finds input by its current value", () => {
+      let {container} = DomTesting.render(`<input type="text" value="current text" />`)
+      let input = DomTesting.Query.getByDisplayValue(container, "current text")
+      let result = DomTesting.Assert.toBeInTheDocument(input)
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -277,84 +277,84 @@ let queryByDisplayValueTests = suite(
 
 // === Event Tests ===
 
-let eventTests = suite(
-  "Dom.Event - user interactions",
+let eventTests = Suite.make(
+  "DomTesting.Event - user interactions",
   [
-    test("click dispatches click event", () => {
-      let {container} = Dom.render(`<button data-clicked="no">Click me</button>`)
-      let btn = Dom.Query.getByRole(container, "button")
+    Test.make("click dispatches click event", () => {
+      let {container} = DomTesting.render(`<button data-clicked="no">Click me</button>`)
+      let btn = DomTesting.Query.getByRole(container, "button")
       let _ = %raw(`btn.addEventListener("click", function() { btn.setAttribute("data-clicked", "yes") })`)
-      Dom.Event.click(btn)
-      let result = Dom.Assert.toHaveAttribute(btn, "data-clicked", ~value="yes")
-      Dom.cleanup()
+      DomTesting.Event.click(btn)
+      let result = DomTesting.Assert.toHaveAttribute(btn, "data-clicked", ~value="yes")
+      DomTesting.cleanup()
       result
     }),
-    test("dblClick dispatches dblclick event", () => {
-      let {container} = Dom.render(`<button data-dblclicked="no">Click me</button>`)
-      let btn = Dom.Query.getByRole(container, "button")
+    Test.make("dblClick dispatches dblclick event", () => {
+      let {container} = DomTesting.render(`<button data-dblclicked="no">Click me</button>`)
+      let btn = DomTesting.Query.getByRole(container, "button")
       let _ = %raw(`btn.addEventListener("dblclick", function() { btn.setAttribute("data-dblclicked", "yes") })`)
-      Dom.Event.dblClick(btn)
-      let result = Dom.Assert.toHaveAttribute(btn, "data-dblclicked", ~value="yes")
-      Dom.cleanup()
+      DomTesting.Event.dblClick(btn)
+      let result = DomTesting.Assert.toHaveAttribute(btn, "data-dblclicked", ~value="yes")
+      DomTesting.cleanup()
       result
     }),
-    test("typeText enters text into input", () => {
-      let {container} = Dom.render(`<input type="text" value="" />`)
-      let input = Dom.Query.getByRole(container, "textbox")
-      Dom.Event.typeText(input, "Hello")
-      let result = Dom.Assert.toHaveValue(input, "Hello")
-      Dom.cleanup()
+    Test.make("typeText enters text into input", () => {
+      let {container} = DomTesting.render(`<input type="text" value="" />`)
+      let input = DomTesting.Query.getByRole(container, "textbox")
+      DomTesting.Event.typeText(input, "Hello")
+      let result = DomTesting.Assert.toHaveValue(input, "Hello")
+      DomTesting.cleanup()
       result
     }),
-    test("clear empties an input", () => {
-      let {container} = Dom.render(`<input type="text" value="some text" />`)
-      let input = Dom.Query.getByRole(container, "textbox")
-      Dom.Event.clear(input)
-      let result = Dom.Assert.toHaveValue(input, "")
-      Dom.cleanup()
+    Test.make("clear empties an input", () => {
+      let {container} = DomTesting.render(`<input type="text" value="some text" />`)
+      let input = DomTesting.Query.getByRole(container, "textbox")
+      DomTesting.Event.clear(input)
+      let result = DomTesting.Assert.toHaveValue(input, "")
+      DomTesting.cleanup()
       result
     }),
-    test("check toggles checkbox on", () => {
-      let {container} = Dom.render(`<input type="checkbox" />`)
-      let cb = Dom.Query.getByRole(container, "checkbox")
-      Dom.Event.check(cb)
-      let result = Dom.Assert.toBeChecked(cb)
-      Dom.cleanup()
+    Test.make("check toggles checkbox on", () => {
+      let {container} = DomTesting.render(`<input type="checkbox" />`)
+      let cb = DomTesting.Query.getByRole(container, "checkbox")
+      DomTesting.Event.check(cb)
+      let result = DomTesting.Assert.toBeChecked(cb)
+      DomTesting.cleanup()
       result
     }),
-    test("uncheck toggles checkbox off", () => {
-      let {container} = Dom.render(`<input type="checkbox" checked />`)
-      let cb = Dom.Query.getByRole(container, "checkbox")
-      Dom.Event.uncheck(cb)
-      let result = Dom.Assert.toNotBeChecked(cb)
-      Dom.cleanup()
+    Test.make("uncheck toggles checkbox off", () => {
+      let {container} = DomTesting.render(`<input type="checkbox" checked />`)
+      let cb = DomTesting.Query.getByRole(container, "checkbox")
+      DomTesting.Event.uncheck(cb)
+      let result = DomTesting.Assert.toNotBeChecked(cb)
+      DomTesting.cleanup()
       result
     }),
-    test("focus gives element focus", () => {
-      let {container} = Dom.render(`<input type="text" />`)
-      let input = Dom.Query.getByRole(container, "textbox")
-      Dom.Event.focus(input)
-      let result = Dom.Assert.toHaveFocus(input)
-      Dom.cleanup()
+    Test.make("focus gives element focus", () => {
+      let {container} = DomTesting.render(`<input type="text" />`)
+      let input = DomTesting.Query.getByRole(container, "textbox")
+      DomTesting.Event.focus(input)
+      let result = DomTesting.Assert.toHaveFocus(input)
+      DomTesting.cleanup()
       result
     }),
-    test("blur removes focus from element", () => {
-      let {container} = Dom.render(`<input type="text" />`)
-      let input = Dom.Query.getByRole(container, "textbox")
-      Dom.Event.focus(input)
-      Dom.Event.blur(input)
-      let result = Dom.Assert.toNotHaveFocus(input)
-      Dom.cleanup()
+    Test.make("blur removes focus from element", () => {
+      let {container} = DomTesting.render(`<input type="text" />`)
+      let input = DomTesting.Query.getByRole(container, "textbox")
+      DomTesting.Event.focus(input)
+      DomTesting.Event.blur(input)
+      let result = DomTesting.Assert.toNotHaveFocus(input)
+      DomTesting.cleanup()
       result
     }),
-    test("selectOptions selects an option in a select element", () => {
-      let {container} = Dom.render(
+    Test.make("selectOptions selects an option in a select element", () => {
+      let {container} = DomTesting.render(
         `<select><option value="a">Alpha</option><option value="b">Beta</option></select>`,
       )
-      let select = Dom.Query.getByRole(container, "listbox")
-      Dom.Event.selectOptions(select, ["b"])
-      let result = Dom.Assert.toHaveValue(select, "b")
-      Dom.cleanup()
+      let select = DomTesting.Query.getByRole(container, "listbox")
+      DomTesting.Event.selectOptions(select, ["b"])
+      let result = DomTesting.Assert.toHaveValue(select, "b")
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -362,149 +362,149 @@ let eventTests = suite(
 
 // === DOM Assertion Tests ===
 
-let assertionTests = suite(
-  "Dom.Assert - DOM assertions",
+let assertionTests = Suite.make(
+  "DomTesting.Assert - DOM assertions",
   [
-    test("toHaveTextContent matches text", () => {
-      let {container} = Dom.render(`<p>  Hello   World  </p>`)
-      let el = Dom.Query.getByText(container, "Hello World")
-      let result = Dom.Assert.toHaveTextContent(el, "Hello World")
-      Dom.cleanup()
+    Test.make("toHaveTextContent matches text", () => {
+      let {container} = DomTesting.render(`<p>  Hello   World  </p>`)
+      let el = DomTesting.Query.getByText(container, "Hello World")
+      let result = DomTesting.Assert.toHaveTextContent(el, "Hello World")
+      DomTesting.cleanup()
       result
     }),
-    test("toHaveTextContent with inexact match", () => {
-      let {container} = Dom.render(`<p>Hello World</p>`)
-      let el = Dom.Query.getByText(container, "Hello World")
-      let result = Dom.Assert.toHaveTextContent(el, "hello", ~exact=false)
-      Dom.cleanup()
+    Test.make("toHaveTextContent with inexact match", () => {
+      let {container} = DomTesting.render(`<p>Hello World</p>`)
+      let el = DomTesting.Query.getByText(container, "Hello World")
+      let result = DomTesting.Assert.toHaveTextContent(el, "hello", ~exact=false)
+      DomTesting.cleanup()
       result
     }),
-    test("toHaveAttribute checks attribute existence", () => {
-      let {container} = Dom.render(`<input type="email" required />`)
-      let input = Dom.Query.getByRole(container, "textbox")
-      let result = Dom.Assert.toHaveAttribute(input, "required")
-      Dom.cleanup()
+    Test.make("toHaveAttribute checks attribute existence", () => {
+      let {container} = DomTesting.render(`<input type="email" required />`)
+      let input = DomTesting.Query.getByRole(container, "textbox")
+      let result = DomTesting.Assert.toHaveAttribute(input, "required")
+      DomTesting.cleanup()
       result
     }),
-    test("toHaveAttribute checks attribute value", () => {
-      let {container} = Dom.render(`<input type="email" />`)
-      let input = Dom.Query.getByRole(container, "textbox")
-      let result = Dom.Assert.toHaveAttribute(input, "type", ~value="email")
-      Dom.cleanup()
+    Test.make("toHaveAttribute checks attribute value", () => {
+      let {container} = DomTesting.render(`<input type="email" />`)
+      let input = DomTesting.Query.getByRole(container, "textbox")
+      let result = DomTesting.Assert.toHaveAttribute(input, "type", ~value="email")
+      DomTesting.cleanup()
       result
     }),
-    test("toNotHaveAttribute passes when missing", () => {
-      let {container} = Dom.render(`<input type="text" />`)
-      let input = Dom.Query.getByRole(container, "textbox")
-      let result = Dom.Assert.toNotHaveAttribute(input, "disabled")
-      Dom.cleanup()
+    Test.make("toNotHaveAttribute passes when missing", () => {
+      let {container} = DomTesting.render(`<input type="text" />`)
+      let input = DomTesting.Query.getByRole(container, "textbox")
+      let result = DomTesting.Assert.toNotHaveAttribute(input, "disabled")
+      DomTesting.cleanup()
       result
     }),
-    test("toHaveClass checks CSS class", () => {
-      let {container} = Dom.render(`<div class="active primary">Content</div>`)
-      let el = Dom.Query.getByText(container, "Content")
-      let result = combineResults([
-        Dom.Assert.toHaveClass(el, "active"),
-        Dom.Assert.toHaveClass(el, "primary"),
-        Dom.Assert.toHaveClass(el, "active primary"),
+    Test.make("toHaveClass checks CSS class", () => {
+      let {container} = DomTesting.render(`<div class="active primary">Content</div>`)
+      let el = DomTesting.Query.getByText(container, "Content")
+      let result = Assert.combineResults([
+        DomTesting.Assert.toHaveClass(el, "active"),
+        DomTesting.Assert.toHaveClass(el, "primary"),
+        DomTesting.Assert.toHaveClass(el, "active primary"),
       ])
-      Dom.cleanup()
+      DomTesting.cleanup()
       result
     }),
-    test("toNotHaveClass passes when class is missing", () => {
-      let {container} = Dom.render(`<div class="active">Content</div>`)
-      let el = Dom.Query.getByText(container, "Content")
-      let result = Dom.Assert.toNotHaveClass(el, "hidden")
-      Dom.cleanup()
+    Test.make("toNotHaveClass passes when class is missing", () => {
+      let {container} = DomTesting.render(`<div class="active">Content</div>`)
+      let el = DomTesting.Query.getByText(container, "Content")
+      let result = DomTesting.Assert.toNotHaveClass(el, "hidden")
+      DomTesting.cleanup()
       result
     }),
-    test("toBeVisible for visible element", () => {
-      let {container} = Dom.render(`<div>Visible</div>`)
-      let el = Dom.Query.getByText(container, "Visible")
-      let result = Dom.Assert.toBeVisible(el)
-      Dom.cleanup()
+    Test.make("toBeVisible for visible element", () => {
+      let {container} = DomTesting.render(`<div>Visible</div>`)
+      let el = DomTesting.Query.getByText(container, "Visible")
+      let result = DomTesting.Assert.toBeVisible(el)
+      DomTesting.cleanup()
       result
     }),
-    test("toNotBeVisible for hidden element", () => {
-      let {container} = Dom.render(`<div style="display: none">Hidden</div>`)
+    Test.make("toNotBeVisible for hidden element", () => {
+      let {container} = DomTesting.render(`<div style="display: none">Hidden</div>`)
       let el = container->DomBindings.querySelector("div")->Nullable.getExn
-      let result = Dom.Assert.toNotBeVisible(el)
-      Dom.cleanup()
+      let result = DomTesting.Assert.toNotBeVisible(el)
+      DomTesting.cleanup()
       result
     }),
-    test("toBeDisabled for disabled element", () => {
-      let {container} = Dom.render(`<button disabled>Disabled</button>`)
-      let btn = Dom.Query.getByRole(container, "button")
-      let result = Dom.Assert.toBeDisabled(btn)
-      Dom.cleanup()
+    Test.make("toBeDisabled for disabled element", () => {
+      let {container} = DomTesting.render(`<button disabled>Disabled</button>`)
+      let btn = DomTesting.Query.getByRole(container, "button")
+      let result = DomTesting.Assert.toBeDisabled(btn)
+      DomTesting.cleanup()
       result
     }),
-    test("toBeEnabled for enabled element", () => {
-      let {container} = Dom.render(`<button>Enabled</button>`)
-      let btn = Dom.Query.getByRole(container, "button")
-      let result = Dom.Assert.toBeEnabled(btn)
-      Dom.cleanup()
+    Test.make("toBeEnabled for enabled element", () => {
+      let {container} = DomTesting.render(`<button>Enabled</button>`)
+      let btn = DomTesting.Query.getByRole(container, "button")
+      let result = DomTesting.Assert.toBeEnabled(btn)
+      DomTesting.cleanup()
       result
     }),
-    test("toHaveValue checks input value", () => {
-      let {container} = Dom.render(`<input type="text" value="test value" />`)
-      let input = Dom.Query.getByRole(container, "textbox")
-      let result = Dom.Assert.toHaveValue(input, "test value")
-      Dom.cleanup()
+    Test.make("toHaveValue checks input value", () => {
+      let {container} = DomTesting.render(`<input type="text" value="test value" />`)
+      let input = DomTesting.Query.getByRole(container, "textbox")
+      let result = DomTesting.Assert.toHaveValue(input, "test value")
+      DomTesting.cleanup()
       result
     }),
-    test("toBeChecked for checked checkbox", () => {
-      let {container} = Dom.render(`<input type="checkbox" checked />`)
-      let cb = Dom.Query.getByRole(container, "checkbox")
-      let result = Dom.Assert.toBeChecked(cb)
-      Dom.cleanup()
+    Test.make("toBeChecked for checked checkbox", () => {
+      let {container} = DomTesting.render(`<input type="checkbox" checked />`)
+      let cb = DomTesting.Query.getByRole(container, "checkbox")
+      let result = DomTesting.Assert.toBeChecked(cb)
+      DomTesting.cleanup()
       result
     }),
-    test("toNotBeChecked for unchecked checkbox", () => {
-      let {container} = Dom.render(`<input type="checkbox" />`)
-      let cb = Dom.Query.getByRole(container, "checkbox")
-      let result = Dom.Assert.toNotBeChecked(cb)
-      Dom.cleanup()
+    Test.make("toNotBeChecked for unchecked checkbox", () => {
+      let {container} = DomTesting.render(`<input type="checkbox" />`)
+      let cb = DomTesting.Query.getByRole(container, "checkbox")
+      let result = DomTesting.Assert.toNotBeChecked(cb)
+      DomTesting.cleanup()
       result
     }),
-    test("toContainElement verifies parent-child relationship", () => {
-      let {container} = Dom.render(`<div data-testid="parent"><span data-testid="child">Hi</span></div>`)
-      let parent = Dom.Query.getByTestId(container, "parent")
-      let child = Dom.Query.getByTestId(container, "child")
-      let result = Dom.Assert.toContainElement(parent, child)
-      Dom.cleanup()
+    Test.make("toContainElement verifies parent-child relationship", () => {
+      let {container} = DomTesting.render(`<div data-testid="parent"><span data-testid="child">Hi</span></div>`)
+      let parent = DomTesting.Query.getByTestId(container, "parent")
+      let child = DomTesting.Query.getByTestId(container, "child")
+      let result = DomTesting.Assert.toContainElement(parent, child)
+      DomTesting.cleanup()
       result
     }),
-    test("toNotContainElement verifies no parent-child relationship", () => {
-      let {container} = Dom.render(
+    Test.make("toNotContainElement verifies no parent-child relationship", () => {
+      let {container} = DomTesting.render(
         `<div data-testid="a">A</div><div data-testid="b">B</div>`,
       )
-      let a = Dom.Query.getByTestId(container, "a")
-      let b = Dom.Query.getByTestId(container, "b")
-      let result = Dom.Assert.toNotContainElement(a, b)
-      Dom.cleanup()
+      let a = DomTesting.Query.getByTestId(container, "a")
+      let b = DomTesting.Query.getByTestId(container, "b")
+      let result = DomTesting.Assert.toNotContainElement(a, b)
+      DomTesting.cleanup()
       result
     }),
-    test("toContainHTML checks for HTML content", () => {
-      let {container} = Dom.render(`<div><strong>Bold</strong> text</div>`)
-      let el = Dom.Query.getByText(container, "Bold text", ~exact=false)
-      let result = Dom.Assert.toContainHTML(el, "<strong>Bold</strong>")
-      Dom.cleanup()
+    Test.make("toContainHTML checks for HTML content", () => {
+      let {container} = DomTesting.render(`<div><strong>Bold</strong> text</div>`)
+      let el = DomTesting.Query.getByText(container, "Bold text", ~exact=false)
+      let result = DomTesting.Assert.toContainHTML(el, "<strong>Bold</strong>")
+      DomTesting.cleanup()
       result
     }),
-    test("toBeEmptyDOMElement for empty element", () => {
-      let {container} = Dom.render(`<div data-testid="empty"></div>`)
-      let el = Dom.Query.getByTestId(container, "empty")
-      let result = Dom.Assert.toBeEmptyDOMElement(el)
-      Dom.cleanup()
+    Test.make("toBeEmptyDOMElement for empty element", () => {
+      let {container} = DomTesting.render(`<div data-testid="empty"></div>`)
+      let el = DomTesting.Query.getByTestId(container, "empty")
+      let result = DomTesting.Assert.toBeEmptyDOMElement(el)
+      DomTesting.cleanup()
       result
     }),
-    test("toHaveFocus checks focused element", () => {
-      let {container} = Dom.render(`<input type="text" />`)
-      let input = Dom.Query.getByRole(container, "textbox")
+    Test.make("toHaveFocus checks focused element", () => {
+      let {container} = DomTesting.render(`<input type="text" />`)
+      let input = DomTesting.Query.getByRole(container, "textbox")
       DomBindings.focusElement(input)
-      let result = Dom.Assert.toHaveFocus(input)
-      Dom.cleanup()
+      let result = DomTesting.Assert.toHaveFocus(input)
+      DomTesting.cleanup()
       result
     }),
   ],
@@ -512,11 +512,11 @@ let assertionTests = suite(
 
 // === Integration Tests ===
 
-let integrationTests = suite(
+let integrationTests = Suite.make(
   "Dom - integration scenarios",
   [
-    test("form interaction: fill and verify", () => {
-      let {container} = Dom.render(
+    Test.make("form interaction: fill and verify", () => {
+      let {container} = DomTesting.render(
         `<form>
           <label for="name">Name</label>
           <input id="name" type="text" value="" />
@@ -526,66 +526,66 @@ let integrationTests = suite(
         </form>`,
       )
 
-      let nameInput = Dom.Query.getByLabelText(container, "Name")
-      Dom.Event.typeText(nameInput, "John Doe")
+      let nameInput = DomTesting.Query.getByLabelText(container, "Name")
+      DomTesting.Event.typeText(nameInput, "John Doe")
 
-      let checkbox = Dom.Query.getByLabelText(container, "I agree")
-      Dom.Event.check(checkbox)
+      let checkbox = DomTesting.Query.getByLabelText(container, "I agree")
+      DomTesting.Event.check(checkbox)
 
-      let submitBtn = Dom.Query.getByRole(container, "button", ~name="Submit")
+      let submitBtn = DomTesting.Query.getByRole(container, "button", ~name="Submit")
 
-      let result = combineResults([
-        Dom.Assert.toHaveValue(nameInput, "John Doe"),
-        Dom.Assert.toBeChecked(checkbox),
-        Dom.Assert.toBeEnabled(submitBtn),
+      let result = Assert.combineResults([
+        DomTesting.Assert.toHaveValue(nameInput, "John Doe"),
+        DomTesting.Assert.toBeChecked(checkbox),
+        DomTesting.Assert.toBeEnabled(submitBtn),
       ])
-      Dom.cleanup()
+      DomTesting.cleanup()
       result
     }),
-    test("dynamic content: click changes text", () => {
-      let {container} = Dom.render(
+    Test.make("dynamic content: click changes text", () => {
+      let {container} = DomTesting.render(
         `<div>
           <span data-testid="counter">0</span>
           <button>Increment</button>
         </div>`,
       )
 
-      let counter = Dom.Query.getByTestId(container, "counter")
-      let btn = Dom.Query.getByRole(container, "button", ~name="Increment")
+      let counter = DomTesting.Query.getByTestId(container, "counter")
+      let btn = DomTesting.Query.getByRole(container, "button", ~name="Increment")
 
       let _ = %raw(`btn.addEventListener("click", () => { counter.textContent = "1" })`)
 
-      let before = Dom.Assert.toHaveTextContent(counter, "0")
-      Dom.Event.click(btn)
-      let after = Dom.Assert.toHaveTextContent(counter, "1")
+      let before = DomTesting.Assert.toHaveTextContent(counter, "0")
+      DomTesting.Event.click(btn)
+      let after = DomTesting.Assert.toHaveTextContent(counter, "1")
 
-      let result = combineResults([before, after])
-      Dom.cleanup()
+      let result = Assert.combineResults([before, after])
+      DomTesting.cleanup()
       result
     }),
-    test("todo list: add and verify items", () => {
-      let {container} = Dom.render(
+    Test.make("todo list: add and verify items", () => {
+      let {container} = DomTesting.render(
         `<div>
           <input data-testid="todo-input" type="text" value="" />
           <ul data-testid="todo-list"></ul>
         </div>`,
       )
 
-      let input = Dom.Query.getByTestId(container, "todo-input")
-      Dom.Event.typeText(input, "Buy groceries")
+      let input = DomTesting.Query.getByTestId(container, "todo-input")
+      DomTesting.Event.typeText(input, "Buy groceries")
 
-      let result = combineResults([
-        Dom.Assert.toHaveValue(input, "Buy groceries"),
-        Dom.Assert.toBeInTheDocument(input),
+      let result = Assert.combineResults([
+        DomTesting.Assert.toHaveValue(input, "Buy groceries"),
+        DomTesting.Assert.toBeInTheDocument(input),
       ])
-      Dom.cleanup()
+      DomTesting.cleanup()
       result
     }),
   ],
 )
 
 // Run all DOM test suites
-runSuites([
+Runner.runSuites([
   renderTests,
   queryByTextTests,
   queryByRoleTests,

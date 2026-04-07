@@ -5,6 +5,7 @@
 .merlin
 *.js
 *.js.map
+!src/Zekr.js
 /coverage/
 /.c8_output/
 

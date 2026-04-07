@@ -1,6 +1,6 @@
 {
   "name": "zekr",
-  "namespace": "ZekrInternal",
+  "namespace": true,
   "sources": [
     {
       "dir": "src",
