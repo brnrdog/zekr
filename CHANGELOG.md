@@ -2,6 +2,75 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0](https://github.com/brnrdog/zekr/compare/v1.8.0...v2.0.0) (2026-04-07)
+
+### ⚠ BREAKING CHANGES
+
+* Removes redundant prefixes where the function name
+repeated the module name.
+
+Assert:
+  assertEqual              -> Assert.equal
+  assertNotEqual           -> Assert.notEqual
+  assertTrue               -> Assert.isTrue
+  assertFalse              -> Assert.isFalse
+  assertGreaterThan        -> Assert.greaterThan
+  assertLessThan           -> Assert.lessThan
+  assertGreaterThanOrEqual -> Assert.greaterThanOrEqual
+  assertLessThanOrEqual    -> Assert.lessThanOrEqual
+  assertContains           -> Assert.contains
+  assertArrayContains      -> Assert.arrayContains
+  assertMatch              -> Assert.matches
+  assertSome               -> Assert.some
+  assertNone               -> Assert.none
+  assertOk                 -> Assert.ok
+  assertError              -> Assert.error
+  assertThrows             -> Assert.throws
+
+Snapshot:
+  setSnapshotDir        -> Snapshot.setDir
+  assertMatchesSnapshot -> Snapshot.matches
+  updateSnapshot        -> Snapshot.update
+
+DomEvent:
+  fireEvent -> DomEvent.fire
+
+isTrue/isFalse/matches used where the natural name clashes with a
+ReScript reserved keyword (true, false, match).
+* Public API is reorganized around submodules instead of
+a flat facade. Enables 'namespace': true in rescript.json, drops the
+Zekr.res facade, and distributes helpers into logical submodules.
+
+Migration:
+- Zekr.test         -> Zekr.Test.make
+- Zekr.testSkip     -> Zekr.Test.skip
+- Zekr.testOnly     -> Zekr.Test.only
+- Zekr.asyncTest    -> Zekr.Test.async
+- Zekr.asyncTestSkip -> Zekr.Test.asyncSkip
+- Zekr.asyncTestOnly -> Zekr.Test.asyncOnly
+- Zekr.suite        -> Zekr.Suite.make
+- Zekr.asyncSuite   -> Zekr.Suite.async
+- Zekr.assert*      -> Zekr.Assert.assert*
+- Zekr.runSuite(s)  -> Zekr.Runner.runSuite(s)
+- Zekr.setSnapshotDir -> Zekr.Snapshot.setSnapshotDir
+- Zekr.Dom.*        -> Zekr.DomTesting.*
+
+DomTesting is named rather than Dom to avoid shadowing the ReScript
+stdlib Dom module inside the package. A small Zekr.js barrel file is
+checked in as the JS entrypoint since namespace: true doesn't emit one.
+
+### Documentation
+
+* rewrite AGENTS.md as a general library guide ([08c71c6](https://github.com/brnrdog/zekr/commit/08c71c60c023b967157c8d3619061e30cb519eb1))
+* Update README description for clarity ([d09639e](https://github.com/brnrdog/zekr/commit/d09639e3c68ca26abad4ca0be167f78f92504c28))
+* update README, AGENTS, CLAUDE, and docs-website for new API ([4a01bb4](https://github.com/brnrdog/zekr/commit/4a01bb4f5d0d53d6de7c5d8cfaecf43c552c9ea6))
+
+### Code Refactoring
+
+* drop module-name prefixes from function names ([099b755](https://github.com/brnrdog/zekr/commit/099b755a0878e2631882eb05c3179b6742862c2f))
+* switch to ReScript namespacing with module-scoped API ([889cb48](https://github.com/brnrdog/zekr/commit/889cb4897062b6cea96bb1c014a47891132a288c))
+* use ReScript namespacing instead of Zekr__ prefix ([23b859f](https://github.com/brnrdog/zekr/commit/23b859fcb4cc179226e287e26fad45d2bfed7c38))
+
 ## [1.8.0](https://github.com/brnrdog/zekr/compare/v1.7.0...v1.8.0) (2026-03-15)
 
 ### Features
