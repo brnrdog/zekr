@@ -1,4 +1,4 @@
-open Zekr
+open Types
 
 // Helper to simulate async operation
 let delay = (ms: int) => {
@@ -7,14 +7,14 @@ let delay = (ms: int) => {
   })
 }
 
-let asyncTestTests = asyncSuite(
-  "asyncTest",
+let asyncTestTests = Suite.async(
+  "Test.async",
   [
-    asyncTest("passes for async operations that succeed", async () => {
+    Test.async("passes for async operations that succeed", async () => {
       let _ = await delay(10)
       Pass
     }),
-    asyncTest("fails for async operations that fail", async () => {
+    Test.async("fails for async operations that fail", async () => {
       let _ = await delay(10)
       let result = Fail("async failure")
       switch result {
@@ -25,11 +25,11 @@ let asyncTestTests = asyncSuite(
   ],
 )
 
-let combineAsyncResultsTests = asyncSuite(
-  "combineAsyncResults",
+let combineAsyncResultsTests = Suite.async(
+  "Assert.combineAsyncResults",
   [
-    asyncTest("returns Pass when all async results pass", async () => {
-      let result = await combineAsyncResults([
+    Test.async("returns Pass when all async results pass", async () => {
+      let result = await Assert.combineAsyncResults([
         Promise.resolve(Pass),
         Promise.resolve(Pass),
         Promise.resolve(Pass),
@@ -39,8 +39,8 @@ let combineAsyncResultsTests = asyncSuite(
       | Fail(_) => Fail("Expected Pass")
       }
     }),
-    asyncTest("returns first Fail when any async result fails", async () => {
-      let result = await combineAsyncResults([
+    Test.async("returns first Fail when any async result fails", async () => {
+      let result = await Assert.combineAsyncResults([
         Promise.resolve(Pass),
         Promise.resolve(Fail("first")),
         Promise.resolve(Fail("second")),
@@ -51,12 +51,12 @@ let combineAsyncResultsTests = asyncSuite(
       | Pass => Fail("Expected Fail")
       }
     }),
-    asyncTest("handles delayed results correctly", async () => {
+    Test.async("handles delayed results correctly", async () => {
       let delayedPass = async () => {
         let _ = await delay(10)
         Pass
       }
-      let result = await combineAsyncResults([delayedPass(), Promise.resolve(Pass)])
+      let result = await Assert.combineAsyncResults([delayedPass(), Promise.resolve(Pass)])
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
@@ -68,10 +68,10 @@ let combineAsyncResultsTests = asyncSuite(
 // Track hook execution for verification
 let hookLog: ref<array<string>> = ref([])
 
-let asyncHooksTests = asyncSuite(
+let asyncHooksTests = Suite.async(
   "asyncSuite hooks execution",
   [
-    asyncTest("first test sees beforeAll and beforeEach ran", async () => {
+    Test.async("first test sees beforeAll and beforeEach ran", async () => {
       let _ = await delay(5)
       // At this point beforeAll and beforeEach should have run
       let log = hookLog.contents
@@ -81,7 +81,7 @@ let asyncHooksTests = asyncSuite(
         Fail(`Expected beforeAll and beforeEach in log, got: ${String.make(log)}`)
       }
     }),
-    asyncTest("second test sees beforeEach ran again", async () => {
+    Test.async("second test sees beforeEach ran again", async () => {
       let _ = await delay(5)
       // Count beforeEach occurrences
       let beforeEachCount = hookLog.contents->Array.filter(s => s == "beforeEach")->Array.length
@@ -110,10 +110,10 @@ let asyncHooksTests = asyncSuite(
   },
 )
 
-let timeoutTests = asyncSuite(
+let timeoutTests = Suite.async(
   "timeout and error handling",
   [
-    asyncTest(
+    Test.async(
       "test passes within timeout",
       async () => {
         let _ = await delay(10)
@@ -121,25 +121,25 @@ let timeoutTests = asyncSuite(
       },
       ~timeout=100,
     ),
-    asyncTest("test fails when exceeding timeout", async () => {
+    Test.async("test fails when exceeding timeout", async () => {
       // This tests that our timeout mechanism works
       // We create a test that would timeout, run it manually, and verify the result
       let slowTest = async () => {
         let _ = await delay(200)
         Pass
       }
-      let result = await runWithTimeout(slowTest, Some(50))
+      let result = await Runner.runWithTimeout(slowTest, Some(50))
       switch result {
       | Fail(msg) if String.includes(msg, "timed out") => Pass
       | _ => Fail("Expected timeout failure")
       }
     }),
-    asyncTest("catches exceptions and returns Fail", async () => {
+    Test.async("catches exceptions and returns Fail", async () => {
       let throwingTest = async () => {
         let _ = throw(JsError.throwWithMessage("Test error"))
         Pass
       }
-      let result = await runWithTimeout(throwingTest, None)
+      let result = await Runner.runWithTimeout(throwingTest, None)
       switch result {
       | Fail(msg) if String.includes(msg, "exception") => Pass
       | _ => Fail("Expected exception to be caught")
@@ -148,4 +148,4 @@ let timeoutTests = asyncSuite(
   ],
 )
 
-let _ = runAsyncSuites([asyncTestTests, combineAsyncResultsTests, asyncHooksTests, timeoutTests])
+let _ = Runner.runAsyncSuites([asyncTestTests, combineAsyncResultsTests, asyncHooksTests, timeoutTests])
