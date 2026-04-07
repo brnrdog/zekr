@@ -1,4 +1,4 @@
-// Zekr__DomBindings - Low-level jsdom and DOM API bindings
+// DomBindings - Low-level jsdom and DOM API bindings
 
 // === JSDOM Types and Setup ===
 

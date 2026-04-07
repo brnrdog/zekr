@@ -427,7 +427,7 @@ let assertionTests = suite(
     }),
     test("toNotBeVisible for hidden element", () => {
       let {container} = Dom.render(`<div style="display: none">Hidden</div>`)
-      let el = container->Zekr__DomBindings.querySelector("div")->Nullable.getExn
+      let el = container->DomBindings.querySelector("div")->Nullable.getExn
       let result = Dom.Assert.toNotBeVisible(el)
       Dom.cleanup()
       result
@@ -502,7 +502,7 @@ let assertionTests = suite(
     test("toHaveFocus checks focused element", () => {
       let {container} = Dom.render(`<input type="text" />`)
       let input = Dom.Query.getByRole(container, "textbox")
-      Zekr__DomBindings.focusElement(input)
+      DomBindings.focusElement(input)
       let result = Dom.Assert.toHaveFocus(input)
       Dom.cleanup()
       result

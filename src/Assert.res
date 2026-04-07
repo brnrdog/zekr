@@ -1,6 +1,6 @@
-// Zekr__Assert - Assertion functions for test verification
+// Assert - Assertion functions for test verification
 
-open Zekr__Types
+open Types
 
 let assertEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
   if actual == expected {
@@ -10,9 +10,9 @@ let assertEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testRe
     | Some(m) => m
     | None =>
       `Assertion failed\n` ++
-      `       ${Zekr__Colors.pass("+ expected")} ${Zekr__Colors.fail("- actual")}\n` ++
-      `       ${Zekr__Colors.fail("- " ++ String.make(actual))}\n` ++
-      `       ${Zekr__Colors.pass("+ " ++ String.make(expected))}`
+      `       ${Colors.pass("+ expected")} ${Colors.fail("- actual")}\n` ++
+      `       ${Colors.fail("- " ++ String.make(actual))}\n` ++
+      `       ${Colors.pass("+ " ++ String.make(expected))}`
     }
     Fail(msg)
   }

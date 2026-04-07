@@ -1,4 +1,4 @@
-// Zekr__Colors - ANSI color utilities for console output
+// Colors - ANSI color utilities for console output
 
 let reset = "\x1b[0m"
 let green = "\x1b[32m"

@@ -1,4 +1,4 @@
-// Zekr__Types - Core type definitions for the Zekr test framework
+// Types - Core type definitions for the Zekr test framework
 
 type testResult = Pass | Fail(string)
 
