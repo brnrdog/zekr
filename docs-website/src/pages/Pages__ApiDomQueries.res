@@ -34,10 +34,10 @@ let make = () => {
     <Typography text={static("Finds an element by its text content. Set ~exact=false for case-insensitive substring matching.")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render("<p>Hello World</p>")
+      code={`let {container} = DomTesting.render("<p>Hello World</p>")
 
-let el = Dom.Query.getByText(container, "Hello World")
-let el2 = Dom.Query.getByText(container, "hello", ~exact=false)`}
+let el = DomTesting.Query.getByText(container, "Hello World")
+let el2 = DomTesting.Query.getByText(container, "hello", ~exact=false)`}
     />
     <Separator />
     // By Role
@@ -52,7 +52,7 @@ let el2 = Dom.Query.getByText(container, "hello", ~exact=false)`}
     <Typography text={static("Finds an element by its ARIA role (implicit or explicit). Supports filtering by accessible name, checked state, and heading level.")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render(\`
+      code={`let {container} = DomTesting.render(\`
   <button>Save</button>
   <button>Cancel</button>
   <h2>Title</h2>
@@ -60,13 +60,13 @@ let el2 = Dom.Query.getByText(container, "hello", ~exact=false)`}
 \`)
 
 // By role
-let saveBtn = Dom.Query.getByRole(container, "button", ~name=Some("Save"))
+let saveBtn = DomTesting.Query.getByRole(container, "button", ~name=Some("Save"))
 
 // Heading with level
-let heading = Dom.Query.getByRole(container, "heading", ~level=Some(2))
+let heading = DomTesting.Query.getByRole(container, "heading", ~level=Some(2))
 
 // Checkbox by checked state
-let checkbox = Dom.Query.getByRole(container, "checkbox", ~checked=Some(false))`}
+let checkbox = DomTesting.Query.getByRole(container, "checkbox", ~checked=Some(false))`}
     />
     <Typography text={static("Supported implicit roles: button, link, checkbox, radio, textbox, heading (with level), list, listitem, navigation, main, form, table, img, dialog, and more.")} />
     <Separator />
@@ -82,8 +82,8 @@ let checkbox = Dom.Query.getByRole(container, "checkbox", ~checked=Some(false))`
     <Typography text={static("Finds an element by its data-testid attribute.")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render(\`<div data-testid="greeting">Hi</div>\`)
-let el = Dom.Query.getByTestId(container, "greeting")`}
+      code={`let {container} = DomTesting.render(\`<div data-testid="greeting">Hi</div>\`)
+let el = DomTesting.Query.getByTestId(container, "greeting")`}
     />
     <Separator />
     // By Label
@@ -98,11 +98,11 @@ let el = Dom.Query.getByTestId(container, "greeting")`}
     <Typography text={static("Finds a form element by its associated label text (via for/id or wrapping).")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render(\`
+      code={`let {container} = DomTesting.render(\`
   <label for="name">Full Name</label>
   <input id="name" type="text" />
 \`)
-let input = Dom.Query.getByLabelText(container, "Full Name")`}
+let input = DomTesting.Query.getByLabelText(container, "Full Name")`}
     />
     <Separator />
     // By Placeholder
@@ -117,8 +117,8 @@ let input = Dom.Query.getByLabelText(container, "Full Name")`}
     <Typography text={static("Finds an element by its placeholder attribute.")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render(\`<input placeholder="Search..." />\`)
-let input = Dom.Query.getByPlaceholder(container, "Search...")`}
+      code={`let {container} = DomTesting.render(\`<input placeholder="Search..." />\`)
+let input = DomTesting.Query.getByPlaceholder(container, "Search...")`}
     />
     <Separator />
     // By Display Value
@@ -144,8 +144,8 @@ let input = Dom.Query.getByPlaceholder(container, "Search...")`}
     <Typography text={static("Finds an element (typically an image) by its alt attribute.")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render(\`<img alt="User avatar" src="photo.jpg" />\`)
-let img = Dom.Query.getByAltText(container, "User avatar")`}
+      code={`let {container} = DomTesting.render(\`<img alt="User avatar" src="photo.jpg" />\`)
+let img = DomTesting.Query.getByAltText(container, "User avatar")`}
     />
     <Separator />
     // By Title
@@ -160,8 +160,8 @@ let img = Dom.Query.getByAltText(container, "User avatar")`}
     <Typography text={static("Finds an element by its title attribute.")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render(\`<span title="Close">X</span>\`)
-let el = Dom.Query.getByTitle(container, "Close")`}
+      code={`let {container} = DomTesting.render(\`<span title="Close">X</span>\`)
+let el = DomTesting.Query.getByTitle(container, "Close")`}
     />
     <EditOnGitHub pageName="Pages__ApiDomQueries" />
   </div>

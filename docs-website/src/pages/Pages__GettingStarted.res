@@ -74,19 +74,19 @@ let make = () => {
       language="rescript"
       code={`open Zekr
 
-let mathSuite = suite("Math", [
-  test("addition works", () => {
-    assertEqual(1 + 1, 2)
+let mathSuite = Suite.make("Math", [
+  Test.make("addition works", () => {
+    Assert.equal(1 + 1, 2)
   }),
-  test("string contains substring", () => {
-    assertContains("hello world", "world")
+  Test.make("string contains substring", () => {
+    Assert.contains("hello world", "world")
   }),
-  test("option has value", () => {
-    assertSome(Some(42))
+  Test.make("option has value", () => {
+    Assert.some(Some(42))
   }),
 ])
 
-runSuites([mathSuite])`}
+Runner.runSuites([mathSuite])`}
     />
     <Separator />
     <div class="heading-anchor" id="running-tests">
@@ -137,15 +137,15 @@ runSuites([mathSuite])`}
     </div>
     <Typography
       text={static(
-        "Tests can be in Normal, Skip, or Only mode. Use testSkip to skip a test, or testOnly to run only specific tests (all other non-only tests will be skipped).",
+        "Tests can be in Normal, Skip, or Only mode. Use Test.skip to skip a test, or Test.only to run only specific tests (all other non-only tests will be skipped).",
       )}
     />
     <CodeBlock
       language="rescript"
-      code={`let mySuite = suite("Demo", [
-  test("runs normally", () => assertTrue(true)),
-  testSkip("skipped for now", () => assertTrue(false)),
-  testOnly("only this runs", () => assertEqual(1, 1)),
+      code={`let mySuite = Suite.make("Demo", [
+  Test.make("runs normally", () => Assert.isTrue(true)),
+  Test.skip("skipped for now", () => Assert.isTrue(false)),
+  Test.only("only this runs", () => Assert.equal(1, 1)),
 ])`}
     />
     <div class="heading-anchor" id="lifecycle-hooks">
@@ -159,9 +159,9 @@ runSuites([mathSuite])`}
     />
     <CodeBlock
       language="rescript"
-      code={`let mySuite = suite(
+      code={`let mySuite = Suite.make(
   "With Hooks",
-  [test("something", () => assertTrue(true))],
+  [Test.make("something", () => Assert.isTrue(true))],
   ~beforeAll=Some(() => Console.log("Suite starting")),
   ~afterEach=Some(() => Console.log("Test done")),
 )`}

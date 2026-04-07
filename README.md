@@ -24,34 +24,51 @@ Add to your `rescript.json`:
 ```rescript
 open Zekr
 
-let myTests = suite("My Tests", [
-  test("addition works", () => {
-    assertEqual(1 + 1, 2)
+let myTests = Suite.make("My Tests", [
+  Test.make("addition works", () => {
+    Assert.equal(1 + 1, 2)
   }),
-  test("strings match", () => {
-    assertEqual("hello", "hello")
+  Test.make("strings match", () => {
+    Assert.equal("hello", "hello")
   }),
-  test("condition is true", () => {
-    assertTrue(10 > 5)
+  Test.make("condition is true", () => {
+    Assert.isTrue(10 > 5)
   }),
 ])
 
-runSuites([myTests])
+Runner.runSuites([myTests])
 ```
 
 ## API
+
+Zekr is organized as a set of submodules under the top-level `Zekr` namespace:
+
+| Module           | Purpose                                         |
+| ---------------- | ----------------------------------------------- |
+| `Zekr.Test`      | Test case factories (`make`, `skip`, `only`, …) |
+| `Zekr.Suite`     | Suite factories (`make`, `async`)               |
+| `Zekr.Assert`    | Assertions (`equal`, `isTrue`, `some`, …)       |
+| `Zekr.Runner`    | Running suites and filtering                    |
+| `Zekr.Snapshot`  | Snapshot testing                                |
+| `Zekr.DomTesting`| DOM rendering, queries, events, assertions      |
+
+You can `open Zekr` to bring the submodules into scope and write `Test.make(...)`, `Assert.equal(...)`, etc.
 
 ### Creating Tests
 
 ```rescript
 // Create a single test
-let myTest = test("test name", () => {
+let myTest = Test.make("test name", () => {
   // return Pass or Fail(message)
   Pass
 })
 
+// Skip or focus a test
+let skipped = Test.skip("wip", () => Pass)
+let focused = Test.only("focus me", () => Pass)
+
 // Create a test suite
-let mySuite = suite("Suite Name", [test1, test2, test3])
+let mySuite = Suite.make("Suite Name", [test1, test2, test3])
 ```
 
 ### Setup/Teardown Hooks
@@ -60,7 +77,7 @@ Add lifecycle hooks directly to your test suites:
 
 ```rescript
 // Synchronous hooks
-let mySuite = suite(
+let mySuite = Suite.make(
   "Database Tests",
   [test1, test2, test3],
   ~beforeAll=() => initializeDatabase(),
@@ -70,7 +87,7 @@ let mySuite = suite(
 )
 
 // Async hooks
-let myAsyncSuite = asyncSuite(
+let myAsyncSuite = Suite.async(
   "API Tests",
   [asyncTest1, asyncTest2],
   ~beforeAll=async () => await connectToServer(),
@@ -80,11 +97,10 @@ let myAsyncSuite = asyncSuite(
 )
 ```
 
-All hooks are optional - you only need to provide the ones you need:
+All hooks are optional — only provide the ones you need:
 
 ```rescript
-// Only beforeEach hook
-let mySuite = suite(
+let mySuite = Suite.make(
   "My Tests",
   [test1, test2],
   ~beforeEach=() => resetState(),
@@ -96,17 +112,17 @@ let mySuite = suite(
 Async tests support an optional timeout parameter (in milliseconds). Tests that exceed the timeout will fail automatically. Uncaught exceptions in async tests are also caught and reported as failures.
 
 ```rescript
-let myAsyncTests = asyncSuite("API Tests", [
+let myAsyncTests = Suite.async("API Tests", [
   // Test with 5 second timeout
-  asyncTest("fetches data", async () => {
+  Test.async("fetches data", async () => {
     let data = await fetchData()
-    assertEqual(data.status, "ok")
+    Assert.equal(data.status, "ok")
   }, ~timeout=5000),
 
   // Test without timeout (runs until completion)
-  asyncTest("processes data", async () => {
+  Test.async("processes data", async () => {
     let result = await processData()
-    assertTrue(result.success)
+    Assert.isTrue(result.success)
   }),
 ])
 ```
@@ -115,18 +131,38 @@ let myAsyncTests = asyncSuite("API Tests", [
 
 ```rescript
 // Check equality
-assertEqual(actual, expected)
-assertEqual(actual, expected, ~message="custom message")
+Assert.equal(actual, expected)
+Assert.equal(actual, expected, ~message="custom message")
 
 // Check inequality
-assertNotEqual(actual, expected)
+Assert.notEqual(actual, expected)
 
 // Check boolean conditions
-assertTrue(condition)
-assertFalse(condition)
+Assert.isTrue(condition)
+Assert.isFalse(condition)
+
+// Ordering
+Assert.greaterThan(actual, expected)
+Assert.lessThan(actual, expected)
+Assert.greaterThanOrEqual(actual, expected)
+Assert.lessThanOrEqual(actual, expected)
+
+// Collections and strings
+Assert.contains(haystack, needle)
+Assert.arrayContains(arr, item)
+Assert.matches(str, regex)
+
+// Option and result
+Assert.some(maybeValue)
+Assert.none(maybeValue)
+Assert.ok(result)
+Assert.error(result)
+
+// Exceptions
+Assert.throws(() => someFn())
 
 // Combine multiple results
-combineResults([result1, result2, result3])
+Assert.combineResults([result1, result2, result3])
 ```
 
 ### Snapshot Testing
@@ -134,22 +170,22 @@ combineResults([result1, result2, result3])
 Test complex data structures by comparing against stored snapshots:
 
 ```rescript
-let snapshotTests = suite("API Response", [
-  test("user data matches snapshot", () => {
+let snapshotTests = Suite.make("API Response", [
+  Test.make("user data matches snapshot", () => {
     let user = {"id": 1, "name": "Alice", "roles": ["admin", "user"]}
-    assertMatchesSnapshot(user, ~name="user-data")
+    Snapshot.matches(user, ~name="user-data")
   }),
 ])
 ```
 
-On first run, snapshots are created in `__snapshots__/` directory. Subsequent runs compare against stored snapshots.
+On first run, snapshots are created in `__snapshots__/`. Subsequent runs compare against stored snapshots.
 
 ```rescript
 // Configure custom snapshot directory
-setSnapshotDir("tests/__snapshots__")
+Snapshot.setDir("tests/__snapshots__")
 
 // Update a snapshot programmatically
-updateSnapshot(newValue, ~name="snapshot-name")
+Snapshot.update(newValue, ~name="snapshot-name")
 ```
 
 ### Test Filtering
@@ -177,7 +213,7 @@ Automatically re-run tests when files change:
 // In a separate watch script (e.g., watch.res)
 open Zekr
 
-watchMode(
+Runner.watchMode(
   ~testCommand="node tests/MyTests.js",
   ~watchPaths=["src", "tests"],
   ~buildCommand="npx rescript",
@@ -189,7 +225,7 @@ Run with: `node watch.js`
 The watch mode will:
 - Run an initial test pass
 - Watch specified paths for file changes
-- Re-build (if buildCommand provided) and re-run tests on changes
+- Re-build (if `buildCommand` provided) and re-run tests on changes
 - Debounce rapid file changes
 
 ### DOM Testing
@@ -201,10 +237,10 @@ Test DOM rendering, user interactions, and element assertions using a built-in j
 ```rescript
 open Zekr
 
-let myTests = suite("Login Form", [
-  test("renders and accepts input", () => {
+let myTests = Suite.make("Login Form", [
+  Test.make("renders and accepts input", () => {
     // Render HTML into a jsdom container
-    let {container} = Dom.render(`
+    let {container} = DomTesting.render(`
       <form>
         <label for="email">Email</label>
         <input id="email" type="email" value="" />
@@ -212,13 +248,13 @@ let myTests = suite("Login Form", [
       </form>
     `)
 
-    let input = container->Dom.Query.getByLabelText("Email")
-    Dom.Event.typeText(input, "user@example.com")
+    let input = container->DomTesting.Query.getByLabelText("Email")
+    DomTesting.Event.typeText(input, "user@example.com")
 
-    let result = Dom.Assert.toHaveValue(input, "user@example.com")
+    let result = DomTesting.Assert.toHaveValue(input, "user@example.com")
 
     // Clean up the rendered DOM after each test
-    Dom.cleanup()
+    DomTesting.cleanup()
     result
   }),
 ])
@@ -228,32 +264,32 @@ let myTests = suite("Login Form", [
 
 Find elements in the rendered DOM. Each query type comes in three variants:
 
-- `getBy*` - returns the element, throws if not found or if multiple match
-- `queryBy*` - returns `option<Dom.element>`, `None` if not found
-- `getAllBy*` - returns `array<Dom.element>`, throws if none found
+- `getBy*` — returns the element, throws if not found or if multiple match
+- `queryBy*` — returns `option<Dom.element>`, `None` if not found
+- `getAllBy*` — returns `array<Dom.element>`, throws if none found
 
 ```rescript
 // By text content
-container->Dom.Query.getByText("Hello World")
-container->Dom.Query.getByText("hello", ~exact=false)
+container->DomTesting.Query.getByText("Hello World")
+container->DomTesting.Query.getByText("hello", ~exact=false)
 
 // By ARIA role (implicit roles from HTML tags are supported)
-container->Dom.Query.getByRole("button")
-container->Dom.Query.getByRole("heading", ~level=2)
-container->Dom.Query.getByRole("button", ~name="Submit")
-container->Dom.Query.getByRole("checkbox", ~checked=true)
+container->DomTesting.Query.getByRole("button")
+container->DomTesting.Query.getByRole("heading", ~level=2)
+container->DomTesting.Query.getByRole("button", ~name="Submit")
+container->DomTesting.Query.getByRole("checkbox", ~checked=true)
 
 // By test id
-container->Dom.Query.getByTestId("submit-btn")
+container->DomTesting.Query.getByTestId("submit-btn")
 
 // By form attributes
-container->Dom.Query.getByPlaceholder("Enter your email")
-container->Dom.Query.getByLabelText("Username")
-container->Dom.Query.getByDisplayValue("current text")
+container->DomTesting.Query.getByPlaceholder("Enter your email")
+container->DomTesting.Query.getByLabelText("Username")
+container->DomTesting.Query.getByDisplayValue("current text")
 
 // By other attributes
-container->Dom.Query.getByAltText("Company logo")
-container->Dom.Query.getByTitle("Close")
+container->DomTesting.Query.getByAltText("Company logo")
+container->DomTesting.Query.getByTitle("Close")
 ```
 
 #### User Events
@@ -262,26 +298,26 @@ Simulate user interactions. Events fire realistic event sequences (pointer, mous
 
 ```rescript
 // Mouse
-Dom.Event.click(element)
-Dom.Event.dblClick(element)
-Dom.Event.hover(element)
-Dom.Event.unhover(element)
+DomTesting.Event.click(element)
+DomTesting.Event.dblClick(element)
+DomTesting.Event.hover(element)
+DomTesting.Event.unhover(element)
 
 // Keyboard / Text
-Dom.Event.typeText(input, "Hello World")
-Dom.Event.clear(input)
+DomTesting.Event.typeText(input, "Hello World")
+DomTesting.Event.clear(input)
 
 // Form controls
-Dom.Event.check(checkbox)
-Dom.Event.uncheck(checkbox)
-Dom.Event.selectOptions(select, ["option-value"])
+DomTesting.Event.check(checkbox)
+DomTesting.Event.uncheck(checkbox)
+DomTesting.Event.selectOptions(select, ["option-value"])
 
 // Focus
-Dom.Event.focus(element)
-Dom.Event.blur(element)
+DomTesting.Event.focus(element)
+DomTesting.Event.blur(element)
 
 // Low-level custom event dispatch
-Dom.Event.fireEvent(element, someEvent)
+DomTesting.Event.fire(element, someEvent)
 ```
 
 #### DOM Assertions
@@ -290,60 +326,60 @@ All assertions return `testResult` (`Pass` or `Fail(message)`), integrating with
 
 ```rescript
 // Presence
-Dom.Assert.toBeInTheDocument(element)
-Dom.Assert.toNotBeInTheDocument(optionElement)
+DomTesting.Assert.toBeInTheDocument(element)
+DomTesting.Assert.toNotBeInTheDocument(optionElement)
 
 // Text content
-Dom.Assert.toHaveTextContent(element, "Hello")
-Dom.Assert.toHaveTextContent(element, "hello", ~exact=false)
+DomTesting.Assert.toHaveTextContent(element, "Hello")
+DomTesting.Assert.toHaveTextContent(element, "hello", ~exact=false)
 
 // Attributes and classes
-Dom.Assert.toHaveAttribute(element, "href")
-Dom.Assert.toHaveAttribute(element, "href", ~value="/home")
-Dom.Assert.toNotHaveAttribute(element, "disabled")
-Dom.Assert.toHaveClass(element, "active primary")
-Dom.Assert.toNotHaveClass(element, "hidden")
+DomTesting.Assert.toHaveAttribute(element, "href")
+DomTesting.Assert.toHaveAttribute(element, "href", ~value="/home")
+DomTesting.Assert.toNotHaveAttribute(element, "disabled")
+DomTesting.Assert.toHaveClass(element, "active primary")
+DomTesting.Assert.toNotHaveClass(element, "hidden")
 
 // Visibility and state
-Dom.Assert.toBeVisible(element)
-Dom.Assert.toNotBeVisible(element)
-Dom.Assert.toBeDisabled(element)
-Dom.Assert.toBeEnabled(element)
+DomTesting.Assert.toBeVisible(element)
+DomTesting.Assert.toNotBeVisible(element)
+DomTesting.Assert.toBeDisabled(element)
+DomTesting.Assert.toBeEnabled(element)
 
 // Form values
-Dom.Assert.toHaveValue(input, "hello")
-Dom.Assert.toBeChecked(checkbox)
-Dom.Assert.toNotBeChecked(checkbox)
+DomTesting.Assert.toHaveValue(input, "hello")
+DomTesting.Assert.toBeChecked(checkbox)
+DomTesting.Assert.toNotBeChecked(checkbox)
 
 // Containment
-Dom.Assert.toContainElement(parent, child)
-Dom.Assert.toNotContainElement(parent, child)
-Dom.Assert.toContainHTML(element, "<strong>Bold</strong>")
-Dom.Assert.toBeEmptyDOMElement(element)
+DomTesting.Assert.toContainElement(parent, child)
+DomTesting.Assert.toNotContainElement(parent, child)
+DomTesting.Assert.toContainHTML(element, "<strong>Bold</strong>")
+DomTesting.Assert.toBeEmptyDOMElement(element)
 
 // Style and focus
-Dom.Assert.toHaveStyle(element, "color", "red")
-Dom.Assert.toHaveFocus(element)
-Dom.Assert.toNotHaveFocus(element)
+DomTesting.Assert.toHaveStyle(element, "color", "red")
+DomTesting.Assert.toHaveFocus(element)
+DomTesting.Assert.toNotHaveFocus(element)
 ```
 
 #### Combining Results
 
-Use `combineResults` to check multiple assertions in a single test:
+Use `Assert.combineResults` to check multiple assertions in a single test:
 
 ```rescript
-test("form state is correct", () => {
-  let {container} = Dom.render(`...`)
-  let input = container->Dom.Query.getByRole("textbox")
-  let button = container->Dom.Query.getByRole("button")
+Test.make("form state is correct", () => {
+  let {container} = DomTesting.render(`...`)
+  let input = container->DomTesting.Query.getByRole("textbox")
+  let button = container->DomTesting.Query.getByRole("button")
 
-  let result = combineResults([
-    Dom.Assert.toHaveValue(input, ""),
-    Dom.Assert.toBeEnabled(button),
-    Dom.Assert.toBeVisible(button),
+  let result = Assert.combineResults([
+    DomTesting.Assert.toHaveValue(input, ""),
+    DomTesting.Assert.toBeEnabled(button),
+    DomTesting.Assert.toBeVisible(button),
   ])
 
-  Dom.cleanup()
+  DomTesting.cleanup()
   result
 })
 ```
@@ -352,10 +388,14 @@ test("form state is correct", () => {
 
 ```rescript
 // Run a single suite
-runSuite(mySuite)
+Runner.runSuite(mySuite)
 
 // Run multiple suites
-runSuites([suite1, suite2, suite3])
+Runner.runSuites([suite1, suite2, suite3])
+
+// Async variants
+await Runner.runAsyncSuite(myAsyncSuite)
+await Runner.runAsyncSuites([suite1, suite2])
 ```
 
 ### Test Coverage
