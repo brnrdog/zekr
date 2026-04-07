@@ -20,11 +20,11 @@ module NodePath = {
 // Snapshot directory configuration
 let snapshotDir = ref("__snapshots__")
 
-let setSnapshotDir = (dir: string): unit => {
+let setDir = (dir: string): unit => {
   snapshotDir := dir
 }
 
-let assertMatchesSnapshot = (
+let matches = (
   value: 'a,
   ~name: string,
   ~snapshotPath: option<string>=?,
@@ -68,7 +68,7 @@ let assertMatchesSnapshot = (
   }
 }
 
-let updateSnapshot = (value: 'a, ~name: string, ~snapshotPath: option<string>=?): unit => {
+let update = (value: 'a, ~name: string, ~snapshotPath: option<string>=?): unit => {
   let serialized = JSON.stringifyAny(value)->Option.getOr("undefined")
   let formatted = try {
     let parsed = JSON.parseOrThrow(serialized)

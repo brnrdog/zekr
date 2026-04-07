@@ -1,24 +1,24 @@
 open Types
 
 let assertEqualTests = Suite.make(
-  "Assert.assertEqual",
+  "Assert.equal",
   [
     Test.make("passes when values are equal", () => {
-      let result = Assert.assertEqual(1, 1)
+      let result = Assert.equal(1, 1)
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when values differ", () => {
-      let result = Assert.assertEqual(1, 2)
+      let result = Assert.equal(1, 2)
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
       }
     }),
     Test.make("uses custom message when provided", () => {
-      let result = Assert.assertEqual(1, 2, ~message="custom error")
+      let result = Assert.equal(1, 2, ~message="custom error")
       switch result {
       | Fail(msg) if msg == "custom error" => Pass
       | Fail(_) => Fail("Expected custom message")
@@ -29,17 +29,17 @@ let assertEqualTests = Suite.make(
 )
 
 let assertNotEqualTests = Suite.make(
-  "Assert.assertNotEqual",
+  "Assert.notEqual",
   [
     Test.make("passes when values differ", () => {
-      let result = Assert.assertNotEqual(1, 2)
+      let result = Assert.notEqual(1, 2)
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when values are equal", () => {
-      let result = Assert.assertNotEqual(1, 1)
+      let result = Assert.notEqual(1, 1)
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -49,17 +49,17 @@ let assertNotEqualTests = Suite.make(
 )
 
 let assertTrueTests = Suite.make(
-  "Assert.assertTrue",
+  "Assert.isTrue",
   [
     Test.make("passes when condition is true", () => {
-      let result = Assert.assertTrue(true)
+      let result = Assert.isTrue(true)
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when condition is false", () => {
-      let result = Assert.assertTrue(false)
+      let result = Assert.isTrue(false)
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -69,17 +69,17 @@ let assertTrueTests = Suite.make(
 )
 
 let assertFalseTests = Suite.make(
-  "Assert.assertFalse",
+  "Assert.isFalse",
   [
     Test.make("passes when condition is false", () => {
-      let result = Assert.assertFalse(false)
+      let result = Assert.isFalse(false)
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when condition is true", () => {
-      let result = Assert.assertFalse(true)
+      let result = Assert.isFalse(true)
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -117,24 +117,24 @@ let combineResultsTests = Suite.make(
 )
 
 let assertGreaterThanTests = Suite.make(
-  "Assert.assertGreaterThan",
+  "Assert.greaterThan",
   [
     Test.make("passes when actual is greater", () => {
-      let result = Assert.assertGreaterThan(5, 3)
+      let result = Assert.greaterThan(5, 3)
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when actual is less", () => {
-      let result = Assert.assertGreaterThan(3, 5)
+      let result = Assert.greaterThan(3, 5)
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
       }
     }),
     Test.make("fails when values are equal", () => {
-      let result = Assert.assertGreaterThan(5, 5)
+      let result = Assert.greaterThan(5, 5)
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -144,17 +144,17 @@ let assertGreaterThanTests = Suite.make(
 )
 
 let assertLessThanTests = Suite.make(
-  "Assert.assertLessThan",
+  "Assert.lessThan",
   [
     Test.make("passes when actual is less", () => {
-      let result = Assert.assertLessThan(3, 5)
+      let result = Assert.lessThan(3, 5)
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when actual is greater", () => {
-      let result = Assert.assertLessThan(5, 3)
+      let result = Assert.lessThan(5, 3)
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -164,17 +164,17 @@ let assertLessThanTests = Suite.make(
 )
 
 let assertContainsTests = Suite.make(
-  "Assert.assertContains",
+  "Assert.contains",
   [
     Test.make("passes when string contains substring", () => {
-      let result = Assert.assertContains("hello world", "world")
+      let result = Assert.contains("hello world", "world")
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when string does not contain substring", () => {
-      let result = Assert.assertContains("hello world", "foo")
+      let result = Assert.contains("hello world", "foo")
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -184,17 +184,17 @@ let assertContainsTests = Suite.make(
 )
 
 let assertArrayContainsTests = Suite.make(
-  "Assert.assertArrayContains",
+  "Assert.arrayContains",
   [
     Test.make("passes when array contains item", () => {
-      let result = Assert.assertArrayContains([1, 2, 3], 2)
+      let result = Assert.arrayContains([1, 2, 3], 2)
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when array does not contain item", () => {
-      let result = Assert.assertArrayContains([1, 2, 3], 4)
+      let result = Assert.arrayContains([1, 2, 3], 4)
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -204,17 +204,17 @@ let assertArrayContainsTests = Suite.make(
 )
 
 let assertMatchTests = Suite.make(
-  "Assert.assertMatch",
+  "Assert.matches",
   [
     Test.make("passes when string matches pattern", () => {
-      let result = Assert.assertMatch("hello123", /\d+/)
+      let result = Assert.matches("hello123", /\d+/)
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when string does not match pattern", () => {
-      let result = Assert.assertMatch("hello", /\d+/)
+      let result = Assert.matches("hello", /\d+/)
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -224,17 +224,17 @@ let assertMatchTests = Suite.make(
 )
 
 let assertSomeTests = Suite.make(
-  "Assert.assertSome",
+  "Assert.some",
   [
     Test.make("passes when option is Some", () => {
-      let result = Assert.assertSome(Some(42))
+      let result = Assert.some(Some(42))
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when option is None", () => {
-      let result = Assert.assertSome(None)
+      let result = Assert.some(None)
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -244,17 +244,17 @@ let assertSomeTests = Suite.make(
 )
 
 let assertNoneTests = Suite.make(
-  "Assert.assertNone",
+  "Assert.none",
   [
     Test.make("passes when option is None", () => {
-      let result = Assert.assertNone(None)
+      let result = Assert.none(None)
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when option is Some", () => {
-      let result = Assert.assertNone(Some(42))
+      let result = Assert.none(Some(42))
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -264,17 +264,17 @@ let assertNoneTests = Suite.make(
 )
 
 let assertOkTests = Suite.make(
-  "Assert.assertOk",
+  "Assert.ok",
   [
     Test.make("passes when result is Ok", () => {
-      let result = Assert.assertOk(Ok(42))
+      let result = Assert.ok(Ok(42))
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when result is Error", () => {
-      let result = Assert.assertOk(Error("error"))
+      let result = Assert.ok(Error("error"))
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -284,17 +284,17 @@ let assertOkTests = Suite.make(
 )
 
 let assertErrorTests = Suite.make(
-  "Assert.assertError",
+  "Assert.error",
   [
     Test.make("passes when result is Error", () => {
-      let result = Assert.assertError(Error("error"))
+      let result = Assert.error(Error("error"))
       switch result {
       | Pass => Pass
       | Fail(_) => Fail("Expected Pass")
       }
     }),
     Test.make("fails when result is Ok", () => {
-      let result = Assert.assertError(Ok(42))
+      let result = Assert.error(Ok(42))
       switch result {
       | Fail(_) => Pass
       | Pass => Fail("Expected Fail")
@@ -304,10 +304,10 @@ let assertErrorTests = Suite.make(
 )
 
 let assertThrowsTests = Suite.make(
-  "Assert.assertThrows",
+  "Assert.throws",
   [
     Test.make("passes when function throws", () => {
-      let result = Assert.assertThrows(() => {
+      let result = Assert.throws(() => {
         throw(Not_found)
       })
       switch result {
@@ -316,7 +316,7 @@ let assertThrowsTests = Suite.make(
       }
     }),
     Test.make("fails when function does not throw", () => {
-      let result = Assert.assertThrows(() => {
+      let result = Assert.throws(() => {
         42
       })
       switch result {
@@ -332,35 +332,35 @@ let testModeTests = Suite.make(
   [
     Test.make("test creates Normal mode", () => {
       let tc = Test.make("example", () => Pass)
-      Assert.assertEqual(tc.mode, Normal)
+      Assert.equal(tc.mode, Normal)
     }),
     Test.make("Test.skip creates Skip mode", () => {
       let tc = Test.skip("example", () => Pass)
-      Assert.assertEqual(tc.mode, Skip)
+      Assert.equal(tc.mode, Skip)
     }),
     Test.make("Test.only creates Only mode", () => {
       let tc = Test.only("example", () => Pass)
-      Assert.assertEqual(tc.mode, Only)
+      Assert.equal(tc.mode, Only)
     }),
     Test.make("Test.async creates Normal mode", () => {
       let tc = Test.async("example", async () => Pass)
-      Assert.assertEqual(tc.mode, Normal)
+      Assert.equal(tc.mode, Normal)
     }),
     Test.make("Test.asyncSkip creates Skip mode", () => {
       let tc = Test.asyncSkip("example", async () => Pass)
-      Assert.assertEqual(tc.mode, Skip)
+      Assert.equal(tc.mode, Skip)
     }),
     Test.make("Test.asyncOnly creates Only mode", () => {
       let tc = Test.asyncOnly("example", async () => Pass)
-      Assert.assertEqual(tc.mode, Only)
+      Assert.equal(tc.mode, Only)
     }),
     Test.make("Test.async accepts timeout parameter", () => {
       let tc = Test.async("example", async () => Pass, ~timeout=1000)
-      Assert.assertEqual(tc.timeout, Some(1000))
+      Assert.equal(tc.timeout, Some(1000))
     }),
     Test.make("Test.async has None timeout by default", () => {
       let tc = Test.async("example", async () => Pass)
-      Assert.assertEqual(tc.timeout, None)
+      Assert.equal(tc.timeout, None)
     }),
   ],
 )
@@ -427,23 +427,23 @@ let asyncSuiteHooksTests = Suite.make(
 )
 
 // Use a test-specific snapshot directory
-let _ = Snapshot.setSnapshotDir("tests/__snapshots__")
+let _ = Snapshot.setDir("tests/__snapshots__")
 
 let snapshotTests = Suite.make(
-  "Snapshot.assertMatchesSnapshot",
+  "Snapshot.matches",
   [
     Test.make("creates and matches snapshot for simple value", () => {
-      let result = Snapshot.assertMatchesSnapshot(42, ~name="simple-number")
+      let result = Snapshot.matches(42, ~name="simple-number")
       result
     }),
     Test.make("creates and matches snapshot for object", () => {
       let obj = {"name": "test", "value": 123}
-      let result = Snapshot.assertMatchesSnapshot(obj, ~name="simple-object")
+      let result = Snapshot.matches(obj, ~name="simple-object")
       result
     }),
     Test.make("creates and matches snapshot for array", () => {
       let arr = [1, 2, 3, 4, 5]
-      let result = Snapshot.assertMatchesSnapshot(arr, ~name="simple-array")
+      let result = Snapshot.matches(arr, ~name="simple-array")
       result
     }),
     Test.make("creates and matches snapshot for nested structure", () => {
@@ -451,7 +451,7 @@ let snapshotTests = Suite.make(
         "users": [{"id": 1, "name": "Alice"}, {"id": 2, "name": "Bob"}],
         "count": 2,
       }
-      let result = Snapshot.assertMatchesSnapshot(nested, ~name="nested-structure")
+      let result = Snapshot.matches(nested, ~name="nested-structure")
       result
     }),
   ],
