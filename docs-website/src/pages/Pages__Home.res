@@ -166,39 +166,39 @@ module CodeDemo = {
 
   let testCode = `open Zekr
 
-let mathSuite = suite("Math", [
-  test("addition", () =>
-    assertEqual(1 + 1, 2)
+let mathSuite = Suite.make("Math", [
+  Test.make("addition", () =>
+    Assert.equal(1 + 1, 2)
   ),
-  test("greater than", () =>
-    assertGreaterThan(10, 5)
+  Test.make("greater than", () =>
+    Assert.greaterThan(10, 5)
   ),
 ])
 
-runSuites([mathSuite])`
+Runner.runSuites([mathSuite])`
 
   let asyncCode = `open Zekr
 
-let apiSuite = asyncSuite("API", [
-  asyncTest("fetches data", async () => {
+let apiSuite = Suite.async("API", [
+  Test.async("fetches data", async () => {
     let data = await fetchData()
-    assertEqual(data.status, "ok")
+    Assert.equal(data.status, "ok")
   }, ~timeout=Some(5000)),
 ])
 
-runAsyncSuites([apiSuite])`
+Runner.runAsyncSuites([apiSuite])`
 
   let domCode = `open Zekr
 
-let {container} = Dom.render(
+let {container} = DomTesting.render(
   "<button>Click me</button>"
 )
 
 let btn =
-  Dom.Query.getByRole(container, "button")
+  DomTesting.Query.getByRole(container, "button")
 
-Dom.Event.click(btn)
-Dom.Assert.toHaveTextContent(
+DomTesting.Event.click(btn)
+DomTesting.Assert.toHaveTextContent(
   btn, "Click me"
 )`
 

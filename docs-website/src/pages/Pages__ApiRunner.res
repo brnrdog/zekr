@@ -17,12 +17,12 @@ let make = () => {
       <a class="anchor-link" href="#running"> {"#"->Component.text} </a>
     </div>
     <div class="heading-anchor" id="run-suite">
-      <Typography text={static("runSuite(suite)")} variant={H3} />
+      <Typography text={static("Runner.runSuite(suite)")} variant={H3} />
       <a class="anchor-link" href="#run-suite"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Runs a single synchronous test suite.")} />
     <div class="heading-anchor" id="run-suites">
-      <Typography text={static("runSuites(suites)")} variant={H3} />
+      <Typography text={static("Runner.runSuites(suites)")} variant={H3} />
       <a class="anchor-link" href="#run-suites"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Runs multiple synchronous test suites.")} />
@@ -30,23 +30,23 @@ let make = () => {
       language="rescript"
       code={`open Zekr
 
-let mathSuite = suite("Math", [
-  test("adds", () => assertEqual(1 + 1, 2)),
+let mathSuite = Suite.make("Math", [
+  Test.make("adds", () => Assert.equal(1 + 1, 2)),
 ])
 
-let stringSuite = suite("String", [
-  test("trims", () => assertEqual(String.trim("  hi  "), "hi")),
+let stringSuite = Suite.make("String", [
+  Test.make("trims", () => Assert.equal(String.trim("  hi  "), "hi")),
 ])
 
-runSuites([mathSuite, stringSuite])`}
+Runner.runSuites([mathSuite, stringSuite])`}
     />
     <div class="heading-anchor" id="run-async-suite">
-      <Typography text={static("runAsyncSuite(suite)")} variant={H3} />
+      <Typography text={static("Runner.runAsyncSuite(suite)")} variant={H3} />
       <a class="anchor-link" href="#run-async-suite"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Runs a single async test suite.")} />
     <div class="heading-anchor" id="run-async-suites">
-      <Typography text={static("runAsyncSuites(suites)")} variant={H3} />
+      <Typography text={static("Runner.runAsyncSuites(suites)")} variant={H3} />
       <a class="anchor-link" href="#run-async-suites"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Runs multiple async test suites.")} />
@@ -97,10 +97,10 @@ ZEKR_SKIP="slow" node tests/MyTests.js`}
       <a class="anchor-link" href="#timeout"> {"#"->Component.text} </a>
     </div>
     <div class="heading-anchor" id="run-with-timeout">
-      <Typography text={static("runWithTimeout(fn, timeout)")} variant={H3} />
+      <Typography text={static("Runner.runWithTimeout(fn, timeout)")} variant={H3} />
       <a class="anchor-link" href="#run-with-timeout"> {"#"->Component.text} </a>
     </div>
-    <Typography text={static("Runs an async function with an optional timeout. If the timeout is exceeded, it returns Fail. This is used internally by asyncTest but can also be used directly.")} />
+    <Typography text={static("Runs an async function with an optional timeout. If the timeout is exceeded, it returns Fail. This is used internally by Test.async but can also be used directly.")} />
     <Separator />
     // Watch Mode
     <div class="heading-anchor" id="watch-mode">
@@ -108,13 +108,13 @@ ZEKR_SKIP="slow" node tests/MyTests.js`}
       <a class="anchor-link" href="#watch-mode"> {"#"->Component.text} </a>
     </div>
     <div class="heading-anchor" id="watch-mode-fn">
-      <Typography text={static("watchMode(~testCommand, ~watchPaths, ~buildCommand?)")} variant={H3} />
+      <Typography text={static("Runner.watchMode(~testCommand, ~watchPaths, ~buildCommand?)")} variant={H3} />
       <a class="anchor-link" href="#watch-mode-fn"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Starts watch mode. Watches the specified paths for file changes, optionally runs a build command, then re-runs the test command. Changes are debounced by 100ms.")} />
     <CodeBlock
       language="rescript"
-      code={`watchMode(
+      code={`Runner.watchMode(
   ~testCommand="node tests/MyTests.js",
   ~watchPaths=["src", "tests"],
   ~buildCommand=Some("npx rescript"),
@@ -129,8 +129,8 @@ ZEKR_SKIP="slow" node tests/MyTests.js`}
     </div>
     <Typography text={static("When multiple filtering mechanisms are active, they are applied in this order:")} />
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> <strong> {"testOnly"->Component.text} </strong> {" — Highest priority. When any test has Only mode, only those tests run."->Component.text} </li>
-      <li> <strong> {"testSkip"->Component.text} </strong> {" — Always skipped, regardless of other filters."->Component.text} </li>
+      <li> <strong> {"Test.only"->Component.text} </strong> {" — Highest priority. When any test has Only mode, only those tests run."->Component.text} </li>
+      <li> <strong> {"Test.skip"->Component.text} </strong> {" — Always skipped, regardless of other filters."->Component.text} </li>
       <li> <strong> {"Filter/skip patterns"->Component.text} </strong> {" — Applied to remaining tests."->Component.text} </li>
       <li> <strong> {"Normal mode"->Component.text} </strong> {" — Runs if not filtered out."->Component.text} </li>
     </ul>

@@ -17,28 +17,28 @@ let make = () => {
       <a class="anchor-link" href="#mouse"> {"#"->Component.text} </a>
     </div>
     <div class="heading-anchor" id="click">
-      <Typography text={static("Dom.Event.click(element)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.click(element)")} variant={H3} />
       <a class="anchor-link" href="#click"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Simulates a realistic click event sequence: pointerdown, mousedown, pointerup, mouseup, click. Also manages focus.")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render("<button>Submit</button>")
-let btn = Dom.Query.getByRole(container, "button")
-Dom.Event.click(btn)`}
+      code={`let {container} = DomTesting.render("<button>Submit</button>")
+let btn = DomTesting.Query.getByRole(container, "button")
+DomTesting.Event.click(btn)`}
     />
     <div class="heading-anchor" id="dbl-click">
-      <Typography text={static("Dom.Event.dblClick(element)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.dblClick(element)")} variant={H3} />
       <a class="anchor-link" href="#dbl-click"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Simulates a double-click event.")} />
     <div class="heading-anchor" id="hover">
-      <Typography text={static("Dom.Event.hover(element)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.hover(element)")} variant={H3} />
       <a class="anchor-link" href="#hover"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Simulates hovering over an element (pointerenter, mouseenter, pointermove, mousemove).")} />
     <div class="heading-anchor" id="unhover">
-      <Typography text={static("Dom.Event.unhover(element)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.unhover(element)")} variant={H3} />
       <a class="anchor-link" href="#unhover"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Simulates moving the pointer away from an element (pointermove, mousemove, pointerleave, mouseleave).")} />
@@ -49,27 +49,27 @@ Dom.Event.click(btn)`}
       <a class="anchor-link" href="#keyboard"> {"#"->Component.text} </a>
     </div>
     <div class="heading-anchor" id="type-text">
-      <Typography text={static("Dom.Event.typeText(element, text)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.typeText(element, text)")} variant={H3} />
       <a class="anchor-link" href="#type-text"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Types text into an input element character by character. Fires keydown, keypress, beforeinput, input, keyup, and change events for each character. Updates the element's value.")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render(\`<input type="text" />\`)
-let input = Dom.Query.getByRole(container, "textbox")
+      code={`let {container} = DomTesting.render(\`<input type="text" />\`)
+let input = DomTesting.Query.getByRole(container, "textbox")
 
-Dom.Event.typeText(input, "hello world")
+DomTesting.Event.typeText(input, "hello world")
 // input.value is now "hello world"`}
     />
     <div class="heading-anchor" id="clear">
-      <Typography text={static("Dom.Event.clear(element)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.clear(element)")} variant={H3} />
       <a class="anchor-link" href="#clear"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Clears the value of an input element. Simulates Select All + Delete.")} />
     <CodeBlock
       language="rescript"
-      code={`Dom.Event.typeText(input, "hello")
-Dom.Event.clear(input)
+      code={`DomTesting.Event.typeText(input, "hello")
+DomTesting.Event.clear(input)
 // input.value is now ""`}
     />
     <Separator />
@@ -79,24 +79,24 @@ Dom.Event.clear(input)
       <a class="anchor-link" href="#checkbox"> {"#"->Component.text} </a>
     </div>
     <div class="heading-anchor" id="check">
-      <Typography text={static("Dom.Event.check(element)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.check(element)")} variant={H3} />
       <a class="anchor-link" href="#check"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Checks a checkbox or radio button.")} />
     <div class="heading-anchor" id="uncheck">
-      <Typography text={static("Dom.Event.uncheck(element)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.uncheck(element)")} variant={H3} />
       <a class="anchor-link" href="#uncheck"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Unchecks a checkbox.")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render(\`<input type="checkbox" />\`)
-let cb = Dom.Query.getByRole(container, "checkbox")
+      code={`let {container} = DomTesting.render(\`<input type="checkbox" />\`)
+let cb = DomTesting.Query.getByRole(container, "checkbox")
 
-Dom.Event.check(cb)
+DomTesting.Event.check(cb)
 // cb.checked is now true
 
-Dom.Event.uncheck(cb)
+DomTesting.Event.uncheck(cb)
 // cb.checked is now false`}
     />
     <Separator />
@@ -106,20 +106,20 @@ Dom.Event.uncheck(cb)
       <a class="anchor-link" href="#select"> {"#"->Component.text} </a>
     </div>
     <div class="heading-anchor" id="select-options">
-      <Typography text={static("Dom.Event.selectOptions(element, values)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.selectOptions(element, values)")} variant={H3} />
       <a class="anchor-link" href="#select-options"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Selects options in a <select> element by their value attributes.")} />
     <CodeBlock
       language="rescript"
-      code={`let {container} = Dom.render(\`
+      code={`let {container} = DomTesting.render(\`
   <select>
     <option value="a">Alpha</option>
     <option value="b">Beta</option>
   </select>
 \`)
-let select = Dom.Query.getByRole(container, "listbox")
-Dom.Event.selectOptions(select, ["b"])`}
+let select = DomTesting.Query.getByRole(container, "listbox")
+DomTesting.Event.selectOptions(select, ["b"])`}
     />
     <Separator />
     // Focus
@@ -128,12 +128,12 @@ Dom.Event.selectOptions(select, ["b"])`}
       <a class="anchor-link" href="#focus"> {"#"->Component.text} </a>
     </div>
     <div class="heading-anchor" id="focus-fn">
-      <Typography text={static("Dom.Event.focus(element)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.focus(element)")} variant={H3} />
       <a class="anchor-link" href="#focus-fn"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Focuses an element.")} />
     <div class="heading-anchor" id="blur-fn">
-      <Typography text={static("Dom.Event.blur(element)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.blur(element)")} variant={H3} />
       <a class="anchor-link" href="#blur-fn"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Removes focus from an element.")} />
@@ -144,7 +144,7 @@ Dom.Event.selectOptions(select, ["b"])`}
       <a class="anchor-link" href="#custom"> {"#"->Component.text} </a>
     </div>
     <div class="heading-anchor" id="fire-event">
-      <Typography text={static("Dom.Event.fireEvent(element, event)")} variant={H3} />
+      <Typography text={static("DomTesting.Event.fire(element, event)")} variant={H3} />
       <a class="anchor-link" href="#fire-event"> {"#"->Component.text} </a>
     </div>
     <Typography text={static("Dispatches a custom DOM event on an element. Use this for events not covered by the built-in helpers.")} />

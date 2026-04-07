@@ -26,7 +26,7 @@ let searchIndex: array<searchResult> = [
     category: "API",
   },
   {
-    title: "asyncTest",
+    title: "Test.async",
     description: "Create an asynchronous test case with optional timeout",
     url: "/api/tests",
     category: "API",
@@ -45,70 +45,70 @@ let searchIndex: array<searchResult> = [
   },
   // API - Assertions
   {
-    title: "assertEqual",
+    title: "Assert.equal",
     description: "Assert that two values are equal",
     url: "/api/assertions",
     category: "API",
   },
   {
-    title: "assertTrue / assertFalse",
+    title: "Assert.isTrue / Assert.isFalse",
     description: "Assert boolean values",
     url: "/api/assertions",
     category: "API",
   },
   {
-    title: "assertContains",
+    title: "Assert.contains",
     description: "Assert that a string contains a substring",
     url: "/api/assertions",
     category: "API",
   },
   {
-    title: "combineResults",
+    title: "Assert.combineResults",
     description: "Combine multiple assertion results into one",
     url: "/api/assertions",
     category: "API",
   },
   // API - DOM
   {
-    title: "Dom.render",
+    title: "DomTesting.render",
     description: "Render HTML into a jsdom container for testing",
     url: "/api/dom",
     category: "API",
   },
   {
-    title: "Dom.Query",
+    title: "DomTesting.Query",
     description: "Query DOM elements by text, role, test ID, and more",
     url: "/api/dom/queries",
     category: "API",
   },
   {
-    title: "Dom.Event",
+    title: "DomTesting.Event",
     description: "Simulate user events like click, type, and focus",
     url: "/api/dom/events",
     category: "API",
   },
   {
-    title: "Dom.Assert",
+    title: "DomTesting.Assert",
     description: "Assert DOM element state, visibility, and content",
     url: "/api/dom/assertions",
     category: "API",
   },
   // API - Snapshots
   {
-    title: "assertMatchesSnapshot",
+    title: "Snapshot.matches",
     description: "Compare values against stored snapshots",
     url: "/api/snapshots",
     category: "API",
   },
   // API - Runner
   {
-    title: "runSuites",
+    title: "Runner.runSuites",
     description: "Run test suites and see results in the terminal",
     url: "/api/runner",
     category: "API",
   },
   {
-    title: "watchMode",
+    title: "Runner.watchMode",
     description: "Watch files for changes and re-run tests automatically",
     url: "/api/runner",
     category: "API",
