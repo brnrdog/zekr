@@ -1,5 +1,13 @@
 open Xote
 
+// ---- DOM bindings for TOC ----
+@val @scope("document") external querySelector: string => Nullable.t<Dom.element> = "querySelector"
+@val @scope("document")
+external querySelectorAll: string => array<Dom.element> = "querySelectorAll"
+@get external textContent: Dom.element => string = "textContent"
+@send external getAttribute: (Dom.element, string) => Nullable.t<string> = "getAttribute"
+@val external setTimeout: (unit => unit, int) => int = "setTimeout"
+
 // ---- Navigation data ----
 type docItem = {
   title: string,
@@ -164,6 +172,118 @@ module PrevNextNav = {
   }
 }
 
+// ---- Table of Contents (right-floating) ----
+module TableOfContents = {
+  type props = {currentPath: string}
+
+  type tocItem = {
+    id: string,
+    label: string,
+    level: int,
+  }
+
+  let scanHeadings = (): array<tocItem> => {
+    let nodes = querySelectorAll(".docs-content .heading-anchor[id]")
+    nodes->Array.filterMap(node => {
+      switch getAttribute(node, "id")->Nullable.toOption {
+      | Some(id) when id != "" =>
+        let label = textContent(node)->String.trim->String.replaceRegExp(%re("/#$/"), "")->String.trim
+        // Look at the first heading element inside the anchor wrapper to determine level
+        let level = if Nullable.toOption(querySelector("#" ++ id ++ " h2")) != None {
+          2
+        } else if Nullable.toOption(querySelector("#" ++ id ++ " h3")) != None {
+          3
+        } else {
+          2
+        }
+        Some({id, label, level})
+      | _ => None
+      }
+    })
+  }
+
+  let make = (props: props) => {
+    let items = Signal.make([])
+    // Track active heading id (updated on scroll)
+    let activeId = Signal.make("")
+
+    // Re-scan whenever the page path changes
+    let _ = Effect.run(() => {
+      let _ = props.currentPath // depend on prop
+      let _ = setTimeout(() => Signal.set(items, scanHeadings()), 50)
+      let _ = setTimeout(() => Signal.set(items, scanHeadings()), 250)
+      None
+    })
+
+    // Track which heading is currently in view
+    let elementTop = (el: Dom.element): float => {
+      let _ = el
+      %raw(`el.getBoundingClientRect().top + window.scrollY`)
+    }
+    let _ = Effect.run(() => {
+      let handleScroll = () => {
+        let scrollY: float = %raw(`window.scrollY`)
+        let offset = scrollY +. 100.0
+        let current = ref("")
+        Signal.peek(items)->Array.forEach(item => {
+          switch querySelector("#" ++ item.id)->Nullable.toOption {
+          | Some(el) =>
+            if elementTop(el) <= offset {
+              current := item.id
+            }
+          | None => ()
+          }
+        })
+        Signal.set(activeId, current.contents)
+      }
+      let _ = %raw(`window.addEventListener("scroll", handleScroll, { passive: true })`)
+      handleScroll()
+      Some(() => %raw(`window.removeEventListener("scroll", handleScroll)`))
+    })
+
+    <aside class="docs-toc">
+      <div class="docs-toc-title"> {Component.text("On this page")} </div>
+      {Component.signalFragment(
+        Computed.make(() => {
+          let list = Signal.get(items)
+          let active = Signal.get(activeId)
+          if Array.length(list) == 0 {
+            []
+          } else {
+            [
+              Component.element(
+                "ul",
+                ~attrs=[Component.attr("class", "docs-toc-list")],
+                ~children=list->Array.map(item => {
+                  let cn =
+                    "docs-toc-link docs-toc-level-" ++
+                    Int.toString(item.level) ++ (item.id == active ? " active" : "")
+                  Component.element(
+                    "li",
+                    ~children=[
+                      Component.element(
+                        "a",
+                        ~attrs=[
+                          Component.attr("href", "#" ++ item.id),
+                          Component.attr("class", cn),
+                        ],
+                        ~children=[Component.text(item.label)],
+                        (),
+                      ),
+                    ],
+                    (),
+                  )
+                }),
+                (),
+              ),
+            ]
+          }
+        }),
+      )}
+    </aside>
+  }
+}
+
 // ---- Feedback Widget ----
 module FeedbackWidget = {
   type props = {}
@@ -220,6 +340,7 @@ let make = (props: props) => {
           <PrevNextNav currentPath />
           <FeedbackWidget />
         </div>
+        <TableOfContents currentPath />
       </div>
     }
   />

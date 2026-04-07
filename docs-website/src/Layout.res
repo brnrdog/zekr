@@ -436,9 +436,18 @@ module Footer = {
           </div>
         </div>
         <div class="footer-bottom">
-          <div> {Component.text(`Copyright \u00A9 ${year} Bernardo Gurgel. MIT License.`)} </div>
+          <div>
+            {Component.text(`Copyright \u00A9 ${year} `)}
+            <a href="https://github.com/brnrdog" target="_blank" class="footer-author">
+              {Component.text("Bernardo Gurgel")}
+            </a>
+            {Component.text(". MIT License.")}
+          </div>
           <div class="footer-bottom-right">
-            {Component.text("Built with xote")}
+            {Component.text("Built with ")}
+            <a href="https://github.com/brnrdog/xote" target="_blank" class="footer-author">
+              {Component.text("xote")}
+            </a>
           </div>
         </div>
       </div>

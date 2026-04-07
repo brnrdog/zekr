@@ -9,6 +9,8 @@ open Basefn
 // Simple markdown renderer for changelog
 let renderMarkdown = (markdown: string): string => {
   markdown
+  // Strip the top-level "# Changelog" heading (page already has its own title)
+  ->String.replaceRegExp(%re("/^# .+\n+/"), "")
   // Headers
   ->String.replaceRegExp(%re("/^### (.+)$/gm"), "<h3>$1</h3>")
   ->String.replaceRegExp(%re("/^## (.+)$/gm"), "<h2 style=\"margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--basefn-border-primary);\">$1</h2>")
