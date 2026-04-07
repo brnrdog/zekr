@@ -1,6 +1,6 @@
-// Zekr__Snapshot - Snapshot testing support
+// Snapshot - Snapshot testing support
 
-open Zekr__Types
+open Types
 
 // Node.js file system bindings for snapshot testing
 module NodeFs = {
@@ -56,9 +56,9 @@ let assertMatchesSnapshot = (
     } else {
       Fail(
         `Snapshot mismatch for "${name}"\n` ++
-        `       ${Zekr__Colors.pass("+ expected")} ${Zekr__Colors.fail("- actual")}\n` ++
-        `       ${Zekr__Colors.fail("- " ++ formatted)}\n` ++
-        `       ${Zekr__Colors.pass("+ " ++ existing)}`,
+        `       ${Colors.pass("+ expected")} ${Colors.fail("- actual")}\n` ++
+        `       ${Colors.fail("- " ++ formatted)}\n` ++
+        `       ${Colors.pass("+ " ++ existing)}`,
       )
     }
   } else {

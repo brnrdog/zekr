@@ -2,7 +2,7 @@
 // This module serves as the public API facade
 
 // Re-export all types and their constructors
-include Zekr__Types
+include Types
 
 // Test factory functions
 let test = (name: string, run: unit => testResult): testCase => {
@@ -91,43 +91,43 @@ let asyncSuite = (
 }
 
 // Re-export assertions
-let assertEqual = Zekr__Assert.assertEqual
-let assertNotEqual = Zekr__Assert.assertNotEqual
-let assertTrue = Zekr__Assert.assertTrue
-let assertFalse = Zekr__Assert.assertFalse
-let assertGreaterThan = Zekr__Assert.assertGreaterThan
-let assertLessThan = Zekr__Assert.assertLessThan
-let assertGreaterThanOrEqual = Zekr__Assert.assertGreaterThanOrEqual
-let assertLessThanOrEqual = Zekr__Assert.assertLessThanOrEqual
-let assertContains = Zekr__Assert.assertContains
-let assertArrayContains = Zekr__Assert.assertArrayContains
-let assertMatch = Zekr__Assert.assertMatch
-let assertSome = Zekr__Assert.assertSome
-let assertNone = Zekr__Assert.assertNone
-let assertOk = Zekr__Assert.assertOk
-let assertError = Zekr__Assert.assertError
-let assertThrows = Zekr__Assert.assertThrows
-let combineResults = Zekr__Assert.combineResults
-let combineAsyncResults = Zekr__Assert.combineAsyncResults
+let assertEqual = Assert.assertEqual
+let assertNotEqual = Assert.assertNotEqual
+let assertTrue = Assert.assertTrue
+let assertFalse = Assert.assertFalse
+let assertGreaterThan = Assert.assertGreaterThan
+let assertLessThan = Assert.assertLessThan
+let assertGreaterThanOrEqual = Assert.assertGreaterThanOrEqual
+let assertLessThanOrEqual = Assert.assertLessThanOrEqual
+let assertContains = Assert.assertContains
+let assertArrayContains = Assert.assertArrayContains
+let assertMatch = Assert.assertMatch
+let assertSome = Assert.assertSome
+let assertNone = Assert.assertNone
+let assertOk = Assert.assertOk
+let assertError = Assert.assertError
+let assertThrows = Assert.assertThrows
+let combineResults = Assert.combineResults
+let combineAsyncResults = Assert.combineAsyncResults
 
 // Re-export snapshot testing
-let setSnapshotDir = Zekr__Snapshot.setSnapshotDir
-let assertMatchesSnapshot = Zekr__Snapshot.assertMatchesSnapshot
-let updateSnapshot = Zekr__Snapshot.updateSnapshot
+let setSnapshotDir = Snapshot.setSnapshotDir
+let assertMatchesSnapshot = Snapshot.assertMatchesSnapshot
+let updateSnapshot = Snapshot.updateSnapshot
 
 // Re-export runners
-let runSuite = Zekr__Runner.runSuite
-let runSuites = Zekr__Runner.runSuites
-let runAsyncSuite = Zekr__Runner.runAsyncSuite
-let runAsyncSuites = Zekr__Runner.runAsyncSuites
-let runWithTimeout = Zekr__Runner.runWithTimeout
+let runSuite = Runner.runSuite
+let runSuites = Runner.runSuites
+let runAsyncSuite = Runner.runAsyncSuite
+let runAsyncSuites = Runner.runAsyncSuites
+let runWithTimeout = Runner.runWithTimeout
 
 // Re-export filtering
-let setFilterPattern = Zekr__Runner.setFilterPattern
-let setSkipPattern = Zekr__Runner.setSkipPattern
+let setFilterPattern = Runner.setFilterPattern
+let setSkipPattern = Runner.setSkipPattern
 
 // Re-export watch mode
-let watchMode = Zekr__Runner.watchMode
+let watchMode = Runner.watchMode
 
 // Re-export DOM testing module
-module Dom = Zekr__Dom
+module Dom = DomTesting

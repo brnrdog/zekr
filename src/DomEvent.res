@@ -1,6 +1,6 @@
-// Zekr__DomEvent - User interaction simulation inspired by user-event
+// DomEvent - User interaction simulation inspired by user-event
 
-open Zekr__DomBindings
+open DomBindings
 
 // === Mouse Events ===
 
@@ -152,7 +152,7 @@ let uncheck = (element: Dom.element) => {
 let selectOptions = (element: Dom.element, values: array<string>) => {
   focusElement(element)
 
-  let options = Zekr__DomBindings.selectOptions(element)
+  let options = DomBindings.selectOptions(element)
   options->Array.forEach(option => {
     let optVal = optionValue(option)
     let shouldSelect = values->Array.includes(optVal)

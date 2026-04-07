@@ -1,6 +1,6 @@
-// Zekr__DomQuery - DOM query functions inspired by Testing Library
+// DomQuery - DOM query functions inspired by Testing Library
 
-open Zekr__DomBindings
+open DomBindings
 
 exception QueryError(string)
 
@@ -159,7 +159,7 @@ let findAllByRole = (
     let checkedMatches = switch checked {
     | None => true
     | Some(expectedChecked) =>
-      Zekr__DomBindings.checked(el) === expectedChecked
+      DomBindings.checked(el) === expectedChecked
     }
 
     let levelMatches = switch level {
@@ -450,7 +450,7 @@ let queryByAltText = (container: Dom.element, text: string, ~exact: bool=true) =
 let findAllByTitle = (container: Dom.element, text: string, ~exact: bool=true) => {
   let elements = querySelectorAll(container, "[title]")
   elements->Array.filter(el => {
-    let t = Zekr__DomBindings.title(el)
+    let t = DomBindings.title(el)
     if exact {
       t === text
     } else {

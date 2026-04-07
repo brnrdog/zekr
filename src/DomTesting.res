@@ -1,6 +1,6 @@
-// Zekr__Dom - DOM rendering and testing utilities
+// Dom - DOM rendering and testing utilities
 
-open Zekr__DomBindings
+open DomBindings
 
 type renderResult = {
   container: Dom.element,
@@ -32,6 +32,6 @@ let cleanupAll = () => {
 }
 
 // Re-export submodules for convenient access
-module Query = Zekr__DomQuery
-module Event = Zekr__DomEvent
-module Assert = Zekr__DomAssert
+module Query = DomQuery
+module Event = DomEvent
+module Assert = DomAssert

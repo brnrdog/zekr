@@ -50,7 +50,7 @@
     ],
     "exclude": [
       "src/**/*.js.map",
-      "src/Zekr__Types.js"
+      "src/Types.js"
     ],
     "reporter": [
       "text",

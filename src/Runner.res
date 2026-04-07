@@ -1,6 +1,6 @@
-// Zekr__Runner - Test execution and reporting
+// Runner - Test execution and reporting
 
-open Zekr__Types
+open Types
 
 // Environment variable access for test filtering
 @val @scope("process") external env: Dict.t<string> = "env"
@@ -51,8 +51,8 @@ let shouldRunTest = (suiteName: string, testName: string): bool => {
 }
 
 let runSuite = (testSuite: testSuite): unit => {
-  Console.log(`\n ${Zekr__Colors.suite(`Running test suite: ${testSuite.name}`)}`)
-  Console.log(Zekr__Colors.dimmed("=" ++ String.repeat("-", String.length(testSuite.name) + 23)))
+  Console.log(`\n ${Colors.suite(`Running test suite: ${testSuite.name}`)}`)
+  Console.log(Colors.dimmed("=" ++ String.repeat("-", String.length(testSuite.name) + 23)))
 
   let passed = ref(0)
   let failed = ref(0)
@@ -84,12 +84,12 @@ let runSuite = (testSuite: testSuite): unit => {
 
       switch testCase.run() {
       | Pass => {
-          Console.log(`  ${Zekr__Colors.pass("✓")} ${testCase.name}`)
+          Console.log(`  ${Colors.pass("✓")} ${testCase.name}`)
           passed := passed.contents + 1
         }
       | Fail(message) => {
-          Console.log(`  ${Zekr__Colors.fail("✗")} ${testCase.name}`)
-          Console.log(`    ${Zekr__Colors.fail(message)}`)
+          Console.log(`  ${Colors.fail("✗")} ${testCase.name}`)
+          Console.log(`    ${Colors.fail(message)}`)
           failed := failed.contents + 1
         }
       }
@@ -101,7 +101,7 @@ let runSuite = (testSuite: testSuite): unit => {
       }
     } else {
       Console.log(
-        `  ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed(
+        `  ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed(
             "(skipped)",
           )}`,
       )
@@ -117,20 +117,20 @@ let runSuite = (testSuite: testSuite): unit => {
 
   Console.log("")
   let skipMsg = if skipped.contents > 0 {
-    `, ${Zekr__Colors.skip(Int.toString(skipped.contents) ++ " skipped")}`
+    `, ${Colors.skip(Int.toString(skipped.contents) ++ " skipped")}`
   } else {
     ""
   }
   Console.log(
-    `Results: ${Zekr__Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Zekr__Colors.fail(
+    `Results: ${Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Colors.fail(
         Int.toString(failed.contents) ++ " failed",
       )}${skipMsg}`,
   )
 
   if failed.contents > 0 {
-    Console.log(Zekr__Colors.fail(" Some tests failed"))
+    Console.log(Colors.fail(" Some tests failed"))
   } else {
-    Console.log(Zekr__Colors.pass(" All tests passed!"))
+    Console.log(Colors.pass(" All tests passed!"))
   }
 }
 
@@ -138,16 +138,16 @@ let runSuites = (suites: array<testSuite>): unit => {
   // Initialize filter patterns from environment
   initFilterFromEnv()
 
-  Console.log(`\n ${Zekr__Colors.suite("Running all test suites")}`)
-  Console.log(Zekr__Colors.dimmed("========================\n"))
+  Console.log(`\n ${Colors.suite("Running all test suites")}`)
+  Console.log(Colors.dimmed("========================\n"))
 
   // Show active filters
   switch filterPattern.contents {
-  | Some(p) => Console.log(Zekr__Colors.dimmed(`Filter: "${p}"`))
+  | Some(p) => Console.log(Colors.dimmed(`Filter: "${p}"`))
   | None => ()
   }
   switch skipPattern.contents {
-  | Some(p) => Console.log(Zekr__Colors.dimmed(`Skip: "${p}"`))
+  | Some(p) => Console.log(Colors.dimmed(`Skip: "${p}"`))
   | None => ()
   }
 
@@ -160,8 +160,8 @@ let runSuites = (suites: array<testSuite>): unit => {
   let hasOnly = suites->Array.some(s => s.tests->Array.some(tc => tc.mode == Only))
 
   suites->Array.forEach(testSuite => {
-    Console.log(`\n ${Zekr__Colors.suite(testSuite.name)}`)
-    Console.log(Zekr__Colors.dimmed("-" ++ String.repeat("-", String.length(testSuite.name) + 3)))
+    Console.log(`\n ${Colors.suite(testSuite.name)}`)
+    Console.log(Colors.dimmed("-" ++ String.repeat("-", String.length(testSuite.name) + 3)))
 
     // Run beforeAll hook if present
     switch testSuite.hooks {
@@ -197,13 +197,13 @@ let runSuites = (suites: array<testSuite>): unit => {
 
         switch testCase.run() {
         | Pass => {
-            Console.log(`   ${Zekr__Colors.pass("✓")} ${testCase.name}`)
+            Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
             suitePassed := suitePassed.contents + 1
             totalPassed := totalPassed.contents + 1
           }
         | Fail(message) => {
-            Console.log(`   ${Zekr__Colors.fail("✗")} ${testCase.name}`)
-            Console.log(`     ${Zekr__Colors.fail(message)}`)
+            Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
+            Console.log(`     ${Colors.fail(message)}`)
             suiteFailed := suiteFailed.contents + 1
             totalFailed := totalFailed.contents + 1
           }
@@ -216,7 +216,7 @@ let runSuites = (suites: array<testSuite>): unit => {
         }
       } else {
         Console.log(
-          `   ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed(
+          `   ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed(
               "(skipped)",
             )}`,
         )
@@ -232,41 +232,41 @@ let runSuites = (suites: array<testSuite>): unit => {
     }
 
     let skipMsg = if suiteSkipped.contents > 0 {
-      `, ${Zekr__Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
+      `, ${Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
     } else {
       ""
     }
     Console.log(
-      `  ${Zekr__Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Zekr__Colors.fail(
+      `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(
           Int.toString(suiteFailed.contents) ++ " failed",
         )}${skipMsg}`,
     )
   })
 
-  Console.log("\n" ++ Zekr__Colors.dimmed(String.repeat("=", 50)))
+  Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
   let totalSkipMsg = if totalSkipped.contents > 0 {
-    `, ${Zekr__Colors.skip(Int.toString(totalSkipped.contents) ++ " skipped")}`
+    `, ${Colors.skip(Int.toString(totalSkipped.contents) ++ " skipped")}`
   } else {
     ""
   }
   let totalFilterMsg = if totalFiltered.contents > 0 {
-    `, ${Zekr__Colors.dimmed(Int.toString(totalFiltered.contents) ++ " filtered")}`
+    `, ${Colors.dimmed(Int.toString(totalFiltered.contents) ++ " filtered")}`
   } else {
     ""
   }
   Console.log(
-    `Total: ${Zekr__Colors.pass(
+    `Total: ${Colors.pass(
         Int.toString(totalPassed.contents) ++ " passed",
-      )}, ${Zekr__Colors.fail(
+      )}, ${Colors.fail(
         Int.toString(totalFailed.contents) ++ " failed",
       )}${totalSkipMsg}${totalFilterMsg}`,
   )
 
   if totalFailed.contents > 0 {
-    Console.log(Zekr__Colors.fail(" Some tests failed\n"))
+    Console.log(Colors.fail(" Some tests failed\n"))
     %raw(`process.exit(1)`)
   } else {
-    Console.log(Zekr__Colors.pass(" All tests passed!\n"))
+    Console.log(Colors.pass(" All tests passed!\n"))
     %raw(`process.exit(0)`)
   }
 }
@@ -304,8 +304,8 @@ let runWithTimeout = async (run: unit => promise<testResult>, timeout: option<in
 }
 
 let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
-  Console.log(`\n ${Zekr__Colors.suite(`Running async test suite: ${asyncSuite.name}`)}`)
-  Console.log(Zekr__Colors.dimmed("=" ++ String.repeat("-", String.length(asyncSuite.name) + 29)))
+  Console.log(`\n ${Colors.suite(`Running async test suite: ${asyncSuite.name}`)}`)
+  Console.log(Colors.dimmed("=" ++ String.repeat("-", String.length(asyncSuite.name) + 29)))
 
   let passed = ref(0)
   let failed = ref(0)
@@ -340,12 +340,12 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
       let result = await runWithTimeout(testCase.run, testCase.timeout)
       switch result {
       | Pass => {
-          Console.log(`  ${Zekr__Colors.pass("✓")} ${testCase.name}`)
+          Console.log(`  ${Colors.pass("✓")} ${testCase.name}`)
           passed := passed.contents + 1
         }
       | Fail(message) => {
-          Console.log(`  ${Zekr__Colors.fail("✗")} ${testCase.name}`)
-          Console.log(`    ${Zekr__Colors.fail(message)}`)
+          Console.log(`  ${Colors.fail("✗")} ${testCase.name}`)
+          Console.log(`    ${Colors.fail(message)}`)
           failed := failed.contents + 1
         }
       }
@@ -357,7 +357,7 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
       }
     } else {
       Console.log(
-        `  ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed(
+        `  ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed(
             "(skipped)",
           )}`,
       )
@@ -373,20 +373,20 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
 
   Console.log("")
   let skipMsg = if skipped.contents > 0 {
-    `, ${Zekr__Colors.skip(Int.toString(skipped.contents) ++ " skipped")}`
+    `, ${Colors.skip(Int.toString(skipped.contents) ++ " skipped")}`
   } else {
     ""
   }
   Console.log(
-    `Results: ${Zekr__Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Zekr__Colors.fail(
+    `Results: ${Colors.pass(Int.toString(passed.contents) ++ " passed")}, ${Colors.fail(
         Int.toString(failed.contents) ++ " failed",
       )}${skipMsg}`,
   )
 
   if failed.contents > 0 {
-    Console.log(Zekr__Colors.fail(" Some tests failed"))
+    Console.log(Colors.fail(" Some tests failed"))
   } else {
-    Console.log(Zekr__Colors.pass(" All tests passed!"))
+    Console.log(Colors.pass(" All tests passed!"))
   }
 }
 
@@ -394,16 +394,16 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
   // Initialize filter patterns from environment
   initFilterFromEnv()
 
-  Console.log(`\n ${Zekr__Colors.suite("Running all async test suites")}`)
-  Console.log(Zekr__Colors.dimmed("==============================\n"))
+  Console.log(`\n ${Colors.suite("Running all async test suites")}`)
+  Console.log(Colors.dimmed("==============================\n"))
 
   // Show active filters
   switch filterPattern.contents {
-  | Some(p) => Console.log(Zekr__Colors.dimmed(`Filter: "${p}"`))
+  | Some(p) => Console.log(Colors.dimmed(`Filter: "${p}"`))
   | None => ()
   }
   switch skipPattern.contents {
-  | Some(p) => Console.log(Zekr__Colors.dimmed(`Skip: "${p}"`))
+  | Some(p) => Console.log(Colors.dimmed(`Skip: "${p}"`))
   | None => ()
   }
 
@@ -417,8 +417,8 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
 
   for i in 0 to Array.length(suites) - 1 {
     let asyncSuite = suites->Array.getUnsafe(i)
-    Console.log(`\n ${Zekr__Colors.suite(asyncSuite.name)}`)
-    Console.log(Zekr__Colors.dimmed("-" ++ String.repeat("-", String.length(asyncSuite.name) + 3)))
+    Console.log(`\n ${Colors.suite(asyncSuite.name)}`)
+    Console.log(Colors.dimmed("-" ++ String.repeat("-", String.length(asyncSuite.name) + 3)))
 
     // Run beforeAll hook if present
     switch asyncSuite.hooks {
@@ -457,13 +457,13 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
         let result = await runWithTimeout(testCase.run, testCase.timeout)
         switch result {
         | Pass => {
-            Console.log(`   ${Zekr__Colors.pass("✓")} ${testCase.name}`)
+            Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
             suitePassed := suitePassed.contents + 1
             totalPassed := totalPassed.contents + 1
           }
         | Fail(message) => {
-            Console.log(`   ${Zekr__Colors.fail("✗")} ${testCase.name}`)
-            Console.log(`     ${Zekr__Colors.fail(message)}`)
+            Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
+            Console.log(`     ${Colors.fail(message)}`)
             suiteFailed := suiteFailed.contents + 1
             totalFailed := totalFailed.contents + 1
           }
@@ -476,7 +476,7 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
         }
       } else {
         Console.log(
-          `   ${Zekr__Colors.skip("○")} ${Zekr__Colors.skip(testCase.name)} ${Zekr__Colors.dimmed(
+          `   ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed(
               "(skipped)",
             )}`,
         )
@@ -492,41 +492,41 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
     }
 
     let skipMsg = if suiteSkipped.contents > 0 {
-      `, ${Zekr__Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
+      `, ${Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
     } else {
       ""
     }
     Console.log(
-      `  ${Zekr__Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Zekr__Colors.fail(
+      `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(
           Int.toString(suiteFailed.contents) ++ " failed",
         )}${skipMsg}`,
     )
   }
 
-  Console.log("\n" ++ Zekr__Colors.dimmed(String.repeat("=", 50)))
+  Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
   let totalSkipMsg = if totalSkipped.contents > 0 {
-    `, ${Zekr__Colors.skip(Int.toString(totalSkipped.contents) ++ " skipped")}`
+    `, ${Colors.skip(Int.toString(totalSkipped.contents) ++ " skipped")}`
   } else {
     ""
   }
   let totalFilterMsg = if totalFiltered.contents > 0 {
-    `, ${Zekr__Colors.dimmed(Int.toString(totalFiltered.contents) ++ " filtered")}`
+    `, ${Colors.dimmed(Int.toString(totalFiltered.contents) ++ " filtered")}`
   } else {
     ""
   }
   Console.log(
-    `Total: ${Zekr__Colors.pass(
+    `Total: ${Colors.pass(
         Int.toString(totalPassed.contents) ++ " passed",
-      )}, ${Zekr__Colors.fail(
+      )}, ${Colors.fail(
         Int.toString(totalFailed.contents) ++ " failed",
       )}${totalSkipMsg}${totalFilterMsg}`,
   )
 
   if totalFailed.contents > 0 {
-    Console.log(Zekr__Colors.fail(" Some tests failed\n"))
+    Console.log(Colors.fail(" Some tests failed\n"))
     %raw(`process.exit(1)`)
   } else {
-    Console.log(Zekr__Colors.pass(" All tests passed!\n"))
+    Console.log(Colors.pass(" All tests passed!\n"))
     %raw(`process.exit(0)`)
   }
 }
@@ -547,9 +547,9 @@ let watchMode = (
   let debounceMs = 100.0
 
   let runTests = () => {
-    Console.log("\n" ++ Zekr__Colors.dimmed(String.repeat("=", 50)))
-    Console.log(Zekr__Colors.suite(" File change detected, re-running tests..."))
-    Console.log(Zekr__Colors.dimmed(String.repeat("=", 50)))
+    Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
+    Console.log(Colors.suite(" File change detected, re-running tests..."))
+    Console.log(Colors.dimmed(String.repeat("=", 50)))
 
     // Run build command if provided
     switch buildCommand {
@@ -577,20 +577,20 @@ let watchMode = (
     }
   }
 
-  Console.log(Zekr__Colors.suite("\n Watch mode started"))
-  Console.log(Zekr__Colors.dimmed(" Watching for file changes..."))
-  Console.log(Zekr__Colors.dimmed(" Paths: " ++ watchPaths->Array.join(", ")))
-  Console.log(Zekr__Colors.dimmed(" Press Ctrl+C to stop\n"))
+  Console.log(Colors.suite("\n Watch mode started"))
+  Console.log(Colors.dimmed(" Watching for file changes..."))
+  Console.log(Colors.dimmed(" Paths: " ++ watchPaths->Array.join(", ")))
+  Console.log(Colors.dimmed(" Press Ctrl+C to stop\n"))
 
   // Initial test run
   runTests()
 
   // Watch each path
   watchPaths->Array.forEach(path => {
-    if Zekr__Snapshot.NodeFs.existsSync(path) {
-      Zekr__Snapshot.NodeFs.watch(path, {"recursive": true}, onChange)
+    if Snapshot.NodeFs.existsSync(path) {
+      Snapshot.NodeFs.watch(path, {"recursive": true}, onChange)
     } else {
-      Console.log(Zekr__Colors.fail(" Warning: Path \"" ++ path ++ "\" does not exist"))
+      Console.log(Colors.fail(" Warning: Path \"" ++ path ++ "\" does not exist"))
     }
   })
 }

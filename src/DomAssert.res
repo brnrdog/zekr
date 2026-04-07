@@ -1,7 +1,7 @@
-// Zekr__DomAssert - DOM assertion functions returning testResult
+// DomAssert - DOM assertion functions returning testResult
 
-open Zekr__Types
-open Zekr__DomBindings
+open Types
+open DomBindings
 
 let toBeInTheDocument = (element: Dom.element): testResult => {
   let doc = ensureDocument()
@@ -27,7 +27,7 @@ let toNotBeInTheDocument = (element: option<Dom.element>): testResult => {
 }
 
 let toHaveTextContent = (element: Dom.element, expected: string, ~exact: bool=true): testResult => {
-  let actual = Zekr__DomQuery.normalizeText(textContent(element))
+  let actual = DomQuery.normalizeText(textContent(element))
   let matches = if exact {
     actual === expected
   } else {
@@ -39,9 +39,9 @@ let toHaveTextContent = (element: Dom.element, expected: string, ~exact: bool=tr
   } else {
     Fail(
       `Expected element to have text content:\n` ++
-      `       ${Zekr__Colors.pass("+ expected")} ${Zekr__Colors.fail("- actual")}\n` ++
-      `       ${Zekr__Colors.fail("- " ++ actual)}\n` ++
-      `       ${Zekr__Colors.pass("+ " ++ expected)}`,
+      `       ${Colors.pass("+ expected")} ${Colors.fail("- actual")}\n` ++
+      `       ${Colors.fail("- " ++ actual)}\n` ++
+      `       ${Colors.pass("+ " ++ expected)}`,
     )
   }
 }
@@ -157,15 +157,15 @@ let toBeEnabled = (element: Dom.element): testResult => {
 }
 
 let toHaveValue = (element: Dom.element, expected: string): testResult => {
-  let actual = Zekr__DomBindings.value(element)
+  let actual = DomBindings.value(element)
   if actual === expected {
     Pass
   } else {
     Fail(
       `Expected element to have value:\n` ++
-      `       ${Zekr__Colors.pass("+ expected")} ${Zekr__Colors.fail("- actual")}\n` ++
-      `       ${Zekr__Colors.fail("- " ++ actual)}\n` ++
-      `       ${Zekr__Colors.pass("+ " ++ expected)}`,
+      `       ${Colors.pass("+ expected")} ${Colors.fail("- actual")}\n` ++
+      `       ${Colors.fail("- " ++ actual)}\n` ++
+      `       ${Colors.pass("+ " ++ expected)}`,
     )
   }
 }
