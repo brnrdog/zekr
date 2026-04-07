@@ -2,7 +2,7 @@
 
 open Types
 
-let assertEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
+let equal = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
   if actual == expected {
     Pass
   } else {
@@ -18,7 +18,7 @@ let assertEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testRe
   }
 }
 
-let assertNotEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
+let notEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
   if actual != expected {
     Pass
   } else {
@@ -32,7 +32,7 @@ let assertNotEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): tes
   }
 }
 
-let assertTrue = (condition: bool, ~message: option<string>=?): testResult => {
+let isTrue = (condition: bool, ~message: option<string>=?): testResult => {
   if condition {
     Pass
   } else {
@@ -44,7 +44,7 @@ let assertTrue = (condition: bool, ~message: option<string>=?): testResult => {
   }
 }
 
-let assertFalse = (condition: bool, ~message: option<string>=?): testResult => {
+let isFalse = (condition: bool, ~message: option<string>=?): testResult => {
   if !condition {
     Pass
   } else {
@@ -56,7 +56,7 @@ let assertFalse = (condition: bool, ~message: option<string>=?): testResult => {
   }
 }
 
-let assertGreaterThan = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
+let greaterThan = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
   if actual > expected {
     Pass
   } else {
@@ -71,7 +71,7 @@ let assertGreaterThan = (actual: 'a, expected: 'a, ~message: option<string>=?): 
   }
 }
 
-let assertLessThan = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
+let lessThan = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
   if actual < expected {
     Pass
   } else {
@@ -86,7 +86,7 @@ let assertLessThan = (actual: 'a, expected: 'a, ~message: option<string>=?): tes
   }
 }
 
-let assertGreaterThanOrEqual = (
+let greaterThanOrEqual = (
   actual: 'a,
   expected: 'a,
   ~message: option<string>=?,
@@ -105,7 +105,7 @@ let assertGreaterThanOrEqual = (
   }
 }
 
-let assertLessThanOrEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
+let lessThanOrEqual = (actual: 'a, expected: 'a, ~message: option<string>=?): testResult => {
   if actual <= expected {
     Pass
   } else {
@@ -120,7 +120,7 @@ let assertLessThanOrEqual = (actual: 'a, expected: 'a, ~message: option<string>=
   }
 }
 
-let assertContains = (haystack: string, needle: string, ~message: option<string>=?): testResult => {
+let contains = (haystack: string, needle: string, ~message: option<string>=?): testResult => {
   if String.includes(haystack, needle) {
     Pass
   } else {
@@ -135,7 +135,7 @@ let assertContains = (haystack: string, needle: string, ~message: option<string>
   }
 }
 
-let assertArrayContains = (arr: array<'a>, item: 'a, ~message: option<string>=?): testResult => {
+let arrayContains = (arr: array<'a>, item: 'a, ~message: option<string>=?): testResult => {
   if Array.includes(arr, item) {
     Pass
   } else {
@@ -149,7 +149,7 @@ let assertArrayContains = (arr: array<'a>, item: 'a, ~message: option<string>=?)
   }
 }
 
-let assertMatch = (str: string, pattern: RegExp.t, ~message: option<string>=?): testResult => {
+let matches = (str: string, pattern: RegExp.t, ~message: option<string>=?): testResult => {
   if RegExp.test(pattern, str) {
     Pass
   } else {
@@ -161,7 +161,7 @@ let assertMatch = (str: string, pattern: RegExp.t, ~message: option<string>=?): 
   }
 }
 
-let assertSome = (opt: option<'a>, ~message: option<string>=?): testResult => {
+let some = (opt: option<'a>, ~message: option<string>=?): testResult => {
   switch opt {
   | Some(_) => Pass
   | None => {
@@ -174,7 +174,7 @@ let assertSome = (opt: option<'a>, ~message: option<string>=?): testResult => {
   }
 }
 
-let assertNone = (opt: option<'a>, ~message: option<string>=?): testResult => {
+let none = (opt: option<'a>, ~message: option<string>=?): testResult => {
   switch opt {
   | None => Pass
   | Some(_) => {
@@ -187,7 +187,7 @@ let assertNone = (opt: option<'a>, ~message: option<string>=?): testResult => {
   }
 }
 
-let assertOk = (result: result<'a, 'e>, ~message: option<string>=?): testResult => {
+let ok = (result: result<'a, 'e>, ~message: option<string>=?): testResult => {
   switch result {
   | Ok(_) => Pass
   | Error(_) => {
@@ -200,7 +200,7 @@ let assertOk = (result: result<'a, 'e>, ~message: option<string>=?): testResult 
   }
 }
 
-let assertError = (result: result<'a, 'e>, ~message: option<string>=?): testResult => {
+let error = (result: result<'a, 'e>, ~message: option<string>=?): testResult => {
   switch result {
   | Error(_) => Pass
   | Ok(_) => {
@@ -213,7 +213,7 @@ let assertError = (result: result<'a, 'e>, ~message: option<string>=?): testResu
   }
 }
 
-let assertThrows = (fn: unit => 'a, ~message: option<string>=?): testResult => {
+let throws = (fn: unit => 'a, ~message: option<string>=?): testResult => {
   try {
     let _ = fn()
     let msg = switch message {

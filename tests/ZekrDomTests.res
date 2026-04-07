@@ -66,19 +66,19 @@ let queryByTextTests = Suite.make(
     Test.make("getAllByText returns multiple matches", () => {
       let {container} = DomTesting.render(`<li>Item</li><li>Item</li><li>Item</li>`)
       let items = DomTesting.Query.getAllByText(container, "Item")
-      let result = Assert.assertEqual(Array.length(items), 3)
+      let result = Assert.equal(Array.length(items), 3)
       DomTesting.cleanup()
       result
     }),
     Test.make("getByText throws for multiple matches", () => {
       let {container} = DomTesting.render(`<span>Same</span><span>Same</span>`)
-      let result = Assert.assertThrows(() => DomTesting.Query.getByText(container, "Same"))
+      let result = Assert.throws(() => DomTesting.Query.getByText(container, "Same"))
       DomTesting.cleanup()
       result
     }),
     Test.make("getByText throws when not found", () => {
       let {container} = DomTesting.render(`<p>Hello</p>`)
-      let result = Assert.assertThrows(() => DomTesting.Query.getByText(container, "Nonexistent"))
+      let result = Assert.throws(() => DomTesting.Query.getByText(container, "Nonexistent"))
       DomTesting.cleanup()
       result
     }),
@@ -151,7 +151,7 @@ let queryByRoleTests = Suite.make(
     Test.make("finds list items by role", () => {
       let {container} = DomTesting.render(`<ul><li>One</li><li>Two</li><li>Three</li></ul>`)
       let items = DomTesting.Query.getAllByRole(container, "listitem")
-      let result = Assert.assertEqual(Array.length(items), 3)
+      let result = Assert.equal(Array.length(items), 3)
       DomTesting.cleanup()
       result
     }),

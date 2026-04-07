@@ -211,6 +211,6 @@ let unhover = (element: Dom.element) => {
 
 // === Low-level Event Dispatch ===
 
-let fireEvent = (element: Dom.element, event: Dom.event) => {
+let fire = (element: Dom.element, event: Dom.event) => {
   let _ = dispatchEvent(element, event)
 }
