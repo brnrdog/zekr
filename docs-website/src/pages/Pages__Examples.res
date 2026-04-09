@@ -14,7 +14,7 @@ let make = () => {
     // Basic Test Suite
     <div class="heading-anchor" id="basic-suite">
       <Typography text={static("Basic Test Suite")} variant={H2} />
-      <a class="anchor-link" href="#basic-suite"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#basic-suite"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("A simple test file demonstrating the core API.")} />
     <CodeBlock
@@ -62,7 +62,7 @@ Runner.runSuites([mathSuite, stringSuite, optionSuite])`}
     // Async Tests
     <div class="heading-anchor" id="async-example">
       <Typography text={static("Async Test Suite")} variant={H2} />
-      <a class="anchor-link" href="#async-example"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#async-example"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Testing asynchronous operations with timeouts.")} />
     <CodeBlock
@@ -100,7 +100,7 @@ Runner.runAsyncSuites([asyncSuite])`}
     // DOM Testing
     <div class="heading-anchor" id="dom-example">
       <Typography text={static("DOM Testing")} variant={H2} />
-      <a class="anchor-link" href="#dom-example"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#dom-example"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Testing DOM elements with queries, events, and assertions.")} />
     <CodeBlock
@@ -162,7 +162,7 @@ Runner.runSuites([buttonSuite, formSuite])`}
     // Lifecycle Hooks
     <div class="heading-anchor" id="hooks-example">
       <Typography text={static("Lifecycle Hooks")} variant={H2} />
-      <a class="anchor-link" href="#hooks-example"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#hooks-example"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Using setup and teardown hooks for shared state.")} />
     <CodeBlock
@@ -199,7 +199,7 @@ Runner.runSuites([hooksSuite])`}
     // Snapshot Testing
     <div class="heading-anchor" id="snapshot-example">
       <Typography text={static("Snapshot Testing")} variant={H2} />
-      <a class="anchor-link" href="#snapshot-example"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#snapshot-example"> {"#"->Node.text} </a>
     </div>
     <CodeBlock
       language="rescript"

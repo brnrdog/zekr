@@ -14,24 +14,24 @@ let make = () => {
     // How It Works
     <div class="heading-anchor" id="how-it-works">
       <Typography text={static("How It Works")} variant={H2} />
-      <a class="anchor-link" href="#how-it-works"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#how-it-works"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("ReScript compiles .res files to JavaScript with function names and structure preserved. Zekr's sourcemap generator creates .js.map files that map the compiled output back to the original ReScript source. c8 then uses V8's built-in code coverage and these sourcemaps to produce coverage reports on .res files.")} />
     <Typography text={static("The pipeline works in three steps:")} />
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> <strong> {"1. Build"->Component.text} </strong> {" — ReScript compiles .res files to .js (in-source)"->Component.text} </li>
-      <li> <strong> {"2. Generate sourcemaps"->Component.text} </strong> {" — The sourcemap generator creates .js.map files by matching declarations between .res and .js files"->Component.text} </li>
-      <li> <strong> {"3. Collect coverage"->Component.text} </strong> {" — c8 runs your tests with V8 coverage enabled and remaps the results through the sourcemaps"->Component.text} </li>
+      <li> <strong> {"1. Build"->Node.text} </strong> {" — ReScript compiles .res files to .js (in-source)"->Node.text} </li>
+      <li> <strong> {"2. Generate sourcemaps"->Node.text} </strong> {" — The sourcemap generator creates .js.map files by matching declarations between .res and .js files"->Node.text} </li>
+      <li> <strong> {"3. Collect coverage"->Node.text} </strong> {" — c8 runs your tests with V8 coverage enabled and remaps the results through the sourcemaps"->Node.text} </li>
     </ul>
     <Separator />
     // Setup
     <div class="heading-anchor" id="setup">
       <Typography text={static("Setup")} variant={H2} />
-      <a class="anchor-link" href="#setup"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#setup"> {"#"->Node.text} </a>
     </div>
     <div class="heading-anchor" id="install-dependencies">
       <Typography text={static("Install Dependencies")} variant={H3} />
-      <a class="anchor-link" href="#install-dependencies"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#install-dependencies"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Install c8 and source-map as dev dependencies:")} />
     <CodeBlock
@@ -40,7 +40,7 @@ let make = () => {
     />
     <div class="heading-anchor" id="add-scripts">
       <Typography text={static("Add Coverage Scripts")} variant={H3} />
-      <a class="anchor-link" href="#add-scripts"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#add-scripts"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Add the following scripts to your package.json. The precoverage script builds ReScript and generates sourcemaps, while the coverage script runs your tests under c8.")} />
     <CodeBlock
@@ -66,7 +66,7 @@ let make = () => {
     // Configuration
     <div class="heading-anchor" id="configuration">
       <Typography text={static("Configuration")} variant={H2} />
-      <a class="anchor-link" href="#configuration"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#configuration"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Configure c8 in your package.json to set default options:")} />
     <CodeBlock
@@ -82,11 +82,11 @@ let make = () => {
     />
     <Typography text={static("Common configuration options:")} />
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> <strong> {"include"->Component.text} </strong> {" — Which files to include in coverage (glob patterns)"->Component.text} </li>
-      <li> <strong> {"exclude"->Component.text} </strong> {" — Files to exclude from coverage"->Component.text} </li>
-      <li> <strong> {"reporter"->Component.text} </strong> {" — Output formats: text (terminal table), html (browsable report), lcov, json, etc."->Component.text} </li>
-      <li> <strong> {"report-dir"->Component.text} </strong> {" — Directory for HTML/lcov output"->Component.text} </li>
-      <li> <strong> {"all"->Component.text} </strong> {" — Include files with 0% coverage (files not loaded by any test)"->Component.text} </li>
+      <li> <strong> {"include"->Node.text} </strong> {" — Which files to include in coverage (glob patterns)"->Node.text} </li>
+      <li> <strong> {"exclude"->Node.text} </strong> {" — Files to exclude from coverage"->Node.text} </li>
+      <li> <strong> {"reporter"->Node.text} </strong> {" — Output formats: text (terminal table), html (browsable report), lcov, json, etc."->Node.text} </li>
+      <li> <strong> {"report-dir"->Node.text} </strong> {" — Directory for HTML/lcov output"->Node.text} </li>
+      <li> <strong> {"all"->Node.text} </strong> {" — Include files with 0% coverage (files not loaded by any test)"->Node.text} </li>
     </ul>
     <Typography text={static("Add coverage artifacts to your .gitignore:")} />
     <CodeBlock
@@ -100,7 +100,7 @@ let make = () => {
     // Running Coverage
     <div class="heading-anchor" id="running">
       <Typography text={static("Running Coverage")} variant={H2} />
-      <a class="anchor-link" href="#running"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#running"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Run the coverage command:")} />
     <CodeBlock
@@ -125,19 +125,19 @@ All files              |   46.57 |    57.79 |   57.81 |   46.57 |
     // HTML Report
     <div class="heading-anchor" id="html-report">
       <Typography text={static("HTML Report")} variant={H2} />
-      <a class="anchor-link" href="#html-report"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#html-report"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("When the html reporter is enabled, a browsable coverage report is generated in the report-dir directory (default: coverage/). Open coverage/index.html in your browser to see:")} />
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> {"Per-file coverage summary with sortable columns"->Component.text} </li>
-      <li> {"Line-by-line coverage highlighting on the original ReScript source code"->Component.text} </li>
-      <li> {"Branch coverage markers showing which code paths were taken"->Component.text} </li>
+      <li> {"Per-file coverage summary with sortable columns"->Node.text} </li>
+      <li> {"Line-by-line coverage highlighting on the original ReScript source code"->Node.text} </li>
+      <li> {"Branch coverage markers showing which code paths were taken"->Node.text} </li>
     </ul>
     <Separator />
     // CI Integration
     <div class="heading-anchor" id="ci">
       <Typography text={static("CI Integration")} variant={H2} />
-      <a class="anchor-link" href="#ci"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#ci"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Replace your test command with the coverage command in your CI workflow to get coverage reports on every build:")} />
     <CodeBlock
@@ -181,14 +181,14 @@ jobs:
     // Sourcemap Generator
     <div class="heading-anchor" id="sourcemap-generator">
       <Typography text={static("Sourcemap Generator")} variant={H2} />
-      <a class="anchor-link" href="#sourcemap-generator"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#sourcemap-generator"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("ReScript does not natively support sourcemap generation. Zekr includes a custom sourcemap generator (scripts/generate-sourcemaps.mjs) that works by:")} />
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> {"Parsing .res and .js files to extract top-level declarations (functions, let bindings, modules)"->Component.text} </li>
-      <li> {"Matching declarations by name — ReScript preserves all identifiers in compiled output"->Component.text} </li>
-      <li> {"Creating proportional line mappings within each declaration block"->Component.text} </li>
-      <li> {"Embedding the original .res source in the sourcemap for display in coverage tools"->Component.text} </li>
+      <li> {"Parsing .res and .js files to extract top-level declarations (functions, let bindings, modules)"->Node.text} </li>
+      <li> {"Matching declarations by name — ReScript preserves all identifiers in compiled output"->Node.text} </li>
+      <li> {"Creating proportional line mappings within each declaration block"->Node.text} </li>
+      <li> {"Embedding the original .res source in the sourcemap for display in coverage tools"->Node.text} </li>
     </ul>
     <Typography text={static("You can run the generator manually to generate sourcemaps for specific directories:")} />
     <CodeBlock
@@ -203,13 +203,13 @@ node node_modules/zekr/scripts/generate-sourcemaps.mjs src lib`}
     // Limitations
     <div class="heading-anchor" id="limitations">
       <Typography text={static("Limitations")} variant={H2} />
-      <a class="anchor-link" href="#limitations"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#limitations"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Because sourcemaps are generated heuristically rather than by the compiler, there are some limitations to be aware of:")} />
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> <strong> {"Line-level granularity"->Component.text} </strong> {" — Coverage is mapped at the line level, not at the expression level. Column-level precision is not available."->Component.text} </li>
-      <li> <strong> {"Proportional mapping"->Component.text} </strong> {" — Within a function body, lines are mapped proportionally. If the compiler significantly rearranges code within a function, the line mapping may be approximate."->Component.text} </li>
-      <li> <strong> {"Type-only files"->Component.text} </strong> {" — Files that only contain type definitions (no runtime code) produce minimal JavaScript and should be excluded from coverage reports."->Component.text} </li>
+      <li> <strong> {"Line-level granularity"->Node.text} </strong> {" — Coverage is mapped at the line level, not at the expression level. Column-level precision is not available."->Node.text} </li>
+      <li> <strong> {"Proportional mapping"->Node.text} </strong> {" — Within a function body, lines are mapped proportionally. If the compiler significantly rearranges code within a function, the line mapping may be approximate."->Node.text} </li>
+      <li> <strong> {"Type-only files"->Node.text} </strong> {" — Files that only contain type definitions (no runtime code) produce minimal JavaScript and should be excluded from coverage reports."->Node.text} </li>
     </ul>
     <Typography text={static("Despite these limitations, the coverage data is accurate at the function and branch level, which is typically sufficient for identifying untested code paths.")} />
     <EditOnGitHub pageName="Pages__ApiCoverage" />

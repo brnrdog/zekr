@@ -29,7 +29,7 @@ let make = () => {
     scrollToTop()
   }
 
-  Component.signalFragment(
+  Node.signalFragment(
     Computed.make(() => {
       if Signal.get(isVisible) {
         [

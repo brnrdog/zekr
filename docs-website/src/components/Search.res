@@ -175,7 +175,7 @@ let make = () => {
       onInput={handleInput}
       placeholder="Search docs..."
     />
-    {Component.signalFragment(
+    {Node.signalFragment(
       Computed.make(() => {
         if Signal.get(isOpen) {
           let items = Signal.get(results)
@@ -184,7 +184,7 @@ let make = () => {
               style="position: absolute; top: 100%; left: 0; right: 0; background: var(--basefn-color-background); border: 1px solid var(--basefn-color-border); border-radius: 8px; margin-top: 4px; max-height: 400px; overflow-y: auto; z-index: 1000; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
               {if items->Array.length == 0 {
                 <div style="padding: 1rem; color: var(--basefn-color-muted);">
-                  {Component.text("No results found")}
+                  {Node.text("No results found")}
                 </div>
               } else {
                 <div>
@@ -202,7 +202,7 @@ let make = () => {
                       <Typography text={static(item.description)} variant={Small} />
                     </div>
                   })
-                  ->Component.fragment}
+                  ->Node.fragment}
                 </div>
               }}
             </div>,

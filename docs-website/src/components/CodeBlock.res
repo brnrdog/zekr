@@ -56,7 +56,7 @@ let make = (~code: string, ~language: string="rescript") => {
         id
         class={"language-" ++ language}
         style="font-family: var(--basefn-font-family-mono); font-size: 14px; line-height: 1.5;">
-        {Component.text(code)}
+        {Node.text(code)}
       </code>
     </pre>
     <div style="position: absolute; top: 0.5rem; right: 0.5rem;">

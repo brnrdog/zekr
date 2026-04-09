@@ -13,10 +13,10 @@
   },
   "dependencies": {
     "@rescript/core": "^1.6.1",
-    "basefn": "^1.9.1",
+    "basefn": "^1.11.0",
     "highlight.js": "^11.11.1",
     "rescript-signals": "^2.0.0",
-    "xote": "^5.0.0"
+    "xote": "^6.0.0"
   },
   "devDependencies": {
     "rescript": "^12.0.0",

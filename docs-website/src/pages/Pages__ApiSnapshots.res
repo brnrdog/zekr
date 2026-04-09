@@ -13,13 +13,13 @@ let make = () => {
     <Separator />
     <div class="heading-anchor" id="how-it-works">
       <Typography text={static("How It Works")} variant={H2} />
-      <a class="anchor-link" href="#how-it-works"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#how-it-works"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("On the first run, Snapshot.matches creates a new snapshot file. On subsequent runs, it compares the current value against the stored snapshot. If they differ, the test fails.")} />
     <Separator />
     <div class="heading-anchor" id="assert-matches-snapshot">
       <Typography text={static("Snapshot.matches(value, ~name, ~snapshotPath?)")} variant={H2} />
-      <a class="anchor-link" href="#assert-matches-snapshot"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#assert-matches-snapshot"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Compares a value against a stored snapshot. The ~name parameter is used as the filename. Returns Pass if the value matches, Fail if it differs.")} />
     <CodeBlock
@@ -44,7 +44,7 @@ let snapshotSuite = Suite.make("Snapshots", [
     <Separator />
     <div class="heading-anchor" id="update-snapshot">
       <Typography text={static("Snapshot.update(value, ~name, ~snapshotPath?)")} variant={H2} />
-      <a class="anchor-link" href="#update-snapshot"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#update-snapshot"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Explicitly updates a stored snapshot with a new value. Use this when you intentionally change the expected output.")} />
     <CodeBlock
@@ -55,7 +55,7 @@ Snapshot.update(newUserObject, ~name="user-object")`}
     <Separator />
     <div class="heading-anchor" id="set-snapshot-dir">
       <Typography text={static("Snapshot.setDir(path)")} variant={H2} />
-      <a class="anchor-link" href="#set-snapshot-dir"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#set-snapshot-dir"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Sets a custom directory for storing snapshot files. By default, snapshots are stored in __snapshots__/.")} />
     <CodeBlock
@@ -68,7 +68,7 @@ Snapshot.setDir("./tests/snapshots")
     <Separator />
     <div class="heading-anchor" id="snapshot-format">
       <Typography text={static("Snapshot Format")} variant={H2} />
-      <a class="anchor-link" href="#snapshot-format"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#snapshot-format"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Snapshots are stored as JSON files. Each snapshot file is named after the ~name parameter you provide.")} />
     <CodeBlock

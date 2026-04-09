@@ -78,18 +78,18 @@ module Sidebar = {
   let make = (props: props) => {
     let {currentPath} = props
     <aside class="docs-sidebar">
-      {Component.fragment(
+      {Node.fragment(
         docsNav->Array.map(category => {
           <div class="sidebar-section">
-            <div class="sidebar-section-title"> {Component.text(category.label)} </div>
-            {Component.fragment(
+            <div class="sidebar-section-title"> {Node.text(category.label)} </div>
+            {Node.fragment(
               category.items->Array.map(item => {
                 let isActive = currentPath == item.path
                 let className = "sidebar-link" ++ (isActive ? " active" : "")
                 Router.link(
                   ~to=item.path,
-                  ~attrs=[Component.attr("class", className)],
-                  ~children=[Component.text(item.title)],
+                  ~attrs=[Node.attr("class", className)],
+                  ~children=[Node.text(item.title)],
                   (),
                 )
               }),
@@ -108,17 +108,17 @@ module DocsBreadcrumb = {
   let make = (props: props) => {
     let (category, title) = getCategoryAndTitle(props.currentPath)
     <nav class="docs-breadcrumb">
-      {Router.link(~to="/getting-started", ~children=[Component.text("Docs")], ())}
+      {Router.link(~to="/getting-started", ~children=[Node.text("Docs")], ())}
       {if category != "" && category != "Getting Started" {
-        Component.fragment([
-          <span class="docs-breadcrumb-sep"> {Component.text("/")} </span>,
-          <span> {Component.text(category)} </span>,
+        Node.fragment([
+          <span class="docs-breadcrumb-sep"> {Node.text("/")} </span>,
+          <span> {Node.text(category)} </span>,
         ])
       } else {
-        Component.fragment([])
+        Node.fragment([])
       }}
-      <span class="docs-breadcrumb-sep"> {Component.text("/")} </span>
-      <span class="docs-breadcrumb-current"> {Component.text(title)} </span>
+      <span class="docs-breadcrumb-sep"> {Node.text("/")} </span>
+      <span class="docs-breadcrumb-current"> {Node.text(title)} </span>
     </nav>
   }
 }
@@ -134,12 +134,12 @@ module PrevNextNav = {
       | Some(item) =>
         Router.link(
           ~to=item.path,
-          ~attrs=[Component.attr("class", "docs-prev-next-link")],
+          ~attrs=[Node.attr("class", "docs-prev-next-link")],
           ~children=[
             <span class="docs-prev-next-label">
-              {Component.text("\u2190 Previous")}
+              {Node.text("\u2190 Previous")}
             </span>,
-            <span class="docs-prev-next-title"> {Component.text(item.title)} </span>,
+            <span class="docs-prev-next-title"> {Node.text(item.title)} </span>,
           ],
           (),
         )
@@ -149,12 +149,12 @@ module PrevNextNav = {
       | Some(item) =>
         Router.link(
           ~to=item.path,
-          ~attrs=[Component.attr("class", "docs-prev-next-link next")],
+          ~attrs=[Node.attr("class", "docs-prev-next-link next")],
           ~children=[
             <span class="docs-prev-next-label">
-              {Component.text("Next \u2192")}
+              {Node.text("Next \u2192")}
             </span>,
-            <span class="docs-prev-next-title"> {Component.text(item.title)} </span>,
+            <span class="docs-prev-next-title"> {Node.text(item.title)} </span>,
           ],
           (),
         )
@@ -172,29 +172,29 @@ module FeedbackWidget = {
     let feedback = Signal.make("")
 
     <div class="docs-feedback">
-      {Component.text("Was this page helpful?")}
-      {Component.element(
+      {Node.text("Was this page helpful?")}
+      {Node.element(
         "button",
         ~attrs=[
-          Component.computedAttr("class", () =>
+          Node.computedAttr("class", () =>
             "feedback-btn" ++ (Signal.get(feedback) == "yes" ? " selected" : "")
           ),
-          Component.attr("title", "Yes"),
+          Node.attr("title", "Yes"),
         ],
         ~events=[("click", _ => Signal.set(feedback, "yes"))],
-        ~children=[Component.text("\u{1F44D}")],
+        ~children=[Node.text("\u{1F44D}")],
         (),
       )}
-      {Component.element(
+      {Node.element(
         "button",
         ~attrs=[
-          Component.computedAttr("class", () =>
+          Node.computedAttr("class", () =>
             "feedback-btn" ++ (Signal.get(feedback) == "no" ? " selected" : "")
           ),
-          Component.attr("title", "No"),
+          Node.attr("title", "No"),
         ],
         ~events=[("click", _ => Signal.set(feedback, "no"))],
-        ~children=[Component.text("\u{1F44E}")],
+        ~children=[Node.text("\u{1F44E}")],
         (),
       )}
     </div>
@@ -204,7 +204,7 @@ module FeedbackWidget = {
 // ---- Main docs page component ----
 type props = {
   currentPath: string,
-  content: Component.node,
+  content: Node.node,
 }
 
 let make = (props: props) => {
