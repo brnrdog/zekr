@@ -79,7 +79,7 @@ let make = () => {
         variant={Lead}
       />
       <Separator />
-      {Component.signalFragment(
+      {Node.signalFragment(
         Computed.make(() => {
           switch Signal.get(state) {
           | Loading => [<Spinner />]

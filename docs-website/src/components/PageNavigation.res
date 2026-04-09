@@ -55,7 +55,7 @@ let make = () => {
   let nextPage = Computed.make(() => getNextPage(Signal.get(pathname)))
 
   <div style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--basefn-color-border); display: flex; justify-content: space-between;">
-    {Component.signalFragment(
+    {Node.signalFragment(
       Computed.make(() => {
         switch Signal.get(prevPage) {
         | Some(page) => [
@@ -70,7 +70,7 @@ let make = () => {
         }
       }),
     )}
-    {Component.signalFragment(
+    {Node.signalFragment(
       Computed.make(() => {
         switch Signal.get(nextPage) {
         | Some(page) => [

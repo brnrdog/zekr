@@ -77,20 +77,20 @@ module FeatureCard = {
       <div class="feature-card-icon">
         {Basefn.Icon.make({name: f.iconName, size: Md})}
       </div>
-      <h3> {Component.text(f.title)} </h3>
-      <p> {Component.text(f.description)} </p>
+      <h3> {Node.text(f.title)} </h3>
+      <p> {Node.text(f.description)} </p>
       {switch (f.linkText, f.linkTo) {
       | (Some(text), Some(to)) =>
         Router.link(
           ~to,
-          ~attrs=[Component.attr("class", "feature-card-link")],
+          ~attrs=[Node.attr("class", "feature-card-link")],
           ~children=[
-            Component.text(text ++ " "),
+            Node.text(text ++ " "),
             Basefn.Icon.make({name: ChevronRight, size: Sm}),
           ],
           (),
         )
-      | _ => Component.fragment([])
+      | _ => Node.fragment([])
       }}
     </div>
   }
@@ -104,32 +104,32 @@ module Hero = {
     <section class="hero">
       <div class="hero-inner">
         <div class="hero-logo">
-          <span class="hero-logo-text"> {Component.text("zekr")} </span>
+          <span class="hero-logo-text"> {Node.text("zekr")} </span>
         </div>
         <h1>
-          {Component.text("A ")}
-          <em> {Component.text("simple")} </em>
-          {Component.text(" test framework for ")}
-          <em> {Component.text("ReScript")} </em>
+          {Node.text("A ")}
+          <em> {Node.text("simple")} </em>
+          {Node.text(" test framework for ")}
+          <em> {Node.text("ReScript")} </em>
         </h1>
         <p class="hero-subtitle">
-          {Component.text(
+          {Node.text(
             "Sync and async tests, DOM testing, snapshots, and more \u2014 with zero configuration. Write tests that read like documentation.",
           )}
         </p>
         <div class="hero-buttons">
           {Router.link(
             ~to="/getting-started",
-            ~attrs=[Component.attr("class", "btn btn-primary")],
+            ~attrs=[Node.attr("class", "btn btn-primary")],
             ~children=[
-              Component.text("Get Started "),
+              Node.text("Get Started "),
               Basefn.Icon.make({name: ChevronRight, size: Sm}),
             ],
             (),
           )}
           <a href="https://github.com/brnrdog/zekr" target="_blank" class="btn btn-ghost">
             {Basefn.Icon.make({name: GitHub, size: Sm})}
-            {Component.text(" View on GitHub")}
+            {Node.text(" View on GitHub")}
           </a>
         </div>
       </div>
@@ -145,15 +145,15 @@ module Features = {
     <section class="features-section">
       <div class="features-inner">
         <div class="features-heading">
-          <h2> {Component.text("Everything you need for testing ReScript")} </h2>
+          <h2> {Node.text("Everything you need for testing ReScript")} </h2>
           <p>
-            {Component.text(
+            {Node.text(
               "A focused test framework with expressive assertions, DOM testing, and snapshot support \u2014 all type-safe.",
             )}
           </p>
         </div>
         <div class="features-grid">
-          {Component.fragment(features->Array.map(f => <FeatureCard feature={f} />))}
+          {Node.fragment(features->Array.map(f => <FeatureCard feature={f} />))}
         </div>
       </div>
     </section>
@@ -240,9 +240,9 @@ DomTesting.Assert.toHaveTextContent(
     <section class="code-demo-section">
       <div class="code-demo-inner">
         <div class="code-demo-heading">
-          <h2> {Component.text("Tests, async, and DOM testing")} </h2>
+          <h2> {Node.text("Tests, async, and DOM testing")} </h2>
           <p>
-            {Component.text(
+            {Node.text(
               "Three powerful capabilities in a clean, functional API. Write expressive tests with zero boilerplate.",
             )}
           </p>
@@ -250,55 +250,55 @@ DomTesting.Assert.toHaveTextContent(
         <div class="code-demo-container">
           <div class="code-editor-pane">
             <div class="code-editor-tabs">
-              {Component.element(
+              {Node.element(
                 "div",
                 ~attrs=[
-                  Component.computedAttr("class", () =>
+                  Node.computedAttr("class", () =>
                     "code-editor-tab" ++ (Signal.get(activeTab) == "test" ? " active" : "")
                   ),
                 ],
                 ~events=[("click", setTab("test"))],
-                ~children=[Component.text("Test.res")],
+                ~children=[Node.text("Test.res")],
                 (),
               )}
-              {Component.element(
+              {Node.element(
                 "div",
                 ~attrs=[
-                  Component.computedAttr("class", () =>
+                  Node.computedAttr("class", () =>
                     "code-editor-tab" ++ (Signal.get(activeTab) == "async" ? " active" : "")
                   ),
                 ],
                 ~events=[("click", setTab("async"))],
-                ~children=[Component.text("Async.res")],
+                ~children=[Node.text("Async.res")],
                 (),
               )}
-              {Component.element(
+              {Node.element(
                 "div",
                 ~attrs=[
-                  Component.computedAttr("class", () =>
+                  Node.computedAttr("class", () =>
                     "code-editor-tab" ++ (Signal.get(activeTab) == "dom" ? " active" : "")
                   ),
                 ],
                 ~events=[("click", setTab("dom"))],
-                ~children=[Component.text("Dom.res")],
+                ~children=[Node.text("Dom.res")],
                 (),
               )}
             </div>
             <div class="code-editor-body">
-              {Component.element(
+              {Node.element(
                 "button",
                 ~attrs=[
-                  Component.computedAttr("class", () =>
+                  Node.computedAttr("class", () =>
                     "code-copy-btn" ++ (Signal.get(copied) ? " copied" : "")
                   ),
                 ],
                 ~events=[("click", handleCopy)],
                 ~children=[
-                  Component.signalFragment(
+                  Node.signalFragment(
                     Computed.make(() =>
                       Signal.get(copied)
-                        ? [Basefn.Icon.make({name: Check, size: Sm}), Component.text(" Copied")]
-                        : [Basefn.Icon.make({name: Copy, size: Sm}), Component.text(" Copy")]
+                        ? [Basefn.Icon.make({name: Check, size: Sm}), Node.text(" Copied")]
+                        : [Basefn.Icon.make({name: Copy, size: Sm}), Node.text(" Copy")]
                     ),
                   ),
                 ],
@@ -306,7 +306,7 @@ DomTesting.Assert.toHaveTextContent(
               )}
               <pre class="code-editor-pre">
                 <code>
-                  {Component.signalFragment(
+                  {Node.signalFragment(
                     Computed.make(() => {
                       let code = switch Signal.get(activeTab) {
                       | "test" => testCode
@@ -327,18 +327,18 @@ DomTesting.Assert.toHaveTextContent(
                 <span class="browser-dot browser-dot-yellow" />
                 <span class="browser-dot browser-dot-green" />
               </div>
-              <div class="browser-url"> {Component.text("terminal")} </div>
+              <div class="browser-url"> {Node.text("terminal")} </div>
             </div>
             <div class="code-preview-body">
               <div class="terminal-output">
-                {Component.signalFragment(
+                {Node.signalFragment(
                   Computed.make(() => {
                     let output = switch Signal.get(activeTab) {
                     | "test" => testOutput
                     | "async" => asyncOutput
                     | _ => domOutput
                     }
-                    [<pre style="margin: 0; font-family: inherit; font-size: inherit; white-space: pre-wrap;"> {Component.text(output)} </pre>]
+                    [<pre style="margin: 0; font-family: inherit; font-size: inherit; white-space: pre-wrap;"> {Node.text(output)} </pre>]
                   }),
                 )}
               </div>
@@ -357,26 +357,26 @@ module Community = {
   let make = (_props: props) => {
     <section class="community-section">
       <div class="community-inner">
-        <h2> {Component.text("Ready to get started?")} </h2>
+        <h2> {Node.text("Ready to get started?")} </h2>
         <p>
-          {Component.text(
+          {Node.text(
             "Install zekr and start writing tests for your ReScript project in minutes. No configuration needed.",
           )}
         </p>
         <div class="community-links">
           {Router.link(
             ~to="/getting-started",
-            ~attrs=[Component.attr("class", "btn btn-primary")],
-            ~children=[Component.text("Read the Docs")],
+            ~attrs=[Node.attr("class", "btn btn-primary")],
+            ~children=[Node.text("Read the Docs")],
             (),
           )}
           <a href="https://github.com/brnrdog/zekr" target="_blank" class="btn btn-ghost">
             {Basefn.Icon.make({name: GitHub, size: Sm})}
-            {Component.text(" GitHub")}
+            {Node.text(" GitHub")}
           </a>
           <a href="https://www.npmjs.com/package/zekr" target="_blank" class="btn btn-ghost">
             {Basefn.Icon.make({name: Download, size: Sm})}
-            {Component.text(" npm")}
+            {Node.text(" npm")}
           </a>
         </div>
       </div>
@@ -387,5 +387,5 @@ module Community = {
 // ---- Main page component ----
 @jsx.component
 let make = () => {
-  <Layout children={Component.fragment([<Hero />, <Features />, <CodeDemo />, <Community />])} />
+  <Layout children={Node.fragment([<Hero />, <Features />, <CodeDemo />, <Community />])} />
 }

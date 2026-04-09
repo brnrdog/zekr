@@ -28,7 +28,7 @@ let make = () => {
   let location = Router.location()
   let breadcrumbs = Computed.make(() => getBreadcrumbs(Signal.get(location).pathname))
 
-  Component.signalFragment(
+  Node.signalFragment(
     Computed.make(() => {
       let crumbs = Signal.get(breadcrumbs)
       if Array.length(crumbs) == 0 {
@@ -37,11 +37,11 @@ let make = () => {
         [
           <nav style="margin-bottom: 1.5rem;">
             <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: var(--basefn-text-tertiary);">
-              {Component.fragment(
+              {Node.fragment(
                 crumbs->Array.mapWithIndex((crumb, idx) => {
                   let isLast = idx == Array.length(crumbs) - 1
                   let separator = if !isLast {
-                    <span style="color: var(--basefn-text-muted);"> {"/"->Component.text} </span>
+                    <span style="color: var(--basefn-text-muted);"> {"/"->Node.text} </span>
                   } else {
                     <span />
                   }
@@ -50,13 +50,13 @@ let make = () => {
                   | Some(url) =>
                     <span>
                       <Router.Link to={url} style="color: var(--basefn-text-tertiary); text-decoration: none;">
-                        {crumb.label->Component.text}
+                        {crumb.label->Node.text}
                       </Router.Link>
                       {separator}
                     </span>
                   | None =>
                     <span style={isLast ? "color: var(--basefn-text-primary);" : ""}>
-                      {crumb.label->Component.text}
+                      {crumb.label->Node.text}
                       {separator}
                     </span>
                   }

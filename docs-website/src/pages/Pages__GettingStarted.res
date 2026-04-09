@@ -12,7 +12,7 @@ let make = () => {
     <Separator />
     <div class="heading-anchor" id="installation">
       <Typography text={static("Installation")} variant={H2} />
-      <a class="anchor-link" href="#installation"> {"#"->Xote.Component.text} </a>
+      <a class="anchor-link" href="#installation"> {"#"->Xote.Node.text} </a>
     </div>
     <Typography
       text={static("Install zekr using your preferred package manager:")}
@@ -39,7 +39,7 @@ let make = () => {
     <Separator />
     <div class="heading-anchor" id="configuration">
       <Typography text={static("Configuration")} variant={H2} />
-      <a class="anchor-link" href="#configuration"> {"#"->Xote.Component.text} </a>
+      <a class="anchor-link" href="#configuration"> {"#"->Xote.Node.text} </a>
     </div>
     <Typography text={static("Add zekr to your rescript.json dependencies:")} />
     <CodeBlock
@@ -63,7 +63,7 @@ let make = () => {
     <Separator />
     <div class="heading-anchor" id="your-first-test">
       <Typography text={static("Your First Test")} variant={H2} />
-      <a class="anchor-link" href="#your-first-test"> {"#"->Xote.Component.text} </a>
+      <a class="anchor-link" href="#your-first-test"> {"#"->Xote.Node.text} </a>
     </div>
     <Typography
       text={static(
@@ -91,7 +91,7 @@ Runner.runSuites([mathSuite])`}
     <Separator />
     <div class="heading-anchor" id="running-tests">
       <Typography text={static("Running Tests")} variant={H2} />
-      <a class="anchor-link" href="#running-tests"> {"#"->Xote.Component.text} </a>
+      <a class="anchor-link" href="#running-tests"> {"#"->Xote.Node.text} </a>
     </div>
     <Typography
       text={static("Build your ReScript project and run the compiled test file with Node.js:")}
@@ -111,7 +111,7 @@ Runner.runSuites([mathSuite])`}
     <Separator />
     <div class="heading-anchor" id="core-concepts">
       <Typography text={static("Core Concepts")} variant={H2} />
-      <a class="anchor-link" href="#core-concepts"> {"#"->Xote.Component.text} </a>
+      <a class="anchor-link" href="#core-concepts"> {"#"->Xote.Node.text} </a>
     </div>
     <Typography
       text={static(
@@ -120,7 +120,7 @@ Runner.runSuites([mathSuite])`}
     />
     <div class="heading-anchor" id="test-results">
       <Typography text={static("Test Results")} variant={H3} />
-      <a class="anchor-link" href="#test-results"> {"#"->Xote.Component.text} </a>
+      <a class="anchor-link" href="#test-results"> {"#"->Xote.Node.text} </a>
     </div>
     <Typography
       text={static(
@@ -133,7 +133,7 @@ Runner.runSuites([mathSuite])`}
     />
     <div class="heading-anchor" id="test-modes">
       <Typography text={static("Test Modes")} variant={H3} />
-      <a class="anchor-link" href="#test-modes"> {"#"->Xote.Component.text} </a>
+      <a class="anchor-link" href="#test-modes"> {"#"->Xote.Node.text} </a>
     </div>
     <Typography
       text={static(
@@ -150,7 +150,7 @@ Runner.runSuites([mathSuite])`}
     />
     <div class="heading-anchor" id="lifecycle-hooks">
       <Typography text={static("Lifecycle Hooks")} variant={H3} />
-      <a class="anchor-link" href="#lifecycle-hooks"> {"#"->Xote.Component.text} </a>
+      <a class="anchor-link" href="#lifecycle-hooks"> {"#"->Xote.Node.text} </a>
     </div>
     <Typography
       text={static(

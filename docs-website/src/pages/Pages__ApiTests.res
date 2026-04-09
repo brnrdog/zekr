@@ -14,11 +14,11 @@ let make = () => {
     // Synchronous Tests
     <div class="heading-anchor" id="sync-tests">
       <Typography text={static("Synchronous Tests")} variant={H2} />
-      <a class="anchor-link" href="#sync-tests"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#sync-tests"> {"#"->Node.text} </a>
     </div>
     <div class="heading-anchor" id="test">
       <Typography text={static("Test.make(name, fn)")} variant={H3} />
-      <a class="anchor-link" href="#test"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#test"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Creates a test case that runs normally.")} />
     <CodeBlock
@@ -29,7 +29,7 @@ let make = () => {
     />
     <div class="heading-anchor" id="test-skip">
       <Typography text={static("Test.skip(name, fn)")} variant={H3} />
-      <a class="anchor-link" href="#test-skip"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#test-skip"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Creates a test case that is always skipped. Useful for temporarily disabling tests.")} />
     <CodeBlock
@@ -40,7 +40,7 @@ let make = () => {
     />
     <div class="heading-anchor" id="test-only">
       <Typography text={static("Test.only(name, fn)")} variant={H3} />
-      <a class="anchor-link" href="#test-only"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#test-only"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Creates a test case in Only mode. When any test in a suite has Only mode, only those tests run.")} />
     <CodeBlock
@@ -53,11 +53,11 @@ let make = () => {
     // Async Tests
     <div class="heading-anchor" id="async-tests">
       <Typography text={static("Asynchronous Tests")} variant={H2} />
-      <a class="anchor-link" href="#async-tests"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#async-tests"> {"#"->Node.text} </a>
     </div>
     <div class="heading-anchor" id="async-test">
       <Typography text={static("Test.async(name, fn, ~timeout?)")} variant={H3} />
-      <a class="anchor-link" href="#async-test"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#async-test"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Creates an asynchronous test case. The function must return a promise<testResult>. An optional timeout in milliseconds can be provided — if the test exceeds it, it automatically fails.")} />
     <CodeBlock
@@ -69,23 +69,23 @@ let make = () => {
     />
     <div class="heading-anchor" id="async-test-skip">
       <Typography text={static("Test.asyncSkip(name, fn, ~timeout?)")} variant={H3} />
-      <a class="anchor-link" href="#async-test-skip"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#async-test-skip"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Creates an async test that is always skipped.")} />
     <div class="heading-anchor" id="async-test-only">
       <Typography text={static("Test.asyncOnly(name, fn, ~timeout?)")} variant={H3} />
-      <a class="anchor-link" href="#async-test-only"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#async-test-only"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Creates an async test in Only mode.")} />
     <Separator />
     // Suites
     <div class="heading-anchor" id="suites">
       <Typography text={static("Test Suites")} variant={H2} />
-      <a class="anchor-link" href="#suites"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#suites"> {"#"->Node.text} </a>
     </div>
     <div class="heading-anchor" id="suite">
       <Typography text={static("Suite.make(name, tests, ~beforeAll?, ~afterAll?, ~beforeEach?, ~afterEach?)")} variant={H3} />
-      <a class="anchor-link" href="#suite"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#suite"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Creates a test suite that groups related tests together. All lifecycle hooks are optional.")} />
     <CodeBlock
@@ -107,7 +107,7 @@ let make = () => {
     />
     <div class="heading-anchor" id="async-suite">
       <Typography text={static("Suite.async(name, tests, ~beforeAll?, ~afterAll?, ~beforeEach?, ~afterEach?)")} variant={H3} />
-      <a class="anchor-link" href="#async-suite"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#async-suite"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Creates an async test suite. Hooks are also async (return promise<unit>).")} />
     <CodeBlock
@@ -132,13 +132,13 @@ let make = () => {
     // Lifecycle Hooks
     <div class="heading-anchor" id="lifecycle">
       <Typography text={static("Lifecycle Hooks")} variant={H2} />
-      <a class="anchor-link" href="#lifecycle"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#lifecycle"> {"#"->Node.text} </a>
     </div>
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> <strong> {"beforeAll"->Component.text} </strong> {" — Runs once before all tests in the suite."->Component.text} </li>
-      <li> <strong> {"afterAll"->Component.text} </strong> {" — Runs once after all tests in the suite."->Component.text} </li>
-      <li> <strong> {"beforeEach"->Component.text} </strong> {" — Runs before each individual test."->Component.text} </li>
-      <li> <strong> {"afterEach"->Component.text} </strong> {" — Runs after each individual test."->Component.text} </li>
+      <li> <strong> {"beforeAll"->Node.text} </strong> {" — Runs once before all tests in the suite."->Node.text} </li>
+      <li> <strong> {"afterAll"->Node.text} </strong> {" — Runs once after all tests in the suite."->Node.text} </li>
+      <li> <strong> {"beforeEach"->Node.text} </strong> {" — Runs before each individual test."->Node.text} </li>
+      <li> <strong> {"afterEach"->Node.text} </strong> {" — Runs after each individual test."->Node.text} </li>
     </ul>
     <CodeBlock
       language="rescript"

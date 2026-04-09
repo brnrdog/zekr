@@ -13,7 +13,7 @@ let make = () => {
     <Separator />
     <div class="heading-anchor" id="overview">
       <Typography text={static("Overview")} variant={H2} />
-      <a class="anchor-link" href="#overview"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#overview"> {"#"->Node.text} </a>
     </div>
     <Typography
       text={static(
@@ -33,11 +33,11 @@ let make = () => {
     <Separator />
     <div class="heading-anchor" id="rendering">
       <Typography text={static("Rendering")} variant={H2} />
-      <a class="anchor-link" href="#rendering"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#rendering"> {"#"->Node.text} </a>
     </div>
     <div class="heading-anchor" id="dom-render">
       <Typography text={static("DomTesting.render(html)")} variant={H3} />
-      <a class="anchor-link" href="#dom-render"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#dom-render"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Renders an HTML string into a jsdom container. Returns a renderResult with container and baseElement.")} />
     <CodeBlock
@@ -49,7 +49,7 @@ let make = () => {
     />
     <div class="heading-anchor" id="dom-cleanup">
       <Typography text={static("DomTesting.cleanup()")} variant={H3} />
-      <a class="anchor-link" href="#dom-cleanup"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#dom-cleanup"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Cleans up the most recently rendered container. Call this after each test to avoid state leaking between tests.")} />
     <CodeBlock
@@ -67,36 +67,36 @@ let make = () => {
     />
     <div class="heading-anchor" id="dom-cleanup-all">
       <Typography text={static("DomTesting.cleanupAll()")} variant={H3} />
-      <a class="anchor-link" href="#dom-cleanup-all"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#dom-cleanup-all"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("Resets the entire DOM environment. Use this for a complete reset between test suites.")} />
     <Separator />
     <div class="heading-anchor" id="submodules">
       <Typography text={static("Submodules")} variant={H2} />
-      <a class="anchor-link" href="#submodules"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#submodules"> {"#"->Node.text} </a>
     </div>
     <Typography text={static("The DOM module is organized into three submodules:")} />
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
       <li>
-        <strong> {"DomTesting.Query"->Component.text} </strong>
-        {" — Find elements by text, role, test ID, label, placeholder, and more. "->Component.text}
-        <Router.Link to="/api/dom/queries" style="color: var(--basefn-color-primary);"> {"See Queries →"->Component.text} </Router.Link>
+        <strong> {"DomTesting.Query"->Node.text} </strong>
+        {" — Find elements by text, role, test ID, label, placeholder, and more. "->Node.text}
+        <Router.Link to="/api/dom/queries" style="color: var(--basefn-color-primary);"> {"See Queries →"->Node.text} </Router.Link>
       </li>
       <li>
-        <strong> {"DomTesting.Event"->Component.text} </strong>
-        {" — Simulate user interactions: click, type, check, select, focus, and blur. "->Component.text}
-        <Router.Link to="/api/dom/events" style="color: var(--basefn-color-primary);"> {"See Events →"->Component.text} </Router.Link>
+        <strong> {"DomTesting.Event"->Node.text} </strong>
+        {" — Simulate user interactions: click, type, check, select, focus, and blur. "->Node.text}
+        <Router.Link to="/api/dom/events" style="color: var(--basefn-color-primary);"> {"See Events →"->Node.text} </Router.Link>
       </li>
       <li>
-        <strong> {"DomTesting.Assert"->Component.text} </strong>
-        {" — Assert on element presence, text content, attributes, visibility, and more. "->Component.text}
-        <Router.Link to="/api/dom/assertions" style="color: var(--basefn-color-primary);"> {"See Assertions →"->Component.text} </Router.Link>
+        <strong> {"DomTesting.Assert"->Node.text} </strong>
+        {" — Assert on element presence, text content, attributes, visibility, and more. "->Node.text}
+        <Router.Link to="/api/dom/assertions" style="color: var(--basefn-color-primary);"> {"See Assertions →"->Node.text} </Router.Link>
       </li>
     </ul>
     <Separator />
     <div class="heading-anchor" id="full-example">
       <Typography text={static("Full Example")} variant={H2} />
-      <a class="anchor-link" href="#full-example"> {"#"->Component.text} </a>
+      <a class="anchor-link" href="#full-example"> {"#"->Node.text} </a>
     </div>
     <CodeBlock
       language="rescript"
