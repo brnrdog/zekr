@@ -14,7 +14,7 @@
     "clean": "rescript clean",
     "watch": "rescript -w",
     "test": "rescript && node tests/ZekrTests.js && node tests/ZekrAsyncTests.js && node tests/ZekrDomTests.js",
-    "precoverage": "rescript && node scripts/generate-sourcemaps.mjs src",
+    "precoverage": "rescript",
     "coverage": "rm -rf .c8_output && c8 --temp-directory .c8_output -r none node tests/ZekrTests.js ; c8 --temp-directory .c8_output -r none node tests/ZekrAsyncTests.js ; c8 --temp-directory .c8_output -r none node tests/ZekrDomTests.js ; c8 report --temp-directory .c8_output",
     "semantic-release": "semantic-release"
   },
@@ -40,9 +40,8 @@
     "@semantic-release/github": "^11.0.0",
     "c8": "^11.0.0",
     "conventional-changelog-conventionalcommits": "^8.0.0",
-    "rescript": "^12.1.0",
-    "semantic-release": "^25.0.3",
-    "source-map": "^0.7.6"
+    "rescript": "https://pkg.pr.new/rescript@8393",
+    "semantic-release": "^25.0.3"
   },
   "c8": {
     "include": [

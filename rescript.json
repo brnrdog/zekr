@@ -17,5 +17,10 @@
       "module": "esmodule",
       "in-source": true
     }
-  ]
+  ],
+  "sourceMap": {
+    "enabled": "always",
+    "mode": "linked",
+    "sourcesContent": true
+  }
 }
