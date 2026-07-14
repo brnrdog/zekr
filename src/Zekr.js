@@ -13,3 +13,5 @@ export * as DomQuery from "./DomQuery.js";
 export * as DomEvent from "./DomEvent.js";
 export * as DomAssert from "./DomAssert.js";
 export * as Colors from "./Colors.js";
+// Note: Cli (Zekr.Cli) is intentionally NOT re-exported here — it is the
+// `zekr` binary's entry point, not a library API. See bin/zekr.mjs.

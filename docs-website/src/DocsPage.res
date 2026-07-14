@@ -28,6 +28,7 @@ let docsNav: array<docCategory> = [
       {title: "Snapshots", path: "/api/snapshots"},
       {title: "Test Runner", path: "/api/runner"},
       {title: "Test Coverage", path: "/api/coverage"},
+      {title: "CLI (zekr binary)", path: "/api/cli"},
     ],
   },
   {
