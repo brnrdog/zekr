@@ -4,18 +4,22 @@
   "description": "A simple test framework for ReScript",
   "main": "./src/Zekr.js",
   "module": "./src/Zekr.js",
+  "bin": {
+    "zekr": "./bin/zekr.mjs"
+  },
   "files": [
     "src/**/*.res",
     "src/**/*.js",
+    "bin/zekr.mjs",
     "rescript.json"
   ],
   "scripts": {
     "build": "rescript",
     "clean": "rescript clean",
     "watch": "rescript -w",
-    "test": "rescript && node tests/ZekrTests.js && node tests/ZekrAsyncTests.js && node tests/ZekrDomTests.js",
+    "test": "rescript && node bin/zekr.mjs",
     "precoverage": "rescript && node scripts/generate-sourcemaps.mjs src",
-    "coverage": "rm -rf .c8_output && c8 --temp-directory .c8_output -r none node tests/ZekrTests.js ; c8 --temp-directory .c8_output -r none node tests/ZekrAsyncTests.js ; c8 --temp-directory .c8_output -r none node tests/ZekrDomTests.js ; c8 report --temp-directory .c8_output",
+    "coverage": "c8 node bin/zekr.mjs",
     "semantic-release": "semantic-release"
   },
   "repository": {
