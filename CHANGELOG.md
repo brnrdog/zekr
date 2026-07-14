@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0-beta.2](https://github.com/brnrdog/zekr/compare/v2.1.0-beta.1...v2.1.0-beta.2) (2026-07-14)
+
+### Features
+
+* add zekr CLI to scan and run test suites ([c613a8d](https://github.com/brnrdog/zekr/commit/c613a8d62857b1dd2f854e7dbba39ad55da6137b))
+* auto-register and auto-run suites via the CLI harness ([2b30842](https://github.com/brnrdog/zekr/commit/2b30842ec2ce8fb942c68835abdeb8014d088035))
+
+### Bug Fixes
+
+* match harness Runner to the test file's compiled suffix ([182aea6](https://github.com/brnrdog/zekr/commit/182aea648547d8d8a8336ae4b03660d89367aa28))
+
 ## [2.1.0-beta.1](https://github.com/brnrdog/zekr/compare/v2.0.0...v2.1.0-beta.1) (2026-07-14)
 
 ### Features
