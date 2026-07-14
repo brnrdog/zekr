@@ -17,6 +17,7 @@ let getBreadcrumbs = (pathname: string): array<breadcrumb> => {
   | "/api/dom/assertions" => [{label: "API Reference", url: None}, {label: "DOM", url: Some("/api/dom")}, {label: "Assertions", url: None}]
   | "/api/snapshots" => [{label: "API Reference", url: None}, {label: "Snapshots", url: None}]
   | "/api/runner" => [{label: "API Reference", url: None}, {label: "Test Runner", url: None}]
+  | "/api/cli" => [{label: "API Reference", url: None}, {label: "CLI (zekr binary)", url: None}]
   | "/examples" => [{label: "Examples", url: None}]
   | "/release-notes" => [{label: "Release Notes", url: None}]
   | _ => []

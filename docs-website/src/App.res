@@ -85,6 +85,14 @@ let make = () => {
         />,
     },
     {
+      pattern: "/api/cli",
+      render: _ =>
+        <DocsPage
+          currentPath="/api/cli"
+          content={<Pages.ApiCli />}
+        />,
+    },
+    {
       pattern: "/examples",
       render: _ =>
         <DocsPage

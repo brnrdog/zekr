@@ -152,8 +152,10 @@ await Runner.runAsyncSuites([a1, a2])
 await Runner.runWithTimeout(() => slow(), Some(5000))
 ```
 
-Tests files are normal ReScript executables — `npm test` just invokes
-`node tests/MyTests.js` after `rescript` compiles.
+Tests files are normal ReScript executables you can run directly with
+`node tests/MyTests.js` after `rescript` compiles. `npm test` builds, then
+runs the `zekr` CLI, which discovers every `*.test.res` file and runs each
+compiled sibling in its own Node process.
 
 #### Filtering
 
@@ -273,6 +275,22 @@ Implications:
 would shadow stdlib `Dom` throughout the package and break those references.
 `DomTesting.res` sidesteps the collision.
 
+## CLI (`zekr` binary)
+
+- `src/Cli.res` (`Zekr.Cli`) holds all discovery and execution logic. Pure
+  helpers (`parseArgs`, `resolveConfig`, `parseFileConfig`, `candidateSiblings`)
+  are kept separate from IO helpers (`readFileConfig`, `runFiles`, `main`) so
+  the pure layer remains unit-testable.
+- `bin/zekr.mjs` is a shebang shim (`#!/usr/bin/env node`) that imports the
+  compiled `src/Cli.js` and delegates to `main`.
+- **`Zekr.Cli` is deliberately NOT re-exported from `src/Zekr.js`.** It is the
+  CLI entry point, not a library API. This is an intentional, documented
+  exception to the barrel rule below — do not add it to the barrel.
+- Default suffix is `.test.res`; precedence is flag > `zekr.json` > default.
+  Each matched file is spawned in its own Node process. The process exits
+  non-zero on any test failure or if zero files match. `node_modules`, `lib`,
+  `.git`, and dot-directories are skipped.
+
 ## The `src/Zekr.js` barrel
 
 `namespace: true` does not emit a runtime JS file for the namespace module,
@@ -294,13 +312,15 @@ submodules through the synthesized `Zekr` namespace at compile time.
 npm install
 npx rescript build        # one-shot build
 npx rescript -w           # watch build
-npm test                  # build + run every test file in tests/
+npm test                  # build, then run the zekr CLI over *.test.res
 npm run coverage          # c8 coverage report with .res sourcemaps
 ```
 
 Tests in `tests/` are dev-only sources declared under `"type": "dev"` in
 `rescript.json`. They use the library API the same way external consumers do
-(minus the `Zekr.` prefix, since they live in the same package).
+(minus the `Zekr.` prefix, since they live in the same package). Each suite
+file is named `*.test.res` so the `zekr` CLI discovers it; avoid naming one
+`Zekr.test.res`, since that base name collides with the `Zekr` namespace.
 
 ### Docs website
 

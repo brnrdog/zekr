@@ -384,6 +384,41 @@ Test.make("form state is correct", () => {
 })
 ```
 
+## Running tests with the CLI
+
+Zekr ships a `zekr` binary that discovers and runs your test files. Build with
+ReScript first, then run `zekr`:
+
+```jsonc
+// package.json
+"scripts": {
+  "test": "rescript && zekr"
+}
+```
+
+By default it scans the current directory for files ending in `.test.res`
+(e.g. `Color.test.res`) and runs each compiled file in its own Node process.
+
+### Options
+
+| Flag | Alias | Default | Description |
+| ---- | ----- | ------- | ----------- |
+| `--pattern <suffix>` | `-p` | `.test.res` | Filename suffix to match |
+| `--dir <path>` | `-d` | `.` | Directory to scan |
+| `--help` | `-h` | | Show usage |
+
+### Config file
+
+Instead of flags, add a `zekr.json` at your project root:
+
+```json
+{ "pattern": ".test.res", "dir": "." }
+```
+
+Flags override `zekr.json`, which overrides the defaults. `node_modules`,
+`lib`, `.git`, and dot-directories are skipped. If a matched source has no
+compiled output, `zekr` reports it and exits non-zero — run `rescript` first.
+
 ### Running Tests
 
 ```rescript

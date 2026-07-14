@@ -18,6 +18,7 @@ let pageOrder: array<pageInfo> = [
   {label: "DOM Assertions", url: "/api/dom/assertions"},
   {label: "Snapshots", url: "/api/snapshots"},
   {label: "Test Runner", url: "/api/runner"},
+  {label: "CLI (zekr binary)", url: "/api/cli"},
   {label: "Examples", url: "/examples"},
   {label: "Release Notes", url: "/release-notes"},
 ]
