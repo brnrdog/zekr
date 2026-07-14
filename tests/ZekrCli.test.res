@@ -238,13 +238,3 @@ let readFileConfigTests = Suite.make(
   ],
 )
 
-Runner.runSuites([
-  parseArgsTests,
-  resolveConfigTests,
-  parseFileConfigTests,
-  findTestFilesTests,
-  candidateSiblingsTests,
-  compiledSiblingTests,
-  runFilesTests,
-  readFileConfigTests,
-])

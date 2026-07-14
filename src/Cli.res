@@ -26,6 +26,13 @@ module NodeChildProcess = {
   external spawnSync: (string, array<string>, {"stdio": string}) => spawnResult = "spawnSync"
 }
 
+module NodeUrl = {
+  @module("url") external fileURLToPath: string => string = "fileURLToPath"
+}
+
+let harnessUrl: string = %raw(`new URL("../bin/zekr-run.mjs", import.meta.url).href`)
+let harnessPath = NodeUrl.fileURLToPath(harnessUrl)
+
 let parseArgs = (argv: array<string>): result<cliArgs, string> => {
   let pattern = ref(None)
   let dir = ref(None)
@@ -148,7 +155,7 @@ let runFiles = (files: array<string>): runSummary => {
   let passed = ref(0)
   let failed = ref(0)
   files->Array.forEach(file => {
-    let result = NodeChildProcess.spawnSync("node", [file], {"stdio": "inherit"})
+    let result = NodeChildProcess.spawnSync("node", [harnessPath, file], {"stdio": "inherit"})
     let code = result.status->Nullable.toOption->Option.getOr(1)
     if code == 0 {
       passed := passed.contents + 1

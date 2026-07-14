@@ -584,18 +584,3 @@ let integrationTests = Suite.make(
   ],
 )
 
-// Run all DOM test suites
-Runner.runSuites([
-  renderTests,
-  queryByTextTests,
-  queryByRoleTests,
-  queryByTestIdTests,
-  queryByPlaceholderTests,
-  queryByLabelTextTests,
-  queryByAltTextTests,
-  queryByTitleTests,
-  queryByDisplayValueTests,
-  eventTests,
-  assertionTests,
-  integrationTests,
-])
