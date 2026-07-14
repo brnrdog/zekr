@@ -1,9 +1,12 @@
 name: Release
 
 on:
+  # Production releases are triggered manually from the GitHub Actions UI.
+  workflow_dispatch:
+  # Internal beta releases are published automatically on every push to beta.
   push:
     branches:
-      - main
+      - beta
 
 permissions:
   contents: write
