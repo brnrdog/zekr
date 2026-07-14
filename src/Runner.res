@@ -134,143 +134,6 @@ let runSuite = (testSuite: testSuite): unit => {
   }
 }
 
-let runSuites = (suites: array<testSuite>): unit => {
-  // Initialize filter patterns from environment
-  initFilterFromEnv()
-
-  Console.log(`\n ${Colors.suite("Running all test suites")}`)
-  Console.log(Colors.dimmed("========================\n"))
-
-  // Show active filters
-  switch filterPattern.contents {
-  | Some(p) => Console.log(Colors.dimmed(`Filter: "${p}"`))
-  | None => ()
-  }
-  switch skipPattern.contents {
-  | Some(p) => Console.log(Colors.dimmed(`Skip: "${p}"`))
-  | None => ()
-  }
-
-  let totalPassed = ref(0)
-  let totalFailed = ref(0)
-  let totalSkipped = ref(0)
-  let totalFiltered = ref(0)
-
-  // Check if there are any "Only" tests across all suites
-  let hasOnly = suites->Array.some(s => s.tests->Array.some(tc => tc.mode == Only))
-
-  suites->Array.forEach(testSuite => {
-    Console.log(`\n ${Colors.suite(testSuite.name)}`)
-    Console.log(Colors.dimmed("-" ++ String.repeat("-", String.length(testSuite.name) + 3)))
-
-    // Run beforeAll hook if present
-    switch testSuite.hooks {
-    | Some({beforeAll: Some(fn)}) => fn()
-    | _ => ()
-    }
-
-    let suitePassed = ref(0)
-    let suiteFailed = ref(0)
-    let suiteSkipped = ref(0)
-
-    testSuite.tests->Array.forEach(testCase => {
-      // Check filter first
-      let passesFilter = shouldRunTest(testSuite.name, testCase.name)
-
-      // Determine if this test should run based on mode
-      let shouldRunByMode = switch testCase.mode {
-      | Skip => false
-      | Only => true
-      | Normal => !hasOnly
-      }
-
-      let shouldRun = passesFilter && shouldRunByMode
-
-      if !passesFilter {
-        totalFiltered := totalFiltered.contents + 1
-      } else if shouldRun {
-        // Run beforeEach hook if present
-        switch testSuite.hooks {
-        | Some({beforeEach: Some(fn)}) => fn()
-        | _ => ()
-        }
-
-        switch testCase.run() {
-        | Pass => {
-            Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
-            suitePassed := suitePassed.contents + 1
-            totalPassed := totalPassed.contents + 1
-          }
-        | Fail(message) => {
-            Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
-            Console.log(`     ${Colors.fail(message)}`)
-            suiteFailed := suiteFailed.contents + 1
-            totalFailed := totalFailed.contents + 1
-          }
-        }
-
-        // Run afterEach hook if present
-        switch testSuite.hooks {
-        | Some({afterEach: Some(fn)}) => fn()
-        | _ => ()
-        }
-      } else {
-        Console.log(
-          `   ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed(
-              "(skipped)",
-            )}`,
-        )
-        suiteSkipped := suiteSkipped.contents + 1
-        totalSkipped := totalSkipped.contents + 1
-      }
-    })
-
-    // Run afterAll hook if present
-    switch testSuite.hooks {
-    | Some({afterAll: Some(fn)}) => fn()
-    | _ => ()
-    }
-
-    let skipMsg = if suiteSkipped.contents > 0 {
-      `, ${Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
-    } else {
-      ""
-    }
-    Console.log(
-      `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(
-          Int.toString(suiteFailed.contents) ++ " failed",
-        )}${skipMsg}`,
-    )
-  })
-
-  Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
-  let totalSkipMsg = if totalSkipped.contents > 0 {
-    `, ${Colors.skip(Int.toString(totalSkipped.contents) ++ " skipped")}`
-  } else {
-    ""
-  }
-  let totalFilterMsg = if totalFiltered.contents > 0 {
-    `, ${Colors.dimmed(Int.toString(totalFiltered.contents) ++ " filtered")}`
-  } else {
-    ""
-  }
-  Console.log(
-    `Total: ${Colors.pass(
-        Int.toString(totalPassed.contents) ++ " passed",
-      )}, ${Colors.fail(
-        Int.toString(totalFailed.contents) ++ " failed",
-      )}${totalSkipMsg}${totalFilterMsg}`,
-  )
-
-  if totalFailed.contents > 0 {
-    Console.log(Colors.fail(" Some tests failed\n"))
-    %raw(`process.exit(1)`)
-  } else {
-    Console.log(Colors.pass(" All tests passed!\n"))
-    %raw(`process.exit(0)`)
-  }
-}
-
 // Helper to run async test with timeout and error handling
 let runWithTimeout = async (run: unit => promise<testResult>, timeout: option<int>): testResult => {
   let testPromise = async () => {
@@ -301,6 +164,227 @@ let runWithTimeout = async (run: unit => promise<testResult>, timeout: option<in
       await Promise.race([testPromise(), timeoutPromise])
     }
   }
+}
+
+let printTotal = (~passed: int, ~failed: int, ~skipped: int, ~filtered: int): unit => {
+  Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
+  let totalSkipMsg = if skipped > 0 {
+    `, ${Colors.skip(Int.toString(skipped) ++ " skipped")}`
+  } else {
+    ""
+  }
+  let totalFilterMsg = if filtered > 0 {
+    `, ${Colors.dimmed(Int.toString(filtered) ++ " filtered")}`
+  } else {
+    ""
+  }
+  Console.log(
+    `Total: ${Colors.pass(Int.toString(passed) ++ " passed")}, ${Colors.fail(
+        Int.toString(failed) ++ " failed",
+      )}${totalSkipMsg}${totalFilterMsg}`,
+  )
+}
+
+let finishExit = (~failed: int): unit => {
+  if failed > 0 {
+    Console.log(Colors.fail(" Some tests failed\n"))
+    %raw(`process.exit(1)`)
+  } else {
+    Console.log(Colors.pass(" All tests passed!\n"))
+    %raw(`process.exit(0)`)
+  }
+}
+
+let runSuiteAccumulate = (testSuite: testSuite, ~hasOnly: bool): (int, int, int, int) => {
+  Console.log(`\n ${Colors.suite(testSuite.name)}`)
+  Console.log(Colors.dimmed("-" ++ String.repeat("-", String.length(testSuite.name) + 3)))
+
+  switch testSuite.hooks {
+  | Some({beforeAll: Some(fn)}) => fn()
+  | _ => ()
+  }
+
+  let suitePassed = ref(0)
+  let suiteFailed = ref(0)
+  let suiteSkipped = ref(0)
+  let suiteFiltered = ref(0)
+
+  testSuite.tests->Array.forEach(testCase => {
+    let passesFilter = shouldRunTest(testSuite.name, testCase.name)
+    let shouldRunByMode = switch testCase.mode {
+    | Skip => false
+    | Only => true
+    | Normal => !hasOnly
+    }
+    let shouldRun = passesFilter && shouldRunByMode
+
+    if !passesFilter {
+      suiteFiltered := suiteFiltered.contents + 1
+    } else if shouldRun {
+      switch testSuite.hooks {
+      | Some({beforeEach: Some(fn)}) => fn()
+      | _ => ()
+      }
+
+      switch testCase.run() {
+      | Pass => {
+          Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
+          suitePassed := suitePassed.contents + 1
+        }
+      | Fail(message) => {
+          Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
+          Console.log(`     ${Colors.fail(message)}`)
+          suiteFailed := suiteFailed.contents + 1
+        }
+      }
+
+      switch testSuite.hooks {
+      | Some({afterEach: Some(fn)}) => fn()
+      | _ => ()
+      }
+    } else {
+      Console.log(
+        `   ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed("(skipped)")}`,
+      )
+      suiteSkipped := suiteSkipped.contents + 1
+    }
+  })
+
+  switch testSuite.hooks {
+  | Some({afterAll: Some(fn)}) => fn()
+  | _ => ()
+  }
+
+  let skipMsg = if suiteSkipped.contents > 0 {
+    `, ${Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
+  } else {
+    ""
+  }
+  Console.log(
+    `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(
+        Int.toString(suiteFailed.contents) ++ " failed",
+      )}${skipMsg}`,
+  )
+
+  (suitePassed.contents, suiteFailed.contents, suiteSkipped.contents, suiteFiltered.contents)
+}
+
+let runAsyncSuiteAccumulate = async (
+  asyncSuite: asyncTestSuite,
+  ~hasOnly: bool,
+): (int, int, int, int) => {
+  Console.log(`\n ${Colors.suite(asyncSuite.name)}`)
+  Console.log(Colors.dimmed("-" ++ String.repeat("-", String.length(asyncSuite.name) + 3)))
+
+  switch asyncSuite.hooks {
+  | Some({beforeAll: Some(fn)}) => await fn()
+  | _ => ()
+  }
+
+  let suitePassed = ref(0)
+  let suiteFailed = ref(0)
+  let suiteSkipped = ref(0)
+  let suiteFiltered = ref(0)
+
+  for j in 0 to Array.length(asyncSuite.tests) - 1 {
+    let testCase = asyncSuite.tests->Array.getUnsafe(j)
+    let passesFilter = shouldRunTest(asyncSuite.name, testCase.name)
+    let shouldRunByMode = switch testCase.mode {
+    | Skip => false
+    | Only => true
+    | Normal => !hasOnly
+    }
+    let shouldRun = passesFilter && shouldRunByMode
+
+    if !passesFilter {
+      suiteFiltered := suiteFiltered.contents + 1
+    } else if shouldRun {
+      switch asyncSuite.hooks {
+      | Some({beforeEach: Some(fn)}) => await fn()
+      | _ => ()
+      }
+
+      let result = await runWithTimeout(testCase.run, testCase.timeout)
+      switch result {
+      | Pass => {
+          Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
+          suitePassed := suitePassed.contents + 1
+        }
+      | Fail(message) => {
+          Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
+          Console.log(`     ${Colors.fail(message)}`)
+          suiteFailed := suiteFailed.contents + 1
+        }
+      }
+
+      switch asyncSuite.hooks {
+      | Some({afterEach: Some(fn)}) => await fn()
+      | _ => ()
+      }
+    } else {
+      Console.log(
+        `   ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed("(skipped)")}`,
+      )
+      suiteSkipped := suiteSkipped.contents + 1
+    }
+  }
+
+  switch asyncSuite.hooks {
+  | Some({afterAll: Some(fn)}) => await fn()
+  | _ => ()
+  }
+
+  let skipMsg = if suiteSkipped.contents > 0 {
+    `, ${Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
+  } else {
+    ""
+  }
+  Console.log(
+    `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(
+        Int.toString(suiteFailed.contents) ++ " failed",
+      )}${skipMsg}`,
+  )
+
+  (suitePassed.contents, suiteFailed.contents, suiteSkipped.contents, suiteFiltered.contents)
+}
+
+let runSuites = (suites: array<testSuite>): unit => {
+  initFilterFromEnv()
+
+  Console.log(`\n ${Colors.suite("Running all test suites")}`)
+  Console.log(Colors.dimmed("========================\n"))
+
+  switch filterPattern.contents {
+  | Some(p) => Console.log(Colors.dimmed(`Filter: "${p}"`))
+  | None => ()
+  }
+  switch skipPattern.contents {
+  | Some(p) => Console.log(Colors.dimmed(`Skip: "${p}"`))
+  | None => ()
+  }
+
+  let totalPassed = ref(0)
+  let totalFailed = ref(0)
+  let totalSkipped = ref(0)
+  let totalFiltered = ref(0)
+
+  let hasOnly = suites->Array.some(s => s.tests->Array.some(tc => tc.mode == Only))
+
+  suites->Array.forEach(testSuite => {
+    let (p, f, s, fl) = runSuiteAccumulate(testSuite, ~hasOnly)
+    totalPassed := totalPassed.contents + p
+    totalFailed := totalFailed.contents + f
+    totalSkipped := totalSkipped.contents + s
+    totalFiltered := totalFiltered.contents + fl
+  })
+
+  printTotal(
+    ~passed=totalPassed.contents,
+    ~failed=totalFailed.contents,
+    ~skipped=totalSkipped.contents,
+    ~filtered=totalFiltered.contents,
+  )
+  finishExit(~failed=totalFailed.contents)
 }
 
 let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
@@ -391,13 +475,11 @@ let runAsyncSuite = async (asyncSuite: asyncTestSuite): unit => {
 }
 
 let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
-  // Initialize filter patterns from environment
   initFilterFromEnv()
 
   Console.log(`\n ${Colors.suite("Running all async test suites")}`)
   Console.log(Colors.dimmed("==============================\n"))
 
-  // Show active filters
   switch filterPattern.contents {
   | Some(p) => Console.log(Colors.dimmed(`Filter: "${p}"`))
   | None => ()
@@ -412,123 +494,75 @@ let runAsyncSuites = async (suites: array<asyncTestSuite>): unit => {
   let totalSkipped = ref(0)
   let totalFiltered = ref(0)
 
-  // Check if there are any "Only" tests across all suites
   let hasOnly = suites->Array.some(s => s.tests->Array.some(tc => tc.mode == Only))
 
   for i in 0 to Array.length(suites) - 1 {
     let asyncSuite = suites->Array.getUnsafe(i)
-    Console.log(`\n ${Colors.suite(asyncSuite.name)}`)
-    Console.log(Colors.dimmed("-" ++ String.repeat("-", String.length(asyncSuite.name) + 3)))
-
-    // Run beforeAll hook if present
-    switch asyncSuite.hooks {
-    | Some({beforeAll: Some(fn)}) => await fn()
-    | _ => ()
-    }
-
-    let suitePassed = ref(0)
-    let suiteFailed = ref(0)
-    let suiteSkipped = ref(0)
-
-    for j in 0 to Array.length(asyncSuite.tests) - 1 {
-      let testCase = asyncSuite.tests->Array.getUnsafe(j)
-
-      // Check filter first
-      let passesFilter = shouldRunTest(asyncSuite.name, testCase.name)
-
-      // Determine if this test should run based on mode
-      let shouldRunByMode = switch testCase.mode {
-      | Skip => false
-      | Only => true
-      | Normal => !hasOnly
-      }
-
-      let shouldRun = passesFilter && shouldRunByMode
-
-      if !passesFilter {
-        totalFiltered := totalFiltered.contents + 1
-      } else if shouldRun {
-        // Run beforeEach hook if present
-        switch asyncSuite.hooks {
-        | Some({beforeEach: Some(fn)}) => await fn()
-        | _ => ()
-        }
-
-        let result = await runWithTimeout(testCase.run, testCase.timeout)
-        switch result {
-        | Pass => {
-            Console.log(`   ${Colors.pass("✓")} ${testCase.name}`)
-            suitePassed := suitePassed.contents + 1
-            totalPassed := totalPassed.contents + 1
-          }
-        | Fail(message) => {
-            Console.log(`   ${Colors.fail("✗")} ${testCase.name}`)
-            Console.log(`     ${Colors.fail(message)}`)
-            suiteFailed := suiteFailed.contents + 1
-            totalFailed := totalFailed.contents + 1
-          }
-        }
-
-        // Run afterEach hook if present
-        switch asyncSuite.hooks {
-        | Some({afterEach: Some(fn)}) => await fn()
-        | _ => ()
-        }
-      } else {
-        Console.log(
-          `   ${Colors.skip("○")} ${Colors.skip(testCase.name)} ${Colors.dimmed(
-              "(skipped)",
-            )}`,
-        )
-        suiteSkipped := suiteSkipped.contents + 1
-        totalSkipped := totalSkipped.contents + 1
-      }
-    }
-
-    // Run afterAll hook if present
-    switch asyncSuite.hooks {
-    | Some({afterAll: Some(fn)}) => await fn()
-    | _ => ()
-    }
-
-    let skipMsg = if suiteSkipped.contents > 0 {
-      `, ${Colors.skip(Int.toString(suiteSkipped.contents) ++ " skipped")}`
-    } else {
-      ""
-    }
-    Console.log(
-      `  ${Colors.pass(Int.toString(suitePassed.contents) ++ " passed")}, ${Colors.fail(
-          Int.toString(suiteFailed.contents) ++ " failed",
-        )}${skipMsg}`,
-    )
+    let (p, f, s, fl) = await runAsyncSuiteAccumulate(asyncSuite, ~hasOnly)
+    totalPassed := totalPassed.contents + p
+    totalFailed := totalFailed.contents + f
+    totalSkipped := totalSkipped.contents + s
+    totalFiltered := totalFiltered.contents + fl
   }
 
-  Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
-  let totalSkipMsg = if totalSkipped.contents > 0 {
-    `, ${Colors.skip(Int.toString(totalSkipped.contents) ++ " skipped")}`
-  } else {
-    ""
-  }
-  let totalFilterMsg = if totalFiltered.contents > 0 {
-    `, ${Colors.dimmed(Int.toString(totalFiltered.contents) ++ " filtered")}`
-  } else {
-    ""
-  }
-  Console.log(
-    `Total: ${Colors.pass(
-        Int.toString(totalPassed.contents) ++ " passed",
-      )}, ${Colors.fail(
-        Int.toString(totalFailed.contents) ++ " failed",
-      )}${totalSkipMsg}${totalFilterMsg}`,
+  printTotal(
+    ~passed=totalPassed.contents,
+    ~failed=totalFailed.contents,
+    ~skipped=totalSkipped.contents,
+    ~filtered=totalFiltered.contents,
   )
+  finishExit(~failed=totalFailed.contents)
+}
 
-  if totalFailed.contents > 0 {
-    Console.log(Colors.fail(" Some tests failed\n"))
-    %raw(`process.exit(1)`)
-  } else {
-    Console.log(Colors.pass(" All tests passed!\n"))
-    %raw(`process.exit(0)`)
+let run = async (): unit => {
+  initFilterFromEnv()
+  let (syncSuites, asyncSuites) = Registry.snapshot()
+
+  Console.log(`\n ${Colors.suite("Running all test suites")}`)
+  Console.log(Colors.dimmed("========================\n"))
+
+  switch filterPattern.contents {
+  | Some(p) => Console.log(Colors.dimmed(`Filter: "${p}"`))
+  | None => ()
   }
+  switch skipPattern.contents {
+  | Some(p) => Console.log(Colors.dimmed(`Skip: "${p}"`))
+  | None => ()
+  }
+
+  let totalPassed = ref(0)
+  let totalFailed = ref(0)
+  let totalSkipped = ref(0)
+  let totalFiltered = ref(0)
+
+  let hasOnly =
+    syncSuites->Array.some(s => s.tests->Array.some(tc => tc.mode == Only)) ||
+      asyncSuites->Array.some(s => s.tests->Array.some(tc => tc.mode == Only))
+
+  syncSuites->Array.forEach(suite => {
+    let (p, f, s, fl) = runSuiteAccumulate(suite, ~hasOnly)
+    totalPassed := totalPassed.contents + p
+    totalFailed := totalFailed.contents + f
+    totalSkipped := totalSkipped.contents + s
+    totalFiltered := totalFiltered.contents + fl
+  })
+
+  for i in 0 to Array.length(asyncSuites) - 1 {
+    let suite = asyncSuites->Array.getUnsafe(i)
+    let (p, f, s, fl) = await runAsyncSuiteAccumulate(suite, ~hasOnly)
+    totalPassed := totalPassed.contents + p
+    totalFailed := totalFailed.contents + f
+    totalSkipped := totalSkipped.contents + s
+    totalFiltered := totalFiltered.contents + fl
+  }
+
+  printTotal(
+    ~passed=totalPassed.contents,
+    ~failed=totalFailed.contents,
+    ~skipped=totalSkipped.contents,
+    ~filtered=totalFiltered.contents,
+  )
+  finishExit(~failed=totalFailed.contents)
 }
 
 // Watch mode

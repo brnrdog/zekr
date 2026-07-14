@@ -457,24 +457,3 @@ let snapshotTests = Suite.make(
   ],
 )
 
-Runner.runSuites([
-  assertEqualTests,
-  assertNotEqualTests,
-  assertTrueTests,
-  assertFalseTests,
-  combineResultsTests,
-  assertGreaterThanTests,
-  assertLessThanTests,
-  assertContainsTests,
-  assertArrayContainsTests,
-  assertMatchTests,
-  assertSomeTests,
-  assertNoneTests,
-  assertOkTests,
-  assertErrorTests,
-  assertThrowsTests,
-  testModeTests,
-  suiteHooksTests,
-  asyncSuiteHooksTests,
-  snapshotTests,
-])
