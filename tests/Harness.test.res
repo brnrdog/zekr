@@ -30,6 +30,42 @@ let spawnHarness = (fixturePath: string): int => {
   result.status->Nullable.toOption->Option.getOr(1)
 }
 
+type nodeUrl
+
+// resolveRunnerUrl(testFile, baseUrl, exists) picks the Runner module whose
+// compiled suffix matches the test file, so both share one Registry instance.
+@module("../bin/resolve-runner.mjs")
+external resolveRunnerUrl: (string, string, nodeUrl => bool) => string = "resolveRunnerUrl"
+
+let harnessBase = "file:///pkg/bin/zekr-run.mjs"
+
+let resolveRunnerUrlTests = Suite.make(
+  "zekr-run resolveRunnerUrl",
+  [
+    Test.make("loads the suffix-matched Runner for .res.mjs test files", () => {
+      let url = resolveRunnerUrl("tests/Foo.test.res.mjs", harnessBase, _ => true)
+      Assert.isTrue(String.endsWith(url, "src/Runner.res.mjs"))
+    }),
+    Test.make("prefers .res.mjs over the shorter .mjs suffix", () => {
+      // A .res.mjs file also ends with .mjs; the more specific match must win.
+      let url = resolveRunnerUrl("tests/Foo.test.res.mjs", harnessBase, _ => true)
+      Assert.isFalse(String.endsWith(url, "src/Runner.mjs"))
+    }),
+    Test.make("matches .bs.js test files to Runner.bs.js", () => {
+      let url = resolveRunnerUrl("tests/Foo.test.bs.js", harnessBase, _ => true)
+      Assert.isTrue(String.endsWith(url, "src/Runner.bs.js"))
+    }),
+    Test.make("uses Runner.js for plain .js test files", () => {
+      let url = resolveRunnerUrl("tests/Foo.test.js", harnessBase, _ => true)
+      Assert.isTrue(String.endsWith(url, "src/Runner.js"))
+    }),
+    Test.make("falls back to Runner.js when the suffix-matched Runner is absent", () => {
+      let url = resolveRunnerUrl("tests/Foo.test.res.mjs", harnessBase, _ => false)
+      Assert.isTrue(String.endsWith(url, "src/Runner.js"))
+    }),
+  ],
+)
+
 let harnessTests = Suite.make(
   "zekr-run harness",
   [

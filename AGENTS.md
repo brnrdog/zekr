@@ -296,6 +296,17 @@ would shadow stdlib `Dom` throughout the package and break those references.
   the pure layer remains unit-testable.
 - `bin/zekr.mjs` is a shebang shim (`#!/usr/bin/env node`) that imports the
   compiled `src/Cli.js` and delegates to `main`.
+- `bin/zekr-run.mjs` is the per-file harness: it imports one compiled test
+  file (registering its suites) and calls `Runner.run()`. It resolves the
+  Runner module through `bin/resolve-runner.mjs`, which picks the
+  `Runner<suffix>` matching the test file's compiled suffix (`.res.mjs`,
+  `.mjs`, `.bs.js`, `.js`, …). This is essential: ReScript compiles the whole
+  build graph — zekr's sources included — with the consumer's `suffix`, so the
+  harness must load the Runner sharing the same `Registry` instance the suites
+  registered into. Loading a mismatched Runner reads an empty registry and
+  reports zero tests (a false green). `resolveRunnerUrl` is pure and
+  unit-tested (`tests/Harness.test.res`); it falls back to `Runner.js` when no
+  suffix-matched Runner sits next to the harness.
 - **`Zekr.Cli` is deliberately NOT re-exported from `src/Zekr.js`.** It is the
   CLI entry point, not a library API. This is an intentional, documented
   exception to the barrel rule below — do not add it to the barrel.
