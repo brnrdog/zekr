@@ -12,6 +12,7 @@
     "src/**/*.js",
     "bin/zekr.mjs",
     "bin/zekr-run.mjs",
+    "bin/resolve-runner.mjs",
     "rescript.json"
   ],
   "scripts": {

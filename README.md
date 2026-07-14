@@ -419,6 +419,17 @@ Flags override `zekr.json`, which overrides the defaults. `node_modules`,
 `lib`, `.git`, and dot-directories are skipped. If a matched source has no
 compiled output, `zekr` reports it and exits non-zero — run `rescript` first.
 
+### Custom ReScript `suffix`
+
+Zekr works whatever `suffix` your `rescript.json` sets (`.res.mjs`, `.mjs`,
+`.bs.js`, `.js`, …). ReScript compiles the whole build graph — including
+zekr's own sources — with that suffix, so the CLI discovers the matching
+compiled test files and runs each one against the Runner compiled with the
+same suffix. This keeps the internal suite registry a single shared instance;
+without it, tests compiled to `Foo.test.res.mjs` would register into a
+different module instance than the runner read, and the CLI would report zero
+tests (a false green).
+
 ### Running Tests
 
 ```rescript
