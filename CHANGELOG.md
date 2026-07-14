@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0-beta.1](https://github.com/brnrdog/zekr/compare/v2.0.0...v2.1.0-beta.1) (2026-07-14)
+
+### Features
+
+* add zekr CLI to scan and run test suites ([43fb5d3](https://github.com/brnrdog/zekr/commit/43fb5d39ab94664a7b57e464d7ab68720a8459e8))
+* auto-register and auto-run suites via the CLI harness ([94588cb](https://github.com/brnrdog/zekr/commit/94588cbe05496f893e895eb71aeb39701e619c51))
+
+### Documentation
+
+* update docs website to Xote v6 ([#22](https://github.com/brnrdog/zekr/issues/22)) ([a2acf43](https://github.com/brnrdog/zekr/commit/a2acf43ee513b38d869ce96d04ab094fef5482ca))
+
 ## [2.0.0](https://github.com/brnrdog/zekr/compare/v1.8.0...v2.0.0) (2026-04-07)
 
 ### ⚠ BREAKING CHANGES
