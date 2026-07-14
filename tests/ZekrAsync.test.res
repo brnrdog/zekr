@@ -148,4 +148,3 @@ let timeoutTests = Suite.async(
   ],
 )
 
-let _ = Runner.runAsyncSuites([asyncTestTests, combineAsyncResultsTests, asyncHooksTests, timeoutTests])

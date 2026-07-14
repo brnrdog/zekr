@@ -68,9 +68,16 @@ let arithmeticSuite = Suite.make("arithmetic", [
   Test.make("adds", () => Assert.equal(1 + 1, 2)),
   Test.make("is positive", () => Assert.isTrue(1 + 1 > 0)),
 ])
-
-Runner.runSuites([arithmeticSuite])
 ```
+
+Test files define suites with `Suite.make` / `Suite.async` and do **not** call
+`Runner.runSuites` or `Runner.runAsyncSuites`. The zekr CLI discovers every
+`*.test.res` file and runs its registered suites automatically via
+`bin/zekr-run.mjs`.
+
+`Runner.runSuites` / `Runner.runAsyncSuites` remain available for
+manual/standalone execution (e.g. running a compiled test file directly with
+`node`), but are not needed when using the CLI.
 
 ### Test factories (`Zekr.Test`)
 
@@ -152,10 +159,16 @@ await Runner.runAsyncSuites([a1, a2])
 await Runner.runWithTimeout(() => slow(), Some(5000))
 ```
 
-Tests files are normal ReScript executables you can run directly with
-`node tests/MyTests.js` after `rescript` compiles. `npm test` builds, then
-runs the `zekr` CLI, which discovers every `*.test.res` file and runs each
-compiled sibling in its own Node process.
+Under the CLI, test files do not call `Runner.runSuites` or
+`Runner.runAsyncSuites` directly — the harness (`bin/zekr-run.mjs`) imports
+each compiled test file and calls `Runner.run()` to execute its registered
+suites. `npm test` builds, then runs the `zekr` CLI, which discovers every
+`*.test.res` file and spawns each compiled sibling in its own Node process via
+the harness.
+
+`Runner.runSuites` / `Runner.runAsyncSuites` remain available for
+standalone execution: `node tests/MyTests.js` still works if the file ends
+with a runner call.
 
 #### Filtering
 

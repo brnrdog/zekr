@@ -15,7 +15,7 @@ let make = (
     afterAll->Option.isSome ||
     beforeEach->Option.isSome ||
     afterEach->Option.isSome
-  {
+  let suite: testSuite = {
     name,
     tests,
     hooks: if hasHooks {
@@ -24,6 +24,8 @@ let make = (
       None
     },
   }
+  Registry.register(suite)
+  suite
 }
 
 let async = (
@@ -39,7 +41,7 @@ let async = (
     afterAll->Option.isSome ||
     beforeEach->Option.isSome ||
     afterEach->Option.isSome
-  {
+  let suite = {
     name,
     tests,
     hooks: if hasHooks {
@@ -48,4 +50,6 @@ let async = (
       None
     },
   }
+  Registry.registerAsync(suite)
+  suite
 }

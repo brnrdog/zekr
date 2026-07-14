@@ -11,6 +11,7 @@
     "src/**/*.res",
     "src/**/*.js",
     "bin/zekr.mjs",
+    "bin/zekr-run.mjs",
     "rescript.json"
   ],
   "scripts": {
