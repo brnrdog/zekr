@@ -1,6 +1,6 @@
 // Cli - test file discovery and execution for the `zekr` binary
 
-type cliArgs = {pattern: option<string>, dir: option<string>, help: bool}
+type cliArgs = {pattern: option<string>, dir: option<string>, help: bool, watch: bool}
 type config = {pattern: string, dir: string}
 type fileConfig = {pattern: option<string>, dir: option<string>}
 type runSummary = {total: int, passed: int, failed: int}
@@ -37,6 +37,7 @@ let parseArgs = (argv: array<string>): result<cliArgs, string> => {
   let pattern = ref(None)
   let dir = ref(None)
   let help = ref(false)
+  let watch = ref(false)
   let error = ref(None)
   let i = ref(0)
   let n = Array.length(argv)
@@ -46,6 +47,10 @@ let parseArgs = (argv: array<string>): result<cliArgs, string> => {
     switch arg {
     | "--help" | "-h" => {
         help := true
+        i := i.contents + 1
+      }
+    | "--watch" | "-w" => {
+        watch := true
         i := i.contents + 1
       }
     | "--pattern" | "-p" =>
@@ -70,7 +75,8 @@ let parseArgs = (argv: array<string>): result<cliArgs, string> => {
 
   switch error.contents {
   | Some(message) => Error(message)
-  | None => Ok({pattern: pattern.contents, dir: dir.contents, help: help.contents})
+  | None =>
+    Ok({pattern: pattern.contents, dir: dir.contents, help: help.contents, watch: watch.contents})
   }
 }
 
@@ -151,6 +157,75 @@ let compiledSibling = (source: string): option<string> => {
   candidateSiblings(source)->Array.find(NodeFs.existsSync)
 }
 
+// --- Watch-mode impact analysis (pure helpers) -------------------------------
+
+// Last path segment, e.g. "tests/Foo.test.res" -> "Foo.test.res".
+let basename = (path: string): string => {
+  let segments = path->String.split("/")
+  segments->Array.get(Array.length(segments) - 1)->Option.getOr(path)
+}
+
+// The ReScript module name a file belongs to: the basename up to the first dot.
+// "src/Assert.res" -> "Assert", "src/Assert.js" -> "Assert",
+// "tests/ZekrCli.test.res" -> "ZekrCli".
+let moduleNameOfPath = (path: string): string => {
+  let base = basename(path)
+  switch base->String.indexOf(".") {
+  | -1 => base
+  | dot => String.slice(base, ~start=0, ~end=dot)
+  }
+}
+
+// True when `path` looks like ReScript-compiled output (any known suffix),
+// as opposed to a raw `.res` source. Watch mode reacts to compiled changes so
+// tests always run against freshly built output.
+let isCompiledOutput = (path: string): bool =>
+  compiledExtensions->Array.some(ext => String.endsWith(path, ext))
+
+// Map a compiled (or source) path back to its `.res` source path, preserving
+// the directory. "src/Assert.js" -> "src/Assert.res",
+// "tests/Foo.test.js" -> "tests/Foo.test.res".
+let toSourcePath = (path: string): string => {
+  if String.endsWith(path, ".res") {
+    path
+  } else {
+    switch compiledExtensions->Array.find(ext => String.endsWith(path, ext)) {
+    | Some(ext) => String.slice(path, ~start=0, ~end=String.length(path) - String.length(ext)) ++ ".res"
+    | None => path
+    }
+  }
+}
+
+// A test's source references a module when it qualifies a value with it
+// (`Assert.equal`) or opens it (`open Suite`).
+let referencesModule = (contents: string, moduleName: string): bool =>
+  String.includes(contents, moduleName ++ ".") || String.includes(contents, "open " ++ moduleName)
+
+// Given a changed file, return the subset of discovered test sources impacted
+// by it. A changed test file impacts only itself; a changed source module
+// impacts every test that references that module. `readFile` returns None when
+// a file can't be read, so callers stay testable and IO-free.
+let impactedTestFiles = (
+  ~changed: string,
+  ~testFiles: array<string>,
+  ~suffix: string,
+  ~readFile: string => option<string>,
+): array<string> => {
+  let source = toSourcePath(changed)
+  if String.endsWith(source, suffix) {
+    let changedBase = basename(source)
+    testFiles->Array.filter(file => basename(file) == changedBase)
+  } else {
+    let moduleName = moduleNameOfPath(changed)
+    testFiles->Array.filter(file =>
+      switch readFile(file) {
+      | Some(contents) => referencesModule(contents, moduleName)
+      | None => false
+      }
+    )
+  }
+}
+
 let runFiles = (files: array<string>): runSummary => {
   let passed = ref(0)
   let failed = ref(0)
@@ -164,6 +239,35 @@ let runFiles = (files: array<string>): runSummary => {
     }
   })
   {total: Array.length(files), passed: passed.contents, failed: failed.contents}
+}
+
+// Compile-check a set of test sources, run those that are built, warn about the
+// rest, print a summary, and return the total failure count (without exiting).
+// Shared by the one-shot run and each watch-mode iteration.
+let runDiscovered = (sources: array<string>): int => {
+  let compiled = []
+  let missing = []
+  sources->Array.forEach(source =>
+    switch compiledSibling(source) {
+    | Some(js) => compiled->Array.push(js)
+    | None => missing->Array.push(source)
+    }
+  )
+
+  missing->Array.forEach(source =>
+    Console.error(Colors.fail(`✗ ${source} — not compiled (run \`rescript\` first)`))
+  )
+
+  let summary = runFiles(compiled)
+  let failedTotal = summary.failed + Array.length(missing)
+
+  Console.log(
+    `\nzekr: ${Int.toString(summary.total + Array.length(missing))} files, ${Colors.pass(
+        Int.toString(summary.passed) ++ " passed",
+      )}, ${Colors.fail(Int.toString(failedTotal) ++ " failed")}`,
+  )
+
+  failedTotal
 }
 
 let readFileConfig = (): result<fileConfig, string> => {
@@ -185,7 +289,110 @@ Options:
 Config file (zekr.json, optional):
   { "pattern": "${defaultPattern}", "dir": "${defaultDir}" }
 
+Options (watch):
+  -w, --watch              Re-run only the tests impacted by each change
+
 Flags override zekr.json, which overrides defaults.`)
+}
+
+// --- Watch mode (IO) ---------------------------------------------------------
+
+type timeoutId
+@val external setTimeout: (unit => unit, int) => timeoutId = "setTimeout"
+@val external clearTimeout: timeoutId => unit = "clearTimeout"
+
+module NodeFsWatch = {
+  @module("fs")
+  external watch: (string, {"recursive": bool}, (string, Nullable.t<string>) => unit) => unit = "watch"
+}
+
+// Reads a file for impact analysis, returning None when it can't be read.
+let readSource = (path: string): option<string> =>
+  if NodeFs.existsSync(path) {
+    try Some(NodeFs.readFileSync(path, "utf8")) catch {
+    | _ => None
+    }
+  } else {
+    None
+  }
+
+let watchDebounceMs = 150
+
+// Re-run the tests impacted by a single changed file.
+let runImpacted = (~cfg: config, ~changed: string): unit => {
+  let sources = findTestFiles(~dir=cfg.dir, ~suffix=cfg.pattern)
+  let impacted = impactedTestFiles(
+    ~changed,
+    ~testFiles=sources,
+    ~suffix=cfg.pattern,
+    ~readFile=readSource,
+  )
+
+  switch impacted {
+  | [] => Console.log(Colors.dimmed(`\n  ${changed} changed — no impacted tests`))
+  | _ => {
+      Console.log("\n" ++ Colors.dimmed(String.repeat("=", 50)))
+      Console.log(
+        Colors.suite(
+          ` ${changed} changed — running ${Int.toString(
+              Array.length(impacted),
+            )} impacted test file(s)`,
+        ),
+      )
+      Console.log(Colors.dimmed(String.repeat("=", 50)))
+      let _ = runDiscovered(impacted)
+    }
+  }
+}
+
+let watch = (~cfg: config): unit => {
+  if !NodeFs.existsSync(cfg.dir) {
+    Console.error(Colors.fail(`Watch directory "${cfg.dir}" does not exist`))
+    exit(1)
+  } else {
+    Console.log(Colors.suite("\n zekr watch mode"))
+    Console.log(Colors.dimmed(` Watching "${cfg.dir}" for changes (pattern *${cfg.pattern})`))
+    Console.log(
+      Colors.dimmed(" Runs only the tests impacted by each change. Press Ctrl+C to stop."),
+    )
+    Console.log(Colors.dimmed(" Tip: run your compiler in watch mode alongside (e.g. `rescript -w`).\n"))
+
+    // Initial full pass so the baseline is visible before watching.
+    let sources = findTestFiles(~dir=cfg.dir, ~suffix=cfg.pattern)
+    if Array.length(sources) == 0 {
+      Console.error(
+        Colors.fail(`No test files matching "${cfg.pattern}" found in "${cfg.dir}" yet`),
+      )
+    } else {
+      let _ = runDiscovered(sources)
+    }
+
+    // Debounce a burst of change events (a save often touches source then its
+    // compiled sibling) into a single impacted run.
+    let pending = ref(None)
+    let onChange = (_eventType: string, filename: Nullable.t<string>) =>
+      switch Nullable.toOption(filename) {
+      | None => ()
+      | Some(name) =>
+        // React to compiled output only, so tests run against freshly built
+        // code rather than an unbuilt `.res` save.
+        if isCompiledOutput(name) {
+          switch pending.contents {
+          | Some(id) => clearTimeout(id)
+          | None => ()
+          }
+          pending :=
+            Some(
+              setTimeout(() => {
+                pending := None
+                runImpacted(~cfg, ~changed=name)
+              }, watchDebounceMs),
+            )
+        }
+      }
+
+    NodeFsWatch.watch(cfg.dir, {"recursive": true}, onChange)
+  }
 }
 
 let main = (argv: array<string>): unit => {
@@ -207,42 +414,25 @@ let main = (argv: array<string>): unit => {
       }
     | Ok(file) => {
         let cfg = resolveConfig(~args, ~file)
-        let sources = findTestFiles(~dir=cfg.dir, ~suffix=cfg.pattern)
 
-        if Array.length(sources) == 0 {
-          Console.error(
-            Colors.fail(`No test files matching "${cfg.pattern}" found in "${cfg.dir}"`),
-          )
-          exit(1)
+        if args.watch {
+          watch(~cfg)
         } else {
-          let compiled = []
-          let missing = []
-          sources->Array.forEach(source =>
-            switch compiledSibling(source) {
-            | Some(js) => compiled->Array.push(js)
-            | None => missing->Array.push(source)
-            }
-          )
+          let sources = findTestFiles(~dir=cfg.dir, ~suffix=cfg.pattern)
 
-          missing->Array.forEach(source =>
+          if Array.length(sources) == 0 {
             Console.error(
-              Colors.fail(`✗ ${source} — not compiled (run \`rescript\` first)`),
+              Colors.fail(`No test files matching "${cfg.pattern}" found in "${cfg.dir}"`),
             )
-          )
-
-          let summary = runFiles(compiled)
-          let failedTotal = summary.failed + Array.length(missing)
-
-          Console.log(
-            `\nzekr: ${Int.toString(summary.total + Array.length(missing))} files, ${Colors.pass(
-                Int.toString(summary.passed) ++ " passed",
-              )}, ${Colors.fail(Int.toString(failedTotal) ++ " failed")}`,
-          )
-
-          if failedTotal > 0 {
             exit(1)
           } else {
-            exit(0)
+            let failedTotal = runDiscovered(sources)
+
+            if failedTotal > 0 {
+              exit(1)
+            } else {
+              exit(0)
+            }
           }
         }
       }

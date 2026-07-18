@@ -405,7 +405,32 @@ By default it scans the current directory for files ending in `.test.res`
 | ---- | ----- | ------- | ----------- |
 | `--pattern <suffix>` | `-p` | `.test.res` | Filename suffix to match |
 | `--dir <path>` | `-d` | `.` | Directory to scan |
+| `--watch` | `-w` | | Watch for changes and re-run only impacted tests |
 | `--help` | `-h` | | Show usage |
+
+### Watch mode (`--watch`)
+
+`zekr --watch` runs a full pass, then watches the scan directory and re-runs
+**only the tests impacted by each change**:
+
+- Change a **test file** (`Foo.test.res`) → only that test file re-runs.
+- Change a **source module** (`Foo.res`) → every test that references `Foo`
+  (`Foo.something` or `open Foo`) re-runs.
+
+Run your compiler in watch mode alongside it so tests always run against
+freshly built output:
+
+```jsonc
+// package.json
+"scripts": {
+  "test:watch": "rescript -w"  // in one terminal
+  // and `zekr --watch` in another
+}
+```
+
+zekr reacts to compiled output (`.js`, `.res.mjs`, …), not raw `.res` saves,
+so it never runs stale code. Rapid change bursts are debounced into a single
+run. Press `Ctrl+C` to stop.
 
 ### Config file
 
