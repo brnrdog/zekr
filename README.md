@@ -432,6 +432,19 @@ zekr reacts to compiled output (`.js`, `.res.mjs`, …), not raw `.res` saves,
 so it never runs stale code. Rapid change bursts are debounced into a single
 run. Press `Ctrl+C` to stop.
 
+When any test fails, watch mode prints a **Failing tests** summary at the end
+of the run — grouping the failing test names under each file — so you don't
+have to scroll back through the output to find what broke:
+
+```
+zekr: 1 files, 0 passed, 1 failed
+
+Failing tests:
+  tests/Math.test.res
+    ✗ addition is broken
+    ✗ handles negatives
+```
+
 ### Config file
 
 Instead of flags, add a `zekr.json` at your project root:

@@ -24,6 +24,17 @@ module NodeChildProcess = {
   type spawnResult = {status: Nullable.t<int>}
   @module("child_process")
   external spawnSync: (string, array<string>, {"stdio": string}) => spawnResult = "spawnSync"
+
+  // Same call, but capturing the child's output as strings instead of
+  // inheriting the terminal. Used by watch mode to build a failure summary.
+  type captured = {
+    status: Nullable.t<int>,
+    stdout: Nullable.t<string>,
+    stderr: Nullable.t<string>,
+  }
+  @module("child_process")
+  external spawnSyncCaptured: (string, array<string>, {"encoding": string}) => captured =
+    "spawnSync"
 }
 
 module NodeUrl = {
@@ -226,6 +237,25 @@ let impactedTestFiles = (
   }
 }
 
+// Strip ANSI color escapes so captured output can be pattern-matched.
+let ansiPattern = %re("/\x1b\[[0-9;]*m/g")
+let stripAnsi = (text: string): string => text->String.replaceRegExp(ansiPattern, "")
+
+// Extract the names of failing tests from a runner's captured output. The
+// Runner prints each failure as `   ✗ <test name>`; `✗` appears nowhere else
+// in its output, so a stripped line beginning with it identifies a failure.
+let parseFailingTests = (output: string): array<string> =>
+  output
+  ->String.split("\n")
+  ->Array.filterMap(line => {
+    let clean = stripAnsi(line)->String.trim
+    if String.startsWith(clean, "✗ ") {
+      Some(String.sliceToEnd(clean, ~start=2)->String.trim)
+    } else {
+      None
+    }
+  })
+
 let runFiles = (files: array<string>): runSummary => {
   let passed = ref(0)
   let failed = ref(0)
@@ -266,6 +296,81 @@ let runDiscovered = (sources: array<string>): int => {
         Int.toString(summary.passed) ++ " passed",
       )}, ${Colors.fail(Int.toString(failedTotal) ++ " failed")}`,
   )
+
+  failedTotal
+}
+
+// A test file that failed, with the names of its failing tests (empty when the
+// process failed without reporting individual test failures, e.g. a crash).
+type fileFailure = {source: string, code: int, tests: array<string>}
+
+// Run one compiled test file capturing its output, re-print that output so the
+// session still shows full detail, and return its exit code plus the names of
+// any failing tests it reported.
+let runFileCaptured = (compiled: string): (int, array<string>) => {
+  let result = NodeChildProcess.spawnSyncCaptured(
+    "node",
+    [harnessPath, compiled],
+    {"encoding": "utf8"},
+  )
+  let stdout = result.stdout->Nullable.toOption->Option.getOr("")
+  let stderr = result.stderr->Nullable.toOption->Option.getOr("")
+  let combined = stdout ++ stderr
+  if String.trim(combined) != "" {
+    Console.log(String.trimEnd(combined))
+  }
+  let code = result.status->Nullable.toOption->Option.getOr(1)
+  (code, parseFailingTests(stdout))
+}
+
+// Like `runDiscovered`, but captures each file's output to print a consolidated
+// summary of which tests failed at the end — so a watch session doesn't force
+// you to scroll back through the run to find the failures.
+let runWithFailureSummary = (sources: array<string>): int => {
+  let passed = ref(0)
+  let failures = []
+  let missing = []
+
+  sources->Array.forEach(source =>
+    switch compiledSibling(source) {
+    | None => missing->Array.push(source)
+    | Some(compiled) => {
+        let (code, tests) = runFileCaptured(compiled)
+        if code == 0 {
+          passed := passed.contents + 1
+        } else {
+          failures->Array.push({source, code, tests})
+        }
+      }
+    }
+  )
+
+  missing->Array.forEach(source =>
+    Console.error(Colors.fail(`✗ ${source} — not compiled (run \`rescript\` first)`))
+  )
+
+  let failedTotal = Array.length(failures) + Array.length(missing)
+
+  Console.log(
+    `\nzekr: ${Int.toString(Array.length(sources))} files, ${Colors.pass(
+        Int.toString(passed.contents) ++ " passed",
+      )}, ${Colors.fail(Int.toString(failedTotal) ++ " failed")}`,
+  )
+
+  if failedTotal > 0 {
+    Console.log("\n" ++ Colors.fail("Failing tests:"))
+    failures->Array.forEach(({source, code, tests}) => {
+      Console.log(`  ${Colors.suite(source)}`)
+      if Array.length(tests) == 0 {
+        Console.log(`    ${Colors.dimmed(`(process exited with code ${Int.toString(code)})`)}`)
+      } else {
+        tests->Array.forEach(name => Console.log(`    ${Colors.fail("✗")} ${name}`))
+      }
+    })
+    missing->Array.forEach(source =>
+      Console.log(`  ${Colors.suite(source)}\n    ${Colors.dimmed("(not compiled)")}`)
+    )
+  }
 
   failedTotal
 }
@@ -340,7 +445,7 @@ let runImpacted = (~cfg: config, ~changed: string): unit => {
         ),
       )
       Console.log(Colors.dimmed(String.repeat("=", 50)))
-      let _ = runDiscovered(impacted)
+      let _ = runWithFailureSummary(impacted)
     }
   }
 }
@@ -364,7 +469,7 @@ let watch = (~cfg: config): unit => {
         Colors.fail(`No test files matching "${cfg.pattern}" found in "${cfg.dir}" yet`),
       )
     } else {
-      let _ = runDiscovered(sources)
+      let _ = runWithFailureSummary(sources)
     }
 
     // Debounce a burst of change events (a save often touches source then its
