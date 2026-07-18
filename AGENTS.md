@@ -314,6 +314,13 @@ would shadow stdlib `Dom` throughout the package and break those references.
   Each matched file is spawned in its own Node process. The process exits
   non-zero on any test failure or if zero files match. `node_modules`, `lib`,
   `.git`, and dot-directories are skipped.
+- `--watch`/`-w` runs an initial full pass, then watches the scan directory
+  and re-runs only the tests impacted by each change. Impact analysis lives in
+  pure helpers (`impactedTestFiles`, `moduleNameOfPath`, `toSourcePath`,
+  `referencesModule`) so it stays unit-testable: a changed test file impacts
+  only itself; a changed source module impacts every test that references it
+  (`Module.` usage or `open Module`). The watcher reacts to compiled output
+  (not raw `.res` saves) and debounces bursts, so run `rescript -w` alongside.
 
 ## The `src/Zekr.js` barrel
 
