@@ -322,6 +322,29 @@ let impactedTestFilesTests = Suite.make(
   ],
 )
 
+let parseFailingTestsTests = Suite.make(
+  "Cli.parseFailingTests",
+  [
+    Test.make("extracts failing test names, ignoring passes and ANSI colors", () => {
+      let output =
+        "\n \x1b[36m\x1b[1mMy Suite\x1b[0m\n" ++
+        "   \x1b[32m✓\x1b[0m passing one\n" ++
+        "   \x1b[31m✗\x1b[0m failing one\n" ++
+        "     \x1b[31mexpected 1 to equal 2\x1b[0m\n" ++
+        "   \x1b[31m✗\x1b[0m failing two\n"
+      Assert.equal(Cli.parseFailingTests(output), ["failing one", "failing two"])
+    }),
+    Test.make("returns empty when nothing failed", () => {
+      let output = "   \x1b[32m✓\x1b[0m all good\n"
+      if Array.length(Cli.parseFailingTests(output)) == 0 {
+        Pass
+      } else {
+        Fail("Expected no failing tests")
+      }
+    }),
+  ],
+)
+
 let readFileConfigTests = Suite.make(
   "Cli.readFileConfig",
   [
