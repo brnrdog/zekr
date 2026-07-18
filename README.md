@@ -21,6 +21,9 @@ Add to your `rescript.json`:
 
 ## Usage
 
+Write a test file named `*.test.res` (e.g. `MyTests.test.res`) that **defines**
+one or more suites — you don't call the runner yourself:
+
 ```rescript
 open Zekr
 
@@ -35,9 +38,25 @@ let myTests = Suite.make("My Tests", [
     Assert.isTrue(10 > 5)
   }),
 ])
-
-Runner.runSuites([myTests])
 ```
+
+Then build and run with the [`zekr` CLI](#running-tests-with-the-cli), which
+discovers every `*.test.res` file and runs its registered suites automatically:
+
+```jsonc
+// package.json
+"scripts": {
+  "test": "rescript && zekr"
+}
+```
+
+```bash
+npm test
+```
+
+That's the recommended workflow. If you'd rather drive the runner yourself —
+standalone scripts, custom harnesses — see
+[Running suites manually](#running-suites-manually).
 
 ## API
 
@@ -48,7 +67,7 @@ Zekr is organized as a set of submodules under the top-level `Zekr` namespace:
 | `Zekr.Test`      | Test case factories (`make`, `skip`, `only`, …) |
 | `Zekr.Suite`     | Suite factories (`make`, `async`)               |
 | `Zekr.Assert`    | Assertions (`equal`, `isTrue`, `some`, …)       |
-| `Zekr.Runner`    | Running suites and filtering                    |
+| `Zekr.Runner`    | Running suites directly for standalone execution (the CLI is preferred) |
 | `Zekr.Snapshot`  | Snapshot testing                                |
 | `Zekr.DomTesting`| DOM rendering, queries, events, assertions      |
 
@@ -190,24 +209,40 @@ Snapshot.update(newValue, ~name="snapshot-name")
 
 ### Test Filtering
 
-Filter tests using environment variables:
+Filter tests by passing environment variables to the `zekr` CLI:
 
 ```bash
 # Run only tests matching "user"
-ZEKR_FILTER="user" node tests/MyTests.js
+ZEKR_FILTER="user" zekr
 
 # Skip tests matching "slow"
-ZEKR_SKIP="slow" node tests/MyTests.js
+ZEKR_SKIP="slow" zekr
 
 # Combine filter and skip
-ZEKR_FILTER="api" ZEKR_SKIP="integration" node tests/MyTests.js
+ZEKR_FILTER="api" ZEKR_SKIP="integration" zekr
 ```
 
 Filtering is case-insensitive and matches against both suite and test names.
+The same variables work when [running suites manually](#running-suites-manually)
+(e.g. `ZEKR_FILTER="user" node tests/MyTests.js`).
 
 ### Watch Mode
 
-Automatically re-run tests when files change:
+Automatically re-run tests when files change with the CLI:
+
+```bash
+zekr --watch
+```
+
+It runs an initial pass, then re-runs **only the tests impacted by each
+change**. See [Watch mode (`--watch`)](#running-tests-with-the-cli) for the
+full behaviour.
+
+<details>
+<summary>Programmatic watch</summary>
+
+If you drive the runner yourself, `Runner.watchMode` watches paths and re-runs
+a shell command on each change:
 
 ```rescript
 // In a separate watch script (e.g., watch.res)
@@ -220,13 +255,7 @@ Runner.watchMode(
 )
 ```
 
-Run with: `node watch.js`
-
-The watch mode will:
-- Run an initial test pass
-- Watch specified paths for file changes
-- Re-build (if `buildCommand` provided) and re-run tests on changes
-- Debounce rapid file changes
+</details>
 
 ### DOM Testing
 
@@ -468,20 +497,6 @@ without it, tests compiled to `Foo.test.res.mjs` would register into a
 different module instance than the runner read, and the CLI would report zero
 tests (a false green).
 
-### Running Tests
-
-```rescript
-// Run a single suite
-Runner.runSuite(mySuite)
-
-// Run multiple suites
-Runner.runSuites([suite1, suite2, suite3])
-
-// Async variants
-await Runner.runAsyncSuite(myAsyncSuite)
-await Runner.runAsyncSuites([suite1, suite2])
-```
-
 ### Test Coverage
 
 Generate test coverage reports on your ReScript source files using [c8](https://github.com/bcoe/c8) (V8 native coverage). Since ReScript doesn't support sourcemaps natively, Zekr includes a sourcemap generator that maps compiled JavaScript back to `.res` files.
@@ -500,7 +515,7 @@ Add coverage scripts to your `package.json`:
 {
   "scripts": {
     "precoverage": "rescript && node node_modules/zekr/scripts/generate-sourcemaps.mjs src",
-    "coverage": "c8 node tests/MyTests.js"
+    "coverage": "c8 zekr"
   },
   "c8": {
     "include": ["src/**/*.js"],
@@ -520,6 +535,38 @@ npm run coverage
 The text report shows coverage on `.res` files with line numbers pointing to your ReScript source, and the HTML report (in `coverage/`) renders the original ReScript code with highlighted coverage.
 
 See the [Coverage documentation](https://brnrdog.github.io/zekr/api/coverage) for more details.
+
+## Running suites manually
+
+The [`zekr` CLI](#running-tests-with-the-cli) is the recommended way to run
+tests. The `Runner` API is still available for standalone execution — running a
+compiled test file directly with `node`, or building a custom harness — in which
+case the test file calls the runner itself:
+
+```rescript
+open Zekr
+
+let mySuite = Suite.make("My Tests", [
+  Test.make("addition works", () => Assert.equal(1 + 1, 2)),
+])
+
+// Run a single suite
+Runner.runSuite(mySuite)
+
+// Run multiple suites
+Runner.runSuites([mySuite])
+
+// Async variants
+await Runner.runAsyncSuite(myAsyncSuite)
+await Runner.runAsyncSuites([suite1, suite2])
+```
+
+```bash
+node tests/MyTests.js
+```
+
+Under the CLI you **don't** add these calls — the CLI discovers `*.test.res`
+files and runs their registered suites for you.
 
 ## License
 
