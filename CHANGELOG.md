@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0](https://github.com/brnrdog/zekr/compare/v2.0.0...v2.1.0) (2026-07-18)
+
+### Features
+
+* add --watch flag that re-runs only impacted tests ([#31](https://github.com/brnrdog/zekr/issues/31)) ([103177d](https://github.com/brnrdog/zekr/commit/103177da55eafa12cd1930e4b946af33290fa82d))
+* add zekr CLI to scan and run test suites ([5cdf332](https://github.com/brnrdog/zekr/commit/5cdf332862e076a225790144595f020bbbd43da0))
+* auto-register and auto-run suites via the CLI harness ([7103a27](https://github.com/brnrdog/zekr/commit/7103a272fd6044603f180ce9c5eedf8419091397))
+* summarize failing tests at the end of watch runs ([0d33d0a](https://github.com/brnrdog/zekr/commit/0d33d0a19fa6924d61ffe312dc1562beea85355a))
+
+### Bug Fixes
+
+* match harness Runner to the test file's compiled suffix ([eae49d6](https://github.com/brnrdog/zekr/commit/eae49d66113acd0ff2b03ec67e12c5b5d9d0b3f8))
+
+### Documentation
+
+* update docs website to Xote v6 ([#22](https://github.com/brnrdog/zekr/issues/22)) ([a2acf43](https://github.com/brnrdog/zekr/commit/a2acf43ee513b38d869ce96d04ab094fef5482ca))
+
 ## [2.0.0](https://github.com/brnrdog/zekr/compare/v1.8.0...v2.0.0) (2026-04-07)
 
 ### ⚠ BREAKING CHANGES
