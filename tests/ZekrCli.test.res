@@ -34,6 +34,18 @@ let parseArgsTests = Suite.make(
       | _ => Fail("Expected help true")
       }
     }),
+    Test.make("sets watch for --watch and -w", () => {
+      switch (Cli.parseArgs(["--watch"]), Cli.parseArgs(["-w"])) {
+      | (Ok({watch: true}), Ok({watch: true})) => Pass
+      | _ => Fail("Expected watch true for both spellings")
+      }
+    }),
+    Test.make("watch defaults to false", () => {
+      switch Cli.parseArgs(["--pattern", ".test.res"]) {
+      | Ok({watch: false}) => Pass
+      | _ => Fail("Expected watch false by default")
+      }
+    }),
     Test.make("errors on unknown flag", () => {
       switch Cli.parseArgs(["--nope"]) {
       | Error(_) => Pass
@@ -54,21 +66,21 @@ let resolveConfigTests = Suite.make(
   [
     Test.make("falls back to defaults", () => {
       let cfg = Cli.resolveConfig(
-        ~args={pattern: None, dir: None, help: false},
+        ~args={pattern: None, dir: None, help: false, watch: false},
         ~file={pattern: None, dir: None},
       )
       Assert.equal(cfg, {pattern: ".test.res", dir: "."})
     }),
     Test.make("file config overrides defaults", () => {
       let cfg = Cli.resolveConfig(
-        ~args={pattern: None, dir: None, help: false},
+        ~args={pattern: None, dir: None, help: false, watch: false},
         ~file={pattern: Some(".spec.res"), dir: Some("src")},
       )
       Assert.equal(cfg, {pattern: ".spec.res", dir: "src"})
     }),
     Test.make("flags override file config", () => {
       let cfg = Cli.resolveConfig(
-        ~args={pattern: Some(".a.res"), dir: Some("a"), help: false},
+        ~args={pattern: Some(".a.res"), dir: Some("a"), help: false, watch: false},
         ~file={pattern: Some(".b.res"), dir: Some("b")},
       )
       Assert.equal(cfg, {pattern: ".a.res", dir: "a"})
@@ -220,6 +232,92 @@ let runFilesTests = Suite.make(
       TestFs.rmSync(root, {"recursive": true, "force": true})
 
       Assert.equal(summary, {total: 2, passed: 1, failed: 1})
+    }),
+  ],
+)
+
+let moduleNameOfPathTests = Suite.make(
+  "Cli.moduleNameOfPath",
+  [
+    Test.make("derives module name from a source path", () => {
+      Assert.equal(Cli.moduleNameOfPath("src/Assert.res"), "Assert")
+    }),
+    Test.make("derives module name from compiled output", () => {
+      Assert.equal(Cli.moduleNameOfPath("src/Assert.js"), "Assert")
+    }),
+    Test.make("stops at the first dot for test files", () => {
+      Assert.equal(Cli.moduleNameOfPath("tests/ZekrCli.test.res"), "ZekrCli")
+    }),
+  ],
+)
+
+let toSourcePathTests = Suite.make(
+  "Cli.toSourcePath",
+  [
+    Test.make("maps compiled output back to its .res source", () => {
+      Assert.equal(Cli.toSourcePath("src/Assert.js"), "src/Assert.res")
+    }),
+    Test.make("maps a compiled test file back to its .res source", () => {
+      Assert.equal(Cli.toSourcePath("tests/Foo.test.js"), "tests/Foo.test.res")
+    }),
+    Test.make("leaves a .res path untouched", () => {
+      Assert.equal(Cli.toSourcePath("src/Assert.res"), "src/Assert.res")
+    }),
+  ],
+)
+
+let referencesModuleTests = Suite.make(
+  "Cli.referencesModule",
+  [
+    Test.make("matches a qualified reference", () => {
+      Assert.isTrue(Cli.referencesModule("let _ = Assert.equal(1, 1)", "Assert"))
+    }),
+    Test.make("matches an open", () => {
+      Assert.isTrue(Cli.referencesModule("open Suite\n", "Suite"))
+    }),
+    Test.make("does not match an unrelated module", () => {
+      Assert.isFalse(Cli.referencesModule("open Suite\n", "Assert"))
+    }),
+  ],
+)
+
+let impactedTestFilesTests = Suite.make(
+  "Cli.impactedTestFiles",
+  [
+    Test.make("a changed test file impacts only itself", () => {
+      let impacted = Cli.impactedTestFiles(
+        ~changed="tests/Foo.test.js",
+        ~testFiles=["./tests/Foo.test.res", "./tests/Bar.test.res"],
+        ~suffix=".test.res",
+        ~readFile=_ => None,
+      )
+      Assert.equal(impacted, ["./tests/Foo.test.res"])
+    }),
+    Test.make("a changed source impacts tests that reference its module", () => {
+      let contents = Dict.fromArray([
+        ("./tests/UsesAssert.test.res", "let _ = Assert.equal(1, 1)"),
+        ("./tests/UsesSuite.test.res", "open Suite"),
+      ])
+      let impacted = Cli.impactedTestFiles(
+        ~changed="src/Assert.js",
+        ~testFiles=["./tests/UsesAssert.test.res", "./tests/UsesSuite.test.res"],
+        ~suffix=".test.res",
+        ~readFile=path => contents->Dict.get(path),
+      )
+      Assert.equal(impacted, ["./tests/UsesAssert.test.res"])
+    }),
+    Test.make("returns empty when nothing references the changed module", () => {
+      let impacted = Cli.impactedTestFiles(
+        ~changed="src/Colors.js",
+        ~testFiles=["./tests/UsesAssert.test.res"],
+        ~suffix=".test.res",
+        ~readFile=_ => Some("let _ = Assert.equal(1, 1)"),
+      )
+      if Array.length(impacted) == 0 {
+        Pass
+      } else {
+        Fail("Expected no impacted tests")
+      }
     }),
   ],
 )
