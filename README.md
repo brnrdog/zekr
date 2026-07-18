@@ -67,7 +67,7 @@ Zekr is organized as a set of submodules under the top-level `Zekr` namespace:
 | `Zekr.Test`      | Test case factories (`make`, `skip`, `only`, …) |
 | `Zekr.Suite`     | Suite factories (`make`, `async`)               |
 | `Zekr.Assert`    | Assertions (`equal`, `isTrue`, `some`, …)       |
-| `Zekr.Runner`    | Running suites directly (advanced; the CLI is preferred) |
+| `Zekr.Runner`    | Running suites directly for standalone execution (the CLI is preferred) |
 | `Zekr.Snapshot`  | Snapshot testing                                |
 | `Zekr.DomTesting`| DOM rendering, queries, events, assertions      |
 
@@ -239,7 +239,7 @@ change**. See [Watch mode (`--watch`)](#running-tests-with-the-cli) for the
 full behaviour.
 
 <details>
-<summary>Programmatic watch (advanced)</summary>
+<summary>Programmatic watch</summary>
 
 If you drive the runner yourself, `Runner.watchMode` watches paths and re-runs
 a shell command on each change:
