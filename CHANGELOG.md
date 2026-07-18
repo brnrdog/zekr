@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0-beta.3](https://github.com/brnrdog/zekr/compare/v2.1.0-beta.2...v2.1.0-beta.3) (2026-07-18)
+
+### Features
+
+* add --watch flag that re-runs only impacted tests ([#31](https://github.com/brnrdog/zekr/issues/31)) ([0028619](https://github.com/brnrdog/zekr/commit/0028619bd45497f6ab8a2bdcf91403ff4a3ed12f))
+
 ## [2.1.0-beta.2](https://github.com/brnrdog/zekr/compare/v2.1.0-beta.1...v2.1.0-beta.2) (2026-07-14)
 
 ### Features

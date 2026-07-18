@@ -1,6 +1,6 @@
 {
   "name": "zekr",
-  "version": "2.1.0-beta.2",
+  "version": "2.1.0-beta.3",
   "description": "A simple test framework for ReScript",
   "main": "./src/Zekr.js",
   "module": "./src/Zekr.js",
