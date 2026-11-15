@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0](https://github.com/brnrdog/zekr/compare/v2.1.0...v2.2.0) (2026-11-15)
+
+### Features
+
+* bump rescript to v13 and use compiler source maps for coverage ([#41](https://github.com/brnrdog/zekr/issues/41)) ([1f99eae](https://github.com/brnrdog/zekr/commit/1f99eae482303729ccb449651a72199a160ed78e))
+
+### Documentation
+
+* favour the CLI over the Runner API in the README ([38f9454](https://github.com/brnrdog/zekr/commit/38f945473671cdbd15f2832d941dc71db68454a8))
+
 ## [2.1.0](https://github.com/brnrdog/zekr/compare/v2.0.0...v2.1.0) (2026-07-18)
 
 ### Features
