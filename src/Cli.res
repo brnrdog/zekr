@@ -238,7 +238,7 @@ let impactedTestFiles = (
 }
 
 // Strip ANSI color escapes so captured output can be pattern-matched.
-let ansiPattern = %re("/\x1b\[[0-9;]*m/g")
+let ansiPattern = /\x1b\[[0-9;]*m/g
 let stripAnsi = (text: string): string => text->String.replaceRegExp(ansiPattern, "")
 
 // Extract the names of failing tests from a runner's captured output. The
@@ -250,7 +250,7 @@ let parseFailingTests = (output: string): array<string> =>
   ->Array.filterMap(line => {
     let clean = stripAnsi(line)->String.trim
     if String.startsWith(clean, "✗ ") {
-      Some(String.sliceToEnd(clean, ~start=2)->String.trim)
+      Some(String.slice(clean, ~start=2)->String.trim)
     } else {
       None
     }

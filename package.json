@@ -10,6 +10,7 @@
   "files": [
     "src/**/*.res",
     "src/**/*.js",
+    "src/**/*.js.map",
     "bin/zekr.mjs",
     "bin/zekr-run.mjs",
     "bin/resolve-runner.mjs",
@@ -20,7 +21,7 @@
     "clean": "rescript clean",
     "watch": "rescript -w",
     "test": "rescript && node bin/zekr.mjs",
-    "precoverage": "rescript && node scripts/generate-sourcemaps.mjs src",
+    "precoverage": "rescript",
     "coverage": "c8 node bin/zekr.mjs",
     "semantic-release": "semantic-release"
   },
@@ -46,24 +47,24 @@
     "@semantic-release/github": "^11.0.0",
     "c8": "^11.0.0",
     "conventional-changelog-conventionalcommits": "^8.0.0",
-    "rescript": "^12.1.0",
-    "semantic-release": "^25.0.3",
-    "source-map": "^0.7.6"
+    "monocart-coverage-reports": "^2.13.2",
+    "rescript": "^13.0.0-alpha.7",
+    "semantic-release": "^25.0.3"
   },
   "c8": {
     "include": [
       "src/**/*.js"
     ],
     "exclude": [
-      "src/**/*.js.map",
-      "src/Types.js"
+      "src/Types.js",
+      "src/Zekr.js"
     ],
     "reporter": [
       "text",
       "html"
     ],
     "report-dir": "coverage",
-    "all": true
+    "experimental-monocart": true
   },
   "dependencies": {
     "jsdom": "^30.0.1"

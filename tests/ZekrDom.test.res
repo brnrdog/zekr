@@ -427,7 +427,7 @@ let assertionTests = Suite.make(
     }),
     Test.make("toNotBeVisible for hidden element", () => {
       let {container} = DomTesting.render(`<div style="display: none">Hidden</div>`)
-      let el = container->DomBindings.querySelector("div")->Nullable.getExn
+      let el = container->DomBindings.querySelector("div")->Nullable.getOrThrow
       let result = DomTesting.Assert.toNotBeVisible(el)
       DomTesting.cleanup()
       result

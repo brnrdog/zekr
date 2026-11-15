@@ -7,7 +7,7 @@ exception QueryError(string)
 // === Internal Helpers ===
 
 let normalizeText = (text: string) => {
-  text->String.trim->String.replaceRegExp(%re("/\s+/g"), " ")
+  text->String.trim->String.replaceRegExp(/\s+/g, " ")
 }
 
 let getTagName = (element: Dom.element) => {
