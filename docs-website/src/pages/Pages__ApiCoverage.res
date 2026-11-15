@@ -7,7 +7,7 @@ let make = () => {
   <div>
     <Typography text={static("Test Coverage")} variant={H1} />
     <Typography
-      text={static("Generate test coverage reports on your ReScript source files. Zekr uses c8 (V8 native coverage) combined with a custom sourcemap generator to map coverage data from compiled JavaScript back to .res files.")}
+      text={static("Generate test coverage reports on your ReScript source files. Zekr uses c8 (V8 native coverage) together with the source maps emitted by the ReScript 13 compiler to map coverage data from compiled JavaScript back to .res files.")}
       variant={Lead}
     />
     <Separator />
@@ -16,12 +16,11 @@ let make = () => {
       <Typography text={static("How It Works")} variant={H2} />
       <a class="anchor-link" href="#how-it-works"> {"#"->Node.text} </a>
     </div>
-    <Typography text={static("ReScript compiles .res files to JavaScript with function names and structure preserved. Zekr's sourcemap generator creates .js.map files that map the compiled output back to the original ReScript source. c8 then uses V8's built-in code coverage and these sourcemaps to produce coverage reports on .res files.")} />
-    <Typography text={static("The pipeline works in three steps:")} />
+    <Typography text={static("Starting with ReScript 13, the compiler can emit Source Map v3 files next to the JavaScript it generates. c8 collects V8's built-in code coverage while your tests run and remaps it through those source maps, so reports point at .res files and lines.")} />
+    <Typography text={static("The pipeline works in two steps:")} />
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> <strong> {"1. Build"->Node.text} </strong> {" — ReScript compiles .res files to .js (in-source)"->Node.text} </li>
-      <li> <strong> {"2. Generate sourcemaps"->Node.text} </strong> {" — The sourcemap generator creates .js.map files by matching declarations between .res and .js files"->Node.text} </li>
-      <li> <strong> {"3. Collect coverage"->Node.text} </strong> {" — c8 runs your tests with V8 coverage enabled and remaps the results through the sourcemaps"->Node.text} </li>
+      <li> <strong> {"1. Build"->Node.text} </strong> {" — ReScript compiles .res files to .js and writes a .js.map next to each one"->Node.text} </li>
+      <li> <strong> {"2. Collect coverage"->Node.text} </strong> {" — c8 runs your tests with V8 coverage enabled and remaps the results through the source maps"->Node.text} </li>
     </ul>
     <Separator />
     // Setup
@@ -29,36 +28,45 @@ let make = () => {
       <Typography text={static("Setup")} variant={H2} />
       <a class="anchor-link" href="#setup"> {"#"->Node.text} </a>
     </div>
+    <div class="heading-anchor" id="enable-source-maps">
+      <Typography text={static("Enable Source Maps")} variant={H3} />
+      <a class="anchor-link" href="#enable-source-maps"> {"#"->Node.text} </a>
+    </div>
+    <Typography text={static("Source maps require ReScript 13 or newer. Enable them in your rescript.json:")} />
+    <CodeBlock
+      language="json"
+      code={`{
+  "sourceMap": {
+    "enabled": "always",
+    "mode": "linked"
+  }
+}`}
+    />
+    <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
+      <li> <strong> {"enabled"->Node.text} </strong> {" — \"always\" emits source maps for both build and watch; \"dev\" only during watch mode. Coverage runs a regular build, so use \"always\"."->Node.text} </li>
+      <li> <strong> {"mode"->Node.text} </strong> {" — \"linked\" writes a .js.map file and a sourceMappingURL comment; \"inline\" embeds the map as a data URI; \"hidden\" writes the file without the comment. c8 needs \"linked\" or \"inline\"."->Node.text} </li>
+      <li> <strong> {"sourcesContent"->Node.text} </strong> {" — Optional. Embeds the original .res text in the map (default: false). Not needed when the .res files sit next to the output."->Node.text} </li>
+    </ul>
     <div class="heading-anchor" id="install-dependencies">
       <Typography text={static("Install Dependencies")} variant={H3} />
       <a class="anchor-link" href="#install-dependencies"> {"#"->Node.text} </a>
     </div>
-    <Typography text={static("Install c8 and source-map as dev dependencies:")} />
+    <Typography text={static("Install c8 and monocart-coverage-reports as dev dependencies:")} />
     <CodeBlock
       language="bash"
-      code={`npm install --save-dev c8 source-map`}
+      code={`npm install --save-dev c8 monocart-coverage-reports`}
     />
     <div class="heading-anchor" id="add-scripts">
       <Typography text={static("Add Coverage Scripts")} variant={H3} />
       <a class="anchor-link" href="#add-scripts"> {"#"->Node.text} </a>
     </div>
-    <Typography text={static("Add the following scripts to your package.json. The precoverage script builds ReScript and generates sourcemaps, while the coverage script runs your tests under c8.")} />
+    <Typography text={static("Add the following scripts to your package.json. The precoverage script builds ReScript (emitting source maps), while the coverage script runs your tests under c8.")} />
     <CodeBlock
       language="json"
       code={`{
   "scripts": {
-    "precoverage": "rescript && node node_modules/zekr/scripts/generate-sourcemaps.mjs src",
-    "coverage": "c8 node tests/MyTests.js"
-  }
-}`}
-    />
-    <Typography text={static("If you have multiple test files that call process.exit(), run them separately and merge the results:")} />
-    <CodeBlock
-      language="json"
-      code={`{
-  "scripts": {
-    "precoverage": "rescript && node node_modules/zekr/scripts/generate-sourcemaps.mjs src",
-    "coverage": "rm -rf .c8_output && c8 --temp-directory .c8_output -r none node tests/SyncTests.js ; c8 --temp-directory .c8_output -r none node tests/AsyncTests.js ; c8 report --temp-directory .c8_output"
+    "precoverage": "rescript",
+    "coverage": "c8 zekr"
   }
 }`}
     />
@@ -73,21 +81,27 @@ let make = () => {
       language="json"
       code={`{
   "c8": {
+    "experimental-monocart": true,
     "include": ["src/**/*.js"],
     "reporter": ["text", "html"],
-    "report-dir": "coverage",
-    "all": true
+    "report-dir": "coverage"
   }
 }`}
     />
     <Typography text={static("Common configuration options:")} />
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> <strong> {"include"->Node.text} </strong> {" — Which files to include in coverage (glob patterns)"->Node.text} </li>
+      <li> <strong> {"experimental-monocart"->Node.text} </strong> {" — Use the monocart remapper instead of v8-to-istanbul (see below). Required for accurate results."->Node.text} </li>
+      <li> <strong> {"include"->Node.text} </strong> {" — Which compiled files to include in coverage (glob patterns)"->Node.text} </li>
       <li> <strong> {"exclude"->Node.text} </strong> {" — Files to exclude from coverage"->Node.text} </li>
       <li> <strong> {"reporter"->Node.text} </strong> {" — Output formats: text (terminal table), html (browsable report), lcov, json, etc."->Node.text} </li>
       <li> <strong> {"report-dir"->Node.text} </strong> {" — Directory for HTML/lcov output"->Node.text} </li>
-      <li> <strong> {"all"->Node.text} </strong> {" — Include files with 0% coverage (files not loaded by any test)"->Node.text} </li>
     </ul>
+    <div class="heading-anchor" id="why-monocart">
+      <Typography text={static("Why monocart?")} variant={H3} />
+      <a class="anchor-link" href="#why-monocart"> {"#"->Node.text} </a>
+    </div>
+    <Typography text={static("The ReScript compiler only emits mappings for positions that come from your source, so generated-only lines such as closing braces have no mapping. c8's default remapper (v8-to-istanbul) silently drops uncovered ranges that end on such a line, which reports untested functions as covered. The monocart remapper handles these source maps correctly.")} />
+    <Typography text={static("Avoid c8's all option with monocart: it compares the compiled .js paths against the remapped .res results and lists every .js file a second time at 0%.")} />
     <Typography text={static("Add coverage artifacts to your .gitignore:")} />
     <CodeBlock
       language="bash"
@@ -110,15 +124,14 @@ let make = () => {
     <Typography text={static("This outputs a text table in your terminal with per-file coverage:")} />
     <CodeBlock
       language="bash"
-      code={`-----------------------|---------|----------|---------|---------|
-File                   | % Stmts | % Branch | % Funcs | % Lines |
------------------------|---------|----------|---------|---------|
-All files              |   46.57 |    57.79 |   57.81 |   46.57 |
- Zekr.res              |   52.63 |    66.66 |      25 |   52.63 |
- Zekr__Assert.res      |   25.58 |    44.44 |   16.66 |   25.58 |
- Zekr__Colors.res      |   93.33 |      100 |      80 |   93.33 |
- Zekr__Dom.res         |   94.59 |      100 |   66.66 |   94.59 |
------------------------|---------|----------|---------|---------|`}
+      code={`-----------------|---------|----------|---------|---------|---------------------
+File             | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
+-----------------|---------|----------|---------|---------|---------------------
+All files        |   62.44 |    45.42 |   73.89 |   63.36 |
+ Assert.res      |    87.5 |    72.72 |   89.47 |    87.5 | 89-118
+ Colors.res      |     100 |      100 |     100 |     100 |
+ Snapshot.res    |   53.84 |    33.33 |     100 |   54.16 | 47,55-90
+-----------------|---------|----------|---------|---------|---------------------`}
     />
     <Typography text={static("The uncovered line numbers in the report point to lines in the original .res source files, not the compiled JavaScript.")} />
     <Separator />
@@ -165,6 +178,7 @@ jobs:
       language="json"
       code={`{
   "c8": {
+    "experimental-monocart": true,
     "reporter": ["text", "lcov"],
     "report-dir": "coverage"
   }
@@ -178,40 +192,16 @@ jobs:
           files: coverage/lcov.info`}
     />
     <Separator />
-    // Sourcemap Generator
-    <div class="heading-anchor" id="sourcemap-generator">
-      <Typography text={static("Sourcemap Generator")} variant={H2} />
-      <a class="anchor-link" href="#sourcemap-generator"> {"#"->Node.text} </a>
-    </div>
-    <Typography text={static("ReScript does not natively support sourcemap generation. Zekr includes a custom sourcemap generator (scripts/generate-sourcemaps.mjs) that works by:")} />
-    <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> {"Parsing .res and .js files to extract top-level declarations (functions, let bindings, modules)"->Node.text} </li>
-      <li> {"Matching declarations by name — ReScript preserves all identifiers in compiled output"->Node.text} </li>
-      <li> {"Creating proportional line mappings within each declaration block"->Node.text} </li>
-      <li> {"Embedding the original .res source in the sourcemap for display in coverage tools"->Node.text} </li>
-    </ul>
-    <Typography text={static("You can run the generator manually to generate sourcemaps for specific directories:")} />
-    <CodeBlock
-      language="bash"
-      code={`# Generate sourcemaps for src/ (default)
-node node_modules/zekr/scripts/generate-sourcemaps.mjs
-
-# Generate sourcemaps for multiple directories
-node node_modules/zekr/scripts/generate-sourcemaps.mjs src lib`}
-    />
-    <Separator />
     // Limitations
     <div class="heading-anchor" id="limitations">
       <Typography text={static("Limitations")} variant={H2} />
       <a class="anchor-link" href="#limitations"> {"#"->Node.text} </a>
     </div>
-    <Typography text={static("Because sourcemaps are generated heuristically rather than by the compiler, there are some limitations to be aware of:")} />
     <ul style="line-height: 1.8; color: var(--basefn-text-secondary);">
-      <li> <strong> {"Line-level granularity"->Node.text} </strong> {" — Coverage is mapped at the line level, not at the expression level. Column-level precision is not available."->Node.text} </li>
-      <li> <strong> {"Proportional mapping"->Node.text} </strong> {" — Within a function body, lines are mapped proportionally. If the compiler significantly rearranges code within a function, the line mapping may be approximate."->Node.text} </li>
+      <li> <strong> {"ReScript 13+"->Node.text} </strong> {" — Earlier compilers do not emit source maps; coverage on .res files is not available there."->Node.text} </li>
       <li> <strong> {"Type-only files"->Node.text} </strong> {" — Files that only contain type definitions (no runtime code) produce minimal JavaScript and should be excluded from coverage reports."->Node.text} </li>
+      <li> <strong> {"Unloaded modules"->Node.text} </strong> {" — Without c8's all option, modules that no test imports do not appear in the report."->Node.text} </li>
     </ul>
-    <Typography text={static("Despite these limitations, the coverage data is accurate at the function and branch level, which is typically sufficient for identifying untested code paths.")} />
     <EditOnGitHub pageName="Pages__ApiCoverage" />
   </div>
 }

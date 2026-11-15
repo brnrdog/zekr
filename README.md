@@ -499,14 +499,25 @@ tests (a false green).
 
 ### Test Coverage
 
-Generate test coverage reports on your ReScript source files using [c8](https://github.com/bcoe/c8) (V8 native coverage). Since ReScript doesn't support sourcemaps natively, Zekr includes a sourcemap generator that maps compiled JavaScript back to `.res` files.
+Generate test coverage reports on your ReScript source files using [c8](https://github.com/bcoe/c8) (V8 native coverage). ReScript 13 can emit Source Map v3 files for the JavaScript it generates, and c8 uses them to map coverage back to your `.res` files.
 
 #### Setup
+
+Requires ReScript 13 or newer. Enable source maps in your `rescript.json`:
+
+```json
+{
+  "sourceMap": {
+    "enabled": "always",
+    "mode": "linked"
+  }
+}
+```
 
 Install the required dev dependencies:
 
 ```bash
-npm install --save-dev c8 source-map
+npm install --save-dev c8 monocart-coverage-reports
 ```
 
 Add coverage scripts to your `package.json`:
@@ -514,17 +525,25 @@ Add coverage scripts to your `package.json`:
 ```json
 {
   "scripts": {
-    "precoverage": "rescript && node node_modules/zekr/scripts/generate-sourcemaps.mjs src",
+    "precoverage": "rescript",
     "coverage": "c8 zekr"
   },
   "c8": {
+    "experimental-monocart": true,
     "include": ["src/**/*.js"],
     "reporter": ["text", "html"],
-    "report-dir": "coverage",
-    "all": true
+    "report-dir": "coverage"
   }
 }
 ```
+
+ReScript only emits mappings for positions that come from your source, so
+closing braces and other generated-only lines have no mapping. c8's default
+remapper (v8-to-istanbul) silently drops uncovered ranges that end on such a
+line, which shows up as false 100% coverage. The monocart remapper
+(`experimental-monocart`) handles these source maps correctly. Leave out c8's
+`all` option: with monocart it reports every compiled `.js` file a second time,
+at 0%.
 
 Run coverage:
 
