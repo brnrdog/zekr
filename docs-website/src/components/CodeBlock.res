@@ -7,6 +7,14 @@ open Basefn
 
 @module("highlight.js") external hljs: 'a = "default"
 @send external highlight: ('a, string, {..}) => {"value": string} = "highlight"
+@send external getLanguage: ('a, string) => Nullable.t<'b> = "getLanguage"
+
+// highlight.js ships no ReScript grammar; JavaScript is the closest built-in.
+let resolveLanguage = (language: string) =>
+  switch hljs->getLanguage(language)->Nullable.toOption {
+  | Some(_) => language
+  | None => "javascript"
+  }
 
 // External binding to set innerHTML and query element
 @set external setInnerHTML: (Dom.element, string) => unit = "innerHTML"
@@ -36,7 +44,7 @@ let make = (~code: string, ~language: string="rescript") => {
     setTimeout(() => {
       switch getElementById(id)->Nullable.toOption {
       | Some(el) =>
-        let highlighted = hljs->highlight(code, {"language": language})
+        let highlighted = hljs->highlight(code, {"language": resolveLanguage(language)})
         el->setInnerHTML(highlighted["value"])
       | None => ()
       }
