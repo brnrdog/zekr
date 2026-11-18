@@ -37,6 +37,9 @@ let _ = Effect.run(() => {
   None
 })
 
+// ---- Package version (shown in the header) ----
+let version = "2.2.0"
+
 // ---- Search state ----
 let searchOpen = Signal.make(false)
 
@@ -154,7 +157,7 @@ module SearchModal = {
                     {Html.input(
                       ~attrs=[
                         Node.attr("class", "search-input"),
-                        Node.attr("placeholder", "Search documentation..."),
+                        Node.attr("placeholder", "Search docs"),
                         Node.attr("autofocus", "true"),
                       ],
                       ~events=[("input", handleInput), ("keydown", handleKeyDown)],
@@ -265,29 +268,33 @@ module Header = {
           <div class="header-left">
             {Router.link(
               ~to="/",
-              ~attrs=[Node.attr("class", "header-logo-link")],
-              ~children=[
-                <span class="logo-text"> {Node.text("zekr")} </span>,
-              ],
+              ~attrs=[Node.attr("class", "header-logo-link"), Node.attr("aria-label", "zekr home")],
+              ~children=[Logo.lockup(~size=28)],
               (),
             )}
             <nav class="header-nav">
               {Router.link(
                 ~to="/getting-started",
                 ~attrs=[Node.attr("class", "header-nav-link")],
-                ~children=[Node.text("Getting Started")],
+                ~children=[Node.text("Docs")],
                 (),
               )}
               {Router.link(
                 ~to="/api/tests",
                 ~attrs=[Node.attr("class", "header-nav-link")],
-                ~children=[Node.text("API Reference")],
+                ~children=[Node.text("API")],
                 (),
               )}
               {Router.link(
                 ~to="/examples",
                 ~attrs=[Node.attr("class", "header-nav-link")],
                 ~children=[Node.text("Examples")],
+                (),
+              )}
+              {Router.link(
+                ~to="/release-notes",
+                ~attrs=[Node.attr("class", "header-nav-link")],
+                ~children=[Node.text("Release notes")],
                 (),
               )}
             </nav>
@@ -299,7 +306,7 @@ module Header = {
               ~events=[("click", _ => openSearch())],
               ~children=[
                 Basefn.Icon.make({name: Search, size: Sm}),
-                <span> {Node.text("Search docs...")} </span>,
+                <span> {Node.text("Search docs")} </span>,
                 <div class="search-trigger-keys">
                   <span class="search-trigger-key"> {Node.text("\u2318")} </span>
                   <span class="search-trigger-key"> {Node.text("K")} </span>
@@ -307,23 +314,10 @@ module Header = {
               ],
               (),
             )}
-            {Node.element(
-              "a",
-              ~attrs=[
-                Node.attr("href", "https://github.com/brnrdog/zekr"),
-                Node.attr("target", "_blank"),
-                Node.attr("class", "gh-star-btn"),
-                Node.attr("title", "Star on GitHub"),
-              ],
-              ~children=[
-                Basefn.Icon.make({name: Star, size: Sm}),
-                Node.element(
-                  "span",
-                  ~attrs=[Node.attr("class", "gh-star-label")],
-                  ~children=[Node.text("Star")],
-                  (),
-                ),
-              ],
+            {Router.link(
+              ~to="/release-notes",
+              ~attrs=[Node.attr("class", "header-version")],
+              ~children=[Node.text("v" ++ version)],
               (),
             )}
             {Node.element(
@@ -333,6 +327,7 @@ module Header = {
                 Node.attr("target", "_blank"),
                 Node.attr("class", "header-icon-btn"),
                 Node.attr("title", "GitHub"),
+                Node.attr("aria-label", "zekr on GitHub"),
               ],
               ~children=[Basefn.Icon.make({name: GitHub, size: Sm})],
               (),
@@ -342,6 +337,7 @@ module Header = {
               ~attrs=[
                 Node.attr("class", "header-icon-btn"),
                 Node.attr("title", "Toggle theme"),
+                Node.attr("aria-label", "Toggle theme"),
               ],
               ~events=[("click", _ => toggleTheme())],
               ~children=[
@@ -384,12 +380,10 @@ module Footer = {
       <div class="footer-inner">
         <div class="footer-grid">
           <div class="footer-brand">
-            <div class="footer-brand-logo">
-              <span> {Node.text("zekr")} </span>
-            </div>
+            <div class="footer-brand-logo"> {Logo.lockup(~size=24)} </div>
             <p>
               {Node.text(
-                "A simple, lightweight test framework for ReScript with support for sync/async tests, DOM testing, snapshots, and more.",
+                "A test framework for ReScript. Tests, suites, assertions, DOM testing, snapshots and a CLI.",
               )}
             </p>
           </div>
@@ -397,10 +391,10 @@ module Footer = {
             <h4> {Node.text("Docs")} </h4>
             <ul>
               <li>
-                {Router.link(~to="/getting-started", ~children=[Node.text("Getting Started")], ())}
+                {Router.link(~to="/getting-started", ~children=[Node.text("Getting started")], ())}
               </li>
               <li>
-                {Router.link(~to="/api/tests", ~children=[Node.text("API Reference")], ())}
+                {Router.link(~to="/api/tests", ~children=[Node.text("API reference")], ())}
               </li>
               <li>
                 {Router.link(~to="/examples", ~children=[Node.text("Examples")], ())}
@@ -431,7 +425,7 @@ module Footer = {
                 </a>
               </li>
               <li>
-                {Router.link(~to="/release-notes", ~children=[Node.text("Release Notes")], ())}
+                {Router.link(~to="/release-notes", ~children=[Node.text("Release notes")], ())}
               </li>
             </ul>
           </div>

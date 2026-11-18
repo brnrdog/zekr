@@ -13,86 +13,112 @@ module DomHelpers = {
   @val external setTimeout: (unit => unit, int) => int = "setTimeout"
 }
 
-// ---- Feature data ----
-type feature = {
-  title: string,
-  description: string,
-  iconName: Basefn.Icon.name,
-  linkText: option<string>,
-  linkTo: option<string>,
-}
+let span = (cls, text) =>
+  Node.element("span", ~attrs=[Node.attr("class", cls)], ~children=[Node.text(text)], ())
 
-let features = [
-  {
-    title: "Simple API",
-    description: "Just test, suite, and assertions. No magic, no ceremony — write tests that read like documentation.",
-    iconName: Basefn.Icon.Check,
-    linkText: Some("API Reference"),
-    linkTo: Some("/api/tests"),
-  },
-  {
-    title: "Sync & Async Tests",
-    description: "First-class support for both synchronous and asynchronous tests with configurable timeouts.",
-    iconName: Basefn.Icon.Loader,
-    linkText: Some("Learn more"),
-    linkTo: Some("/api/tests"),
-  },
-  {
-    title: "DOM Testing",
-    description: "Built-in DOM testing with jsdom. Query elements, simulate events, and assert on the DOM — inspired by Testing Library.",
-    iconName: Basefn.Icon.Edit,
-    linkText: Some("DOM Testing docs"),
-    linkTo: Some("/api/dom"),
-  },
-  {
-    title: "Snapshot Testing",
-    description: "Capture and compare snapshots of your data. Great for catching unexpected changes in complex outputs.",
-    iconName: Basefn.Icon.Copy,
-    linkText: Some("Snapshot docs"),
-    linkTo: Some("/api/snapshots"),
-  },
-  {
-    title: "Type-Safe by Default",
-    description: "Built for ReScript's powerful type system. Every assertion is type-checked at compile time.",
-    iconName: Basefn.Icon.Star,
-    linkText: None,
-    linkTo: None,
-  },
-  {
-    title: "Zero Configuration",
-    description: "Install and start testing. No config files, no setup scripts — just import and go.",
-    iconName: Basefn.Icon.Download,
-    linkText: Some("Get started"),
-    linkTo: Some("/getting-started"),
-  },
+// ---- Terminal output (mirrors the zekr CLI format) ----
+type line =
+  | Plain(string)
+  | Dim(string)
+  | Suite(string)
+  | PassLine(string)
+  | FailLine(string)
+  | FailMsg(string)
+  | Total(int, int)
+
+let terminalLines = [
+  Dim("$ npx zekr"),
+  Plain(""),
+  Suite("arithmetic"),
+  Dim("--------------"),
+  PassLine("adds two numbers"),
+  PassLine("is positive"),
+  PassLine("handles negatives"),
+  Plain(""),
+  Suite("login form"),
+  Dim("--------------"),
+  PassLine("renders the email field"),
+  PassLine("types into the input"),
+  FailLine("enables submit when valid"),
+  FailMsg("Expected button to be enabled"),
+  Plain(""),
+  Dim("=================================="),
+  Total(5, 1),
 ]
 
-// ---- Feature Card ----
-module FeatureCard = {
-  type props = {feature: feature}
+let renderLine = (l: line) =>
+  switch l {
+  | Plain(t) => Node.fragment([Node.text(t), Node.text("\n")])
+  | Dim(t) => Node.fragment([span("t-dim", t), Node.text("\n")])
+  | Suite(t) => Node.fragment([Node.text(" "), span("t-suite", t), Node.text("\n")])
+  | PassLine(t) =>
+    Node.fragment([Node.text("   "), span("t-pass", "✓"), Node.text(" " ++ t ++ "\n")])
+  | FailLine(t) =>
+    Node.fragment([Node.text("   "), span("t-fail", "✗"), Node.text(" " ++ t ++ "\n")])
+  | FailMsg(t) => Node.fragment([Node.text("     "), span("t-fail", t), Node.text("\n")])
+  | Total(p, f) =>
+    Node.fragment([
+      Node.text("Total: "),
+      span("t-pass", Int.toString(p) ++ " passed"),
+      Node.text(", "),
+      span("t-fail", Int.toString(f) ++ " failed"),
+    ])
+  }
 
-  let make = (props: props) => {
-    let {feature: f} = props
-    <div class="feature-card">
-      <div class="feature-card-icon">
-        {Basefn.Icon.make({name: f.iconName, size: Md})}
+module Terminal = {
+  type props = {}
+
+  let make = (_props: props) => {
+    <div class="terminal">
+      <div class="terminal-bar">
+        <span class="terminal-dot" />
+        <span class="terminal-dot" />
+        <span class="terminal-dot" />
+        <span class="terminal-title"> {Node.text("npm test")} </span>
       </div>
-      <h3> {Node.text(f.title)} </h3>
-      <p> {Node.text(f.description)} </p>
-      {switch (f.linkText, f.linkTo) {
-      | (Some(text), Some(to)) =>
-        Router.link(
-          ~to,
-          ~attrs=[Node.attr("class", "feature-card-link")],
-          ~children=[
-            Node.text(text ++ " "),
-            Basefn.Icon.make({name: ChevronRight, size: Sm}),
-          ],
-          (),
-        )
-      | _ => Node.fragment([])
-      }}
+      <pre class="terminal-body"> {Node.fragment(terminalLines->Array.map(renderLine))} </pre>
     </div>
+  }
+}
+
+// ---- Install command with copy button ----
+module InstallCommand = {
+  type props = {}
+
+  let command = "npm install --save-dev zekr"
+
+  let make = (_props: props) => {
+    let copied = Signal.make(false)
+
+    Node.element(
+      "button",
+      ~attrs=[
+        Node.attr("class", "install-cmd"),
+        Node.attr("aria-label", "Copy install command"),
+      ],
+      ~events=[
+        (
+          "click",
+          _ => {
+            DomHelpers.copyToClipboard(command)
+            Signal.set(copied, true)
+            let _ = DomHelpers.setTimeout(() => Signal.set(copied, false), 2000)
+          },
+        ),
+      ],
+      ~children=[
+        span("install-cmd-prompt", "$"),
+        Node.text(" npm i -D zekr "),
+        Node.signalFragment(
+          Computed.make(() =>
+            Signal.get(copied)
+              ? [Basefn.Icon.make({name: Check, size: Sm})]
+              : [Basefn.Icon.make({name: Copy, size: Sm})]
+          ),
+        ),
+      ],
+      (),
+    )
   }
 }
 
@@ -103,281 +129,271 @@ module Hero = {
   let make = (_props: props) => {
     <section class="hero">
       <div class="hero-inner">
-        <div class="hero-logo">
-          <span class="hero-logo-text"> {Node.text("zekr")} </span>
+        <div class="hero-text">
+          <span class="kicker"> {Node.text("TEST FRAMEWORK · RESCRIPT")} </span>
+          <h1>
+            {Node.text("A test framework for ")}
+            <span class="accent"> {Node.text("ReScript")} </span>
+          </h1>
+          <p class="hero-subtitle">
+            {Node.text("A suite is a list of tests. A test returns ")}
+            <code class="code-pass"> {Node.text("Pass")} </code>
+            {Node.text(" or ")}
+            <code class="code-fail"> {Node.text("Fail(message)")} </code>
+            {Node.text(
+              ". Zekr also covers async tests, DOM testing, snapshots and a CLI with watch mode.",
+            )}
+          </p>
+          <div class="hero-buttons">
+            {Router.link(
+              ~to="/getting-started",
+              ~attrs=[Node.attr("class", "btn btn-primary")],
+              ~children=[Node.text("Get started →")],
+              (),
+            )}
+            <InstallCommand />
+          </div>
         </div>
-        <h1>
-          {Node.text("A ")}
-          <em> {Node.text("simple")} </em>
-          {Node.text(" test framework for ")}
-          <em> {Node.text("ReScript")} </em>
-        </h1>
-        <p class="hero-subtitle">
-          {Node.text(
-            "Sync and async tests, DOM testing, snapshots, and more \u2014 with zero configuration. Write tests that read like documentation.",
-          )}
-        </p>
-        <div class="hero-buttons">
-          {Router.link(
-            ~to="/getting-started",
-            ~attrs=[Node.attr("class", "btn btn-primary")],
-            ~children=[
-              Node.text("Get Started "),
-              Basefn.Icon.make({name: ChevronRight, size: Sm}),
-            ],
-            (),
-          )}
-          <a href="https://github.com/brnrdog/zekr" target="_blank" class="btn btn-ghost">
-            {Basefn.Icon.make({name: GitHub, size: Sm})}
-            {Node.text(" View on GitHub")}
-          </a>
-        </div>
+        <Terminal />
       </div>
     </section>
   }
 }
 
-// ---- Features Section ----
+// ---- Facts strip ----
+module Facts = {
+  type props = {}
+
+  let facts = [
+    "Zero runtime dependencies",
+    "ReScript 12 and 13",
+    "Watch mode re-runs only affected tests",
+    "Coverage through compiler source maps",
+  ]
+
+  let make = (_props: props) => {
+    <section class="facts">
+      <div class="facts-inner">
+        {Node.fragment(
+          facts->Array.map(f =>
+            <span class="fact">
+              <span class="t-pass" ariaHidden=true> {Node.text("✓")} </span>
+              {Node.text(f)}
+            </span>
+          ),
+        )}
+      </div>
+    </section>
+  }
+}
+
+// ---- Features ----
+type feature = {
+  tag: string,
+  title: string,
+  body: string,
+  api: string,
+  to: string,
+}
+
+let features = [
+  {
+    tag: "Test · Suite",
+    title: "Tests and suites",
+    body: "Tests and suites are plain values. Suites take optional before and after hooks. Use skip and only to narrow a run.",
+    api: "Test.make · Suite.make",
+    to: "/api/tests",
+  },
+  {
+    tag: "async",
+    title: "Async tests",
+    body: "Async tests and async hooks, with an optional timeout per test.",
+    api: "Test.async(~timeout=5000)",
+    to: "/api/tests",
+  },
+  {
+    tag: "DomTesting",
+    title: "DOM testing",
+    body: "Render HTML into jsdom, then query, fire events and assert on it. The API follows Testing Library.",
+    api: "getByRole · typeText · toHaveValue",
+    to: "/api/dom",
+  },
+  {
+    tag: "Snapshot",
+    title: "Snapshots",
+    body: "The first run writes the value to a file. Later runs compare against it.",
+    api: "Snapshot.matches(~name)",
+    to: "/api/snapshots",
+  },
+  {
+    tag: "zekr CLI",
+    title: "CLI and watch mode",
+    body: "Finds every *.test.res file and runs each in its own process. In watch mode, only the tests a change affects run again.",
+    api: "zekr --watch",
+    to: "/api/cli",
+  },
+  {
+    tag: "coverage",
+    title: "Coverage",
+    body: "c8 reports coverage on your .res files using the compiler source maps.",
+    api: "npm run coverage",
+    to: "/api/coverage",
+  },
+]
+
+module SectionHeading = {
+  type props = {kicker: string, title: string}
+
+  let make = (props: props) => {
+    <div class="section-heading">
+      <span class="kicker"> {Node.text(props.kicker)} </span>
+      <h2> {Node.text(props.title)} </h2>
+    </div>
+  }
+}
+
 module Features = {
   type props = {}
 
   let make = (_props: props) => {
-    <section class="features-section">
-      <div class="features-inner">
-        <div class="features-heading">
-          <h2> {Node.text("Everything you need for testing ReScript")} </h2>
-          <p>
-            {Node.text(
-              "A focused test framework with expressive assertions, DOM testing, and snapshot support \u2014 all type-safe.",
-            )}
-          </p>
-        </div>
+    <section class="section">
+      <div class="section-inner">
+        <SectionHeading kicker="FEATURES" title="What's included" />
         <div class="features-grid">
-          {Node.fragment(features->Array.map(f => <FeatureCard feature={f} />))}
-        </div>
-      </div>
-    </section>
-  }
-}
-
-// ---- Interactive Code Demo ----
-module CodeDemo = {
-  type props = {}
-
-  let testCode = `open Zekr
-
-let mathSuite = Suite.make("Math", [
-  Test.make("addition", () =>
-    Assert.equal(1 + 1, 2)
-  ),
-  Test.make("greater than", () =>
-    Assert.greaterThan(10, 5)
-  ),
-])
-
-Runner.runSuites([mathSuite])`
-
-  let asyncCode = `open Zekr
-
-let apiSuite = Suite.async("API", [
-  Test.async("fetches data", async () => {
-    let data = await fetchData()
-    Assert.equal(data.status, "ok")
-  }, ~timeout=Some(5000)),
-])
-
-Runner.runAsyncSuites([apiSuite])`
-
-  let domCode = `open Zekr
-
-let {container} = DomTesting.render(
-  "<button>Click me</button>"
-)
-
-let btn =
-  DomTesting.Query.getByRole(container, "button")
-
-DomTesting.Event.click(btn)
-DomTesting.Assert.toHaveTextContent(
-  btn, "Click me"
-)`
-
-  let testOutput = `  Math
-    \u2713 addition
-    \u2713 greater than
-
-  2 passing (3ms)`
-
-  let asyncOutput = `  API
-    \u2713 fetches data (120ms)
-
-  1 passing (125ms)`
-
-  let domOutput = `  DOM
-    \u2713 button renders correctly
-    \u2713 click handler fires
-    \u2713 text content matches
-
-  3 passing (8ms)`
-
-  let make = (_props: props) => {
-    let activeTab = Signal.make("test")
-    let copied = Signal.make(false)
-
-    let setTab = (tab: string) => (_evt: Dom.event) => Signal.set(activeTab, tab)
-
-    let handleCopy = (_evt: Dom.event) => {
-      let snippet = switch Signal.peek(activeTab) {
-      | "test" => testCode
-      | "async" => asyncCode
-      | _ => domCode
-      }
-      DomHelpers.copyToClipboard(snippet)
-      Signal.set(copied, true)
-      let _ = DomHelpers.setTimeout(() => Signal.set(copied, false), 2000)
-    }
-
-    <section class="code-demo-section">
-      <div class="code-demo-inner">
-        <div class="code-demo-heading">
-          <h2> {Node.text("Tests, async, and DOM testing")} </h2>
-          <p>
-            {Node.text(
-              "Three powerful capabilities in a clean, functional API. Write expressive tests with zero boilerplate.",
-            )}
-          </p>
-        </div>
-        <div class="code-demo-container">
-          <div class="code-editor-pane">
-            <div class="code-editor-tabs">
-              {Node.element(
-                "div",
-                ~attrs=[
-                  Node.computedAttr("class", () =>
-                    "code-editor-tab" ++ (Signal.get(activeTab) == "test" ? " active" : "")
-                  ),
-                ],
-                ~events=[("click", setTab("test"))],
-                ~children=[Node.text("Test.res")],
-                (),
-              )}
-              {Node.element(
-                "div",
-                ~attrs=[
-                  Node.computedAttr("class", () =>
-                    "code-editor-tab" ++ (Signal.get(activeTab) == "async" ? " active" : "")
-                  ),
-                ],
-                ~events=[("click", setTab("async"))],
-                ~children=[Node.text("Async.res")],
-                (),
-              )}
-              {Node.element(
-                "div",
-                ~attrs=[
-                  Node.computedAttr("class", () =>
-                    "code-editor-tab" ++ (Signal.get(activeTab) == "dom" ? " active" : "")
-                  ),
-                ],
-                ~events=[("click", setTab("dom"))],
-                ~children=[Node.text("Dom.res")],
-                (),
-              )}
-            </div>
-            <div class="code-editor-body">
-              {Node.element(
-                "button",
-                ~attrs=[
-                  Node.computedAttr("class", () =>
-                    "code-copy-btn" ++ (Signal.get(copied) ? " copied" : "")
-                  ),
-                ],
-                ~events=[("click", handleCopy)],
+          {Node.fragment(
+            features->Array.map(f =>
+              Router.link(
+                ~to=f.to,
+                ~attrs=[Node.attr("class", "feature-card")],
                 ~children=[
-                  Node.signalFragment(
-                    Computed.make(() =>
-                      Signal.get(copied)
-                        ? [Basefn.Icon.make({name: Check, size: Sm}), Node.text(" Copied")]
-                        : [Basefn.Icon.make({name: Copy, size: Sm}), Node.text(" Copy")]
-                    ),
-                  ),
+                  span("chip chip-pass", f.tag),
+                  <h3> {Node.text(f.title)} </h3>,
+                  <p> {Node.text(f.body)} </p>,
+                  <code class="feature-card-api"> {Node.text(f.api)} </code>,
                 ],
                 (),
-              )}
-              <pre class="code-editor-pre">
-                <code>
-                  {Node.signalFragment(
-                    Computed.make(() => {
-                      let code = switch Signal.get(activeTab) {
-                      | "test" => testCode
-                      | "async" => asyncCode
-                      | _ => domCode
-                      }
-                      [SyntaxHighlight.highlight(code)]
-                    }),
-                  )}
-                </code>
-              </pre>
-            </div>
-          </div>
-          <div class="code-preview-pane">
-            <div class="code-preview-header">
-              <div class="browser-dots">
-                <span class="browser-dot browser-dot-red" />
-                <span class="browser-dot browser-dot-yellow" />
-                <span class="browser-dot browser-dot-green" />
-              </div>
-              <div class="browser-url"> {Node.text("terminal")} </div>
-            </div>
-            <div class="code-preview-body">
-              <div class="terminal-output">
-                {Node.signalFragment(
-                  Computed.make(() => {
-                    let output = switch Signal.get(activeTab) {
-                    | "test" => testOutput
-                    | "async" => asyncOutput
-                    | _ => domOutput
-                    }
-                    [<pre style="margin: 0; font-family: inherit; font-size: inherit; white-space: pre-wrap;"> {Node.text(output)} </pre>]
-                  }),
-                )}
-              </div>
-            </div>
-          </div>
+              )
+            ),
+          )}
         </div>
       </div>
     </section>
   }
 }
 
-// ---- Community Section ----
-module Community = {
+// ---- How it works ----
+module HowItWorks = {
+  type props = {}
+
+  let code = `open Zekr
+
+let arithmetic = Suite.make("arithmetic", [
+  Test.make("adds", () => Assert.equal(1 + 1, 2)),
+  Test.make("is positive", () =>
+    Assert.isTrue(1 + 1 > 0)
+  ),
+  Test.async("fetches", async () => {
+    let user = await Api.getUser(1)
+    Assert.equal(user.name, "Ada")
+  }, ~timeout=5000),
+])
+
+// No runner call needed: the zekr CLI finds *.test.res`
+
+  let make = (_props: props) => {
+    <section class="section section-surface">
+      <div class="section-inner split">
+        <div class="split-text">
+          <SectionHeading kicker="HOW IT WORKS" title="Every test returns a result" />
+          <p>
+            {Node.text("A test function returns a ")}
+            <code> {Node.text("testResult")} </code>
+            {Node.text(
+              ". Assertions return one too, so a test can return an assertion directly. Assertions don't throw: a failure is a ",
+            )}
+            <code class="code-fail"> {Node.text("Fail")} </code>
+            {Node.text(" with a message that shows the actual and expected values.")}
+          </p>
+          <div class="result-chips">
+            <span class="result-chip result-chip-pass">
+              <span class="result-dot" ariaHidden=true> {Node.text("✓")} </span>
+              <code> {Node.text("Pass")} </code>
+            </span>
+            <span class="result-chip result-chip-fail">
+              <span class="result-dot" ariaHidden=true> {Node.text("✗")} </span>
+              <code> {Node.text("Fail(string)")} </code>
+            </span>
+          </div>
+        </div>
+        <div class="code-panel">
+          <div class="code-panel-bar">
+            <span> {Node.text("tests/Arithmetic.test.res")} </span>
+            <span> {Node.text("rescript")} </span>
+          </div>
+          <pre class="code-panel-body"> <code> {SyntaxHighlight.highlight(code)} </code> </pre>
+        </div>
+      </div>
+    </section>
+  }
+}
+
+// ---- Setup ----
+module Setup = {
+  type props = {}
+
+  let steps = [
+    ("01", "Install", "npm install --save-dev zekr"),
+    ("02", "Add to rescript.json", `{ "dev-dependencies": ["zekr"] }`),
+    ("03", "Run", "npx zekr --watch"),
+  ]
+
+  let make = (_props: props) => {
+    <section class="section">
+      <div class="section-inner">
+        <SectionHeading kicker="SETUP" title="Install and run" />
+        <div class="steps-grid">
+          {Node.fragment(
+            steps->Array.map(((n, title, cmd)) =>
+              <div class="step">
+                <span class="step-number"> {Node.text(n)} </span>
+                <h3> {Node.text(title)} </h3>
+                <pre class="step-cmd"> {Node.text(cmd)} </pre>
+              </div>
+            ),
+          )}
+        </div>
+      </div>
+    </section>
+  }
+}
+
+// ---- Call to action ----
+module NextStep = {
   type props = {}
 
   let make = (_props: props) => {
-    <section class="community-section">
-      <div class="community-inner">
-        <h2> {Node.text("Ready to get started?")} </h2>
-        <p>
-          {Node.text(
-            "Install zekr and start writing tests for your ReScript project in minutes. No configuration needed.",
-          )}
-        </p>
-        <div class="community-links">
-          {Router.link(
-            ~to="/getting-started",
-            ~attrs=[Node.attr("class", "btn btn-primary")],
-            ~children=[Node.text("Read the Docs")],
-            (),
-          )}
-          <a href="https://github.com/brnrdog/zekr" target="_blank" class="btn btn-ghost">
-            {Basefn.Icon.make({name: GitHub, size: Sm})}
-            {Node.text(" GitHub")}
-          </a>
-          <a href="https://www.npmjs.com/package/zekr" target="_blank" class="btn btn-ghost">
-            {Basefn.Icon.make({name: Download, size: Sm})}
-            {Node.text(" npm")}
-          </a>
+    <section class="section section-tight">
+      <div class="section-inner">
+        <div class="cta-band">
+          <div class="cta-text">
+            <h2> {Node.text("Write your first test")} </h2>
+            <p>
+              {Node.text(
+                "The getting started guide covers installation, a first suite and running it with the CLI.",
+              )}
+            </p>
+          </div>
+          <div class="cta-buttons">
+            {Router.link(
+              ~to="/getting-started",
+              ~attrs=[Node.attr("class", "btn btn-inverse")],
+              ~children=[Node.text("Getting started")],
+              (),
+            )}
+            <a href="https://github.com/brnrdog/zekr" target="_blank" class="btn btn-inverse-ghost">
+              {Node.text("GitHub")}
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -387,5 +403,14 @@ module Community = {
 // ---- Main page component ----
 @jsx.component
 let make = () => {
-  <Layout children={Node.fragment([<Hero />, <Features />, <CodeDemo />, <Community />])} />
+  <Layout
+    children={Node.fragment([
+      <Hero />,
+      <Facts />,
+      <Features />,
+      <HowItWorks />,
+      <Setup />,
+      <NextStep />,
+    ])}
+  />
 }

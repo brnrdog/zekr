@@ -183,7 +183,7 @@ module FeedbackWidget = {
           Node.attr("title", "Yes"),
         ],
         ~events=[("click", _ => Signal.set(feedback, "yes"))],
-        ~children=[Node.text("\u{1F44D}")],
+        ~children=[Node.text("Yes")],
         (),
       )}
       {Node.element(
@@ -195,7 +195,7 @@ module FeedbackWidget = {
           Node.attr("title", "No"),
         ],
         ~events=[("click", _ => Signal.set(feedback, "no"))],
-        ~children=[Node.text("\u{1F44E}")],
+        ~children=[Node.text("No")],
         (),
       )}
     </div>
